@@ -63,13 +63,15 @@ def detect_changes(before: Snapshot, after: Snapshot) -> list[Change]:
         if field not in before.fields:
             changes.append(Change(kind=ChangeKind.FIELD_ADDED, field=field))
 
-    # Compare units over the union of fields so a dropped or newly declared unit
-    # on a surviving column is caught too, not only a changed value. A missing
-    # unit is reported as "(none)" rather than swallowed.
-    unit_fields = set(before.units) | set(after.units)
-    for field in unit_fields:
-        before_unit = before.units.get(field)
-        after_unit = after.units.get(field)
+    # Compare units only for fields present in BOTH schemas. A fully added or
+    # removed field is already reported as FIELD_ADDED/REMOVED; re-reporting it
+    # as a unit change would double-count. A dropped or newly declared unit on a
+    # surviving column is still caught. '' and missing are treated alike so a
+    # blank unit does not produce a "(none) -> (none)" no-op change.
+    surviving = set(before.fields) & set(after.fields)
+    for field in (set(before.units) | set(after.units)) & surviving:
+        before_unit = before.units.get(field) or None
+        after_unit = after.units.get(field) or None
         if before_unit != after_unit:
             changes.append(
                 Change(

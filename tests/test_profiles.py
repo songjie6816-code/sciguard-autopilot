@@ -18,6 +18,14 @@ def test_whole_token_match_avoids_prefix_false_positive() -> None:
     assert not rule_matches(rule, "unit_change", "mn_g_mol")
 
 
+def test_multi_word_rule_field_matches_contiguous_tokens() -> None:
+    rule = Rule(id="mp", field="melting point", change="unit", severity="high")
+    assert rule_matches(rule, "unit_change", "melting_point_value")
+    assert rule_matches(rule, "unit_change", "meltingPoint")
+    assert not rule_matches(rule, "unit_change", "point_melting")   # wrong order
+    assert not rule_matches(rule, "unit_change", "melting_temperature")
+
+
 def test_change_kind_alias_matches() -> None:
     rule = _tg_rule()
     assert rule_matches(rule, "unit_change", "tg_value")

@@ -36,6 +36,26 @@ def test_detects_unit_added() -> None:
     assert changes[0].before == "(none)" and changes[0].after == "K"
 
 
+def test_removed_field_with_unit_does_not_double_report() -> None:
+    before = Snapshot(fields={"tg_value": "double"}, units={"tg_value": "degC"})
+    after = Snapshot(fields={}, units={})
+    kinds = [c.kind for c in detect_changes(before, after)]
+    assert kinds == [ChangeKind.FIELD_REMOVED]  # no spurious UNIT_CHANGE
+
+
+def test_added_field_with_unit_does_not_double_report() -> None:
+    before = Snapshot(fields={}, units={})
+    after = Snapshot(fields={"tg_value": "double"}, units={"tg_value": "K"})
+    kinds = [c.kind for c in detect_changes(before, after)]
+    assert kinds == [ChangeKind.FIELD_ADDED]  # no spurious UNIT_CHANGE
+
+
+def test_blank_unit_vs_missing_is_not_a_change() -> None:
+    before = Snapshot(fields={"tg_value": "double"}, units={"tg_value": ""})
+    after = Snapshot(fields={"tg_value": "double"}, units={})
+    assert detect_changes(before, after) == []
+
+
 def test_no_change_returns_empty() -> None:
     snap = Snapshot(fields={"a": "double"}, units={"a": "g/mol"})
     assert detect_changes(snap, snap) == []

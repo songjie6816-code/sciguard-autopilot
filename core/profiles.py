@@ -39,15 +39,18 @@ class Profile(BaseModel):
     rules: list[Rule] = []
 
 
-def _norm(text: str) -> str:
-    return re.sub(r"[^a-z0-9]", "", text.lower())
-
-
-def _tokens(field: str) -> set[str]:
-    """Split a field name into lowercase tokens on separators and camelCase."""
+def _tokens(field: str) -> list[str]:
+    """Split a field name into ordered lowercase tokens on separators and camelCase."""
     spaced = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", field)
     parts = re.split(r"[^a-zA-Z0-9]+", spaced)
-    return {p.lower() for p in parts if p}
+    return [p.lower() for p in parts if p]
+
+
+def _is_contiguous_sublist(needle: list[str], haystack: list[str]) -> bool:
+    n = len(needle)
+    if n == 0:
+        return False
+    return any(haystack[i : i + n] == needle for i in range(len(haystack) - n + 1))
 
 
 def load_profile(name: str) -> Profile:
@@ -74,9 +77,11 @@ def load_profile(name: str) -> Profile:
 def rule_matches(rule: Rule, change_kind: str, field: str) -> bool:
     """A rule matches a change on kind and on a whole-token field name.
 
-    Whole-token matching avoids a prefix false positive ('TGA' vs 'Tg') while
-    still catching qualified names ('DSC_Tg', 'glassTransitionTg').
+    The rule's token sequence must appear as a contiguous run of tokens in the
+    field. This avoids a prefix false positive ('TGA' vs 'Tg'), catches qualified
+    names ('DSC_Tg', 'glassTransitionTg'), and supports multi-word rule fields
+    ('melting point' matching 'melting_point_value').
     """
     kind_ok = rule.change in (change_kind, change_kind.replace("_change", ""))
-    field_ok = _norm(rule.field) in _tokens(field)
+    field_ok = _is_contiguous_sublist(_tokens(rule.field), _tokens(field))
     return kind_ok and field_ok
