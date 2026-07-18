@@ -20,7 +20,7 @@ flags upstream/sibling datasets as affected (false positives: ['cleaned_polymer_
 Only lineage recovers the exact downstream cone with correct direction.
 
 ## Latency
-- mean per-scenario: 42.9 ms
+- mean per-scenario: 36.3 ms
 
 ## Per-scenario
 | scenario | detect | severity | note |

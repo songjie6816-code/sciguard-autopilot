@@ -71,6 +71,11 @@ def test_gate_fails_on_tag_regression() -> None:
     assert any("tag" in f for f in harness.gate(r))
 
 
+def test_gate_fails_on_empty_evaluation() -> None:
+    # Nothing evaluated must never read as a pass.
+    assert harness.gate({"rows": [], "impact": []}) != []
+
+
 def _graph_or_skip() -> None:
     try:
         from datahub_client.metadata_reader import connect

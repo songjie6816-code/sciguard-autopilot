@@ -193,6 +193,11 @@ def gate(result: dict) -> list[str]:
     rows, impact = result["rows"], result["impact"]
     pos = [r for r in rows if r["is_positive"]]
     failures = []
+    # Guard against a vacuous pass: nothing evaluated must never read as success.
+    if not pos:
+        failures.append("no actionable scenarios were evaluated")
+    if not impact:
+        failures.append("no lineage cones were evaluated")
     if not all(r["detect_ok"] for r in rows):
         failures.append("change detection is not 100%")
     if not all(r["severity_ok"] for r in rows):
