@@ -21,8 +21,15 @@ and compares the result to ground truth. Metrics:
 - mean latency
 - **ablation**: impacted-entity recall with vs without DataHub lineage
 
-The ablation is the key result: without the lineage graph, downstream models and
-reports are invisible, so impacted-entity recall collapses to zero.
+The ablation runs two real impact analyses per change site: WITH DataHub
+(lineage traversal) and WITHOUT (catalog search only). Both execute against
+DataHub — no number is hardcoded. Lineage recovers the exact downstream cone
+(precision = recall = 1.0); the search baseline cannot tell dependency direction
+and flags upstream/sibling datasets as affected, so its precision is lower.
+
+The harness GATES: `python evaluation/harness.py` exits non-zero if detection,
+severity, false-alarm control, or lineage impact regress. `tests/test_evaluation.py`
+asserts the gate logic without DataHub and runs the live gate when DataHub is up.
 
 This is a controlled synthetic benchmark. Its purpose is regression safety, the
 DataHub ablation, and false-alarm control — not a claim of real-world accuracy.

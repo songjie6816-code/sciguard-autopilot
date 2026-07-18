@@ -56,3 +56,21 @@ def analyze_impact(graph, changed_urn: str) -> list[AffectedEntity]:
             )
         )
     return affected
+
+
+def impact_via_search(graph, changed_name: str, platform: str | None = None) -> list[str]:
+    """No-lineage baseline: approximate impact by catalog search on the changed
+    dataset's name, excluding the dataset itself. This is what a search-only
+    (no lineage graph) workflow can do; it cannot tell direction or hop distance,
+    so it returns upstream and sibling datasets as well as true consumers.
+
+    `platform` scopes the search to the change site's own data platform — a fair
+    baseline, since an analyst would not consider unrelated platforms.
+    """
+    return [
+        hit.name
+        for hit in reader.search_datasets(graph, query=changed_name, count=100)
+        if hit.name
+        and hit.name != changed_name
+        and (platform is None or hit.platform == platform)
+    ]
