@@ -1,8 +1,12 @@
 from core.change_detector import Change, ChangeKind
 from core.lineage_analyzer import AffectedEntity
-from core.profiles import load_profile, rule_matches
+from core.profiles import Profile, Rule, load_profile, rule_matches
 from core.remediation import build_plan, render_report
 from core.risk_engine import assess
+
+
+def _unit_change(field: str) -> Change:
+    return Change(kind=ChangeKind.UNIT_CHANGE, field=field, before="a", after="b")
 
 
 def _tg_unit_change() -> Change:
@@ -35,6 +39,28 @@ def test_assess_flags_critical_and_collects_owners() -> None:
     assert a.overall_severity == "critical"
     assert a.is_actionable
     assert a.responsible_owners == ["ml_engineer"]
+
+
+def test_overall_severity_is_worst_of_multiple_findings() -> None:
+    profile = Profile(
+        name="t",
+        rules=[
+            Rule(id="mw", field="Mw", change="unit", severity="medium"),
+            Rule(id="tg", field="Tg", change="unit", severity="critical"),
+        ],
+    )
+    changes = [_unit_change("Mw_g_mol"), _unit_change("tg_value")]
+    a = assess(profile, changes, affected=[])
+    assert a.overall_severity == "critical"
+    assert len(a.findings) == 2
+
+
+def test_no_matching_rule_is_none_and_not_actionable() -> None:
+    profile = load_profile("polymer")
+    a = assess(profile, [_unit_change("pressure_kPa")], affected=[])
+    assert a.overall_severity == "none"
+    assert not a.is_actionable
+    assert a.findings == []
 
 
 def test_plan_tags_models_and_report_mentions_owners() -> None:

@@ -63,15 +63,20 @@ def detect_changes(before: Snapshot, after: Snapshot) -> list[Change]:
         if field not in before.fields:
             changes.append(Change(kind=ChangeKind.FIELD_ADDED, field=field))
 
-    for field, before_unit in before.units.items():
+    # Compare units over the union of fields so a dropped or newly declared unit
+    # on a surviving column is caught too, not only a changed value. A missing
+    # unit is reported as "(none)" rather than swallowed.
+    unit_fields = set(before.units) | set(after.units)
+    for field in unit_fields:
+        before_unit = before.units.get(field)
         after_unit = after.units.get(field)
-        if after_unit is not None and after_unit != before_unit:
+        if before_unit != after_unit:
             changes.append(
                 Change(
                     kind=ChangeKind.UNIT_CHANGE,
                     field=field,
-                    before=before_unit,
-                    after=after_unit,
+                    before=before_unit or "(none)",
+                    after=after_unit or "(none)",
                 )
             )
 

@@ -11,6 +11,7 @@ import os
 from dataclasses import dataclass
 
 from datahub.ingestion.graph.client import DataHubGraph, DatahubClientConfig
+from datahub.metadata.schema_classes import OwnershipClass
 
 DEFAULT_GMS_URL = "http://localhost:8080"
 
@@ -86,22 +87,15 @@ def get_schema_fields(graph: DataHubGraph, urn: str) -> list[dict]:
 
 
 def get_owners(graph: DataHubGraph, urn: str) -> list[str]:
-    """Return owner identifiers (usernames or group names) for an entity."""
-    data = graph.execute_graphql(
-        """
-        query owners($urn: String!) {
-          dataset(urn: $urn) {
-            ownership { owners { owner {
-              ... on CorpUser { username }
-              ... on CorpGroup { name }
-            } } }
-          }
-        }
-        """,
-        variables={"urn": urn},
-    )
-    owners = ((data["dataset"] or {}).get("ownership") or {}).get("owners") or []
-    return [o["owner"].get("username") or o["owner"].get("name") for o in owners]
+    """Return owner identifiers for any entity type (dataset, model, ...).
+
+    Reads the Ownership aspect directly, so it works regardless of the entity's
+    GraphQL type; the id is the last segment of each owner urn.
+    """
+    aspect = graph.get_aspect(urn, OwnershipClass)
+    if not aspect or not aspect.owners:
+        return []
+    return [owner.owner.split(":")[-1] for owner in aspect.owners]
 
 
 def get_dataset_properties(graph: DataHubGraph, urn: str) -> dict:
@@ -143,46 +137,55 @@ class DownstreamHit:
     degree: int
 
 
-def get_all_downstream(graph: DataHubGraph, urn: str, count: int = 100) -> list[DownstreamHit]:
+_IMPACT_QUERY = """
+query impact($input: SearchAcrossLineageInput!) {
+  searchAcrossLineage(input: $input) {
+    total
+    searchResults {
+      degree
+      entity { urn type ... on Dataset { name } }
+    }
+  }
+}
+"""
+
+
+def get_all_downstream(graph: DataHubGraph, urn: str, page_size: int = 100) -> list[DownstreamHit]:
     """Return every entity downstream of `urn`, multi-hop, with its hop distance.
 
-    Uses searchAcrossLineage, so a single call walks the whole impact cone
-    instead of hopping one edge at a time.
+    Uses searchAcrossLineage and paginates through `total`, so a large impact
+    cone is never silently truncated.
     """
-    data = graph.execute_graphql(
-        """
-        query impact($input: SearchAcrossLineageInput!) {
-          searchAcrossLineage(input: $input) {
-            total
-            searchResults {
-              degree
-              entity { urn type ... on Dataset { name } }
-            }
-          }
-        }
-        """,
-        variables={
-            "input": {
-                "urn": urn,
-                "direction": "DOWNSTREAM",
-                "query": "*",
-                "start": 0,
-                "count": count,
-            }
-        },
-    )
-    results = (data["searchAcrossLineage"] or {}).get("searchResults") or []
     out: list[DownstreamHit] = []
-    for r in results:
-        ent = r["entity"]
-        out.append(
-            DownstreamHit(
-                urn=ent["urn"],
-                name=ent.get("name"),
-                entity_type=ent.get("type"),
-                degree=r.get("degree", 0),
-            )
+    start = 0
+    while True:
+        data = graph.execute_graphql(
+            _IMPACT_QUERY,
+            variables={
+                "input": {
+                    "urn": urn,
+                    "direction": "DOWNSTREAM",
+                    "query": "*",
+                    "start": start,
+                    "count": page_size,
+                }
+            },
         )
+        block = data["searchAcrossLineage"] or {}
+        results = block.get("searchResults") or []
+        for r in results:
+            ent = r["entity"]
+            out.append(
+                DownstreamHit(
+                    urn=ent["urn"],
+                    name=ent.get("name"),
+                    entity_type=ent.get("type"),
+                    degree=r.get("degree", 0),
+                )
+            )
+        start += len(results)
+        if not results or start >= (block.get("total") or 0):
+            break
     out.sort(key=lambda h: h.degree)
     return out
 

@@ -51,6 +51,12 @@ def main() -> None:
         fields={f["path"]: (f["nativeType"] or "") for f in reader.get_schema_fields(graph, changed_urn)},
         units=reader.get_units(graph, changed_urn),
     )
+    if not before.fields:
+        raise SystemExit(
+            f"'{changed_name}' has no schema in DataHub ({changed_urn}). "
+            "Run data/synthetic_polymer/ingest_to_datahub.py first; refusing to "
+            "report an all-clear against an empty before-state."
+        )
     after = Snapshot(**incident["after"])
 
     changes = detect_changes(before, after)

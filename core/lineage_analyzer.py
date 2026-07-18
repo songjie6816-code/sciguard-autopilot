@@ -22,11 +22,21 @@ class AffectedEntity(BaseModel):
     owners: list[str] = []
 
 
-def _infer_role(name: str | None) -> str:
+def _infer_role(entity_type: str | None, name: str | None) -> str:
+    """Prefer DataHub's authoritative entity type; fall back to the name.
+
+    Once real mlModel/dashboard entities exist, the type decides; while the demo
+    models everything as datasets, the name still distinguishes model vs report.
+    """
+    et = (entity_type or "").upper()
+    if "MLMODEL" in et:
+        return "model"
+    if et in {"DASHBOARD", "CHART"}:
+        return "report"
     n = (name or "").lower()
     if "model" in n:
         return "model"
-    if "report" in n or "ranking" in n or "candidate" in n:
+    if any(k in n for k in ("report", "ranking", "candidate")):
         return "report"
     return "dataset"
 
@@ -40,7 +50,7 @@ def analyze_impact(graph, changed_urn: str) -> list[AffectedEntity]:
             AffectedEntity(
                 urn=hit.urn,
                 name=hit.name,
-                role=_infer_role(hit.name),
+                role=_infer_role(hit.entity_type, hit.name),
                 degree=hit.degree,
                 owners=reader.get_owners(graph, hit.urn),
             )

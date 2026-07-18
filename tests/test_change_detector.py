@@ -19,6 +19,23 @@ def test_detects_field_removed_added_and_type_change() -> None:
     assert (ChangeKind.FIELD_ADDED, "new") in kinds
 
 
+def test_detects_unit_removed_on_surviving_field() -> None:
+    before = Snapshot(fields={"tg_value": "double"}, units={"tg_value": "degC"})
+    after = Snapshot(fields={"tg_value": "double"}, units={})
+    changes = detect_changes(before, after)
+    assert len(changes) == 1
+    assert changes[0].kind is ChangeKind.UNIT_CHANGE
+    assert changes[0].before == "degC" and changes[0].after == "(none)"
+
+
+def test_detects_unit_added() -> None:
+    before = Snapshot(fields={"tg_value": "double"}, units={})
+    after = Snapshot(fields={"tg_value": "double"}, units={"tg_value": "K"})
+    changes = detect_changes(before, after)
+    assert [c.kind for c in changes] == [ChangeKind.UNIT_CHANGE]
+    assert changes[0].before == "(none)" and changes[0].after == "K"
+
+
 def test_no_change_returns_empty() -> None:
     snap = Snapshot(fields={"a": "double"}, units={"a": "g/mol"})
     assert detect_changes(snap, snap) == []

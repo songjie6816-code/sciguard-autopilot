@@ -1,8 +1,10 @@
 """Write reviewed risk tags and incident context back to DataHub.
 
-This is the "acting" half of SciGuard's loop. It always uses read-modify-write:
-DataHub aspects like GlobalTags are replace-on-write, so writing our tag without
-merging the existing ones would silently erase other teams' metadata.
+This is the "acting" half of SciGuard's loop. Every write is read-modify-write
+on the *whole* aspect: DataHub aspects (GlobalTags, DatasetProperties) are
+replace-on-write, so we fetch the full existing aspect with get_aspect, change
+only the field we mean to, and re-emit it. Reading back a subset of fields (as
+an earlier version did) would silently null the fields left out.
 """
 
 from __future__ import annotations
@@ -16,72 +18,49 @@ from datahub.metadata.schema_classes import (
 )
 
 
-def _current_tag_urns(graph: DataHubGraph, urn: str) -> list[str]:
-    data = graph.execute_graphql(
-        "query t($urn:String!){dataset(urn:$urn){globalTags{tags{tag{urn}}}}}",
-        variables={"urn": urn},
-    )
-    tags = ((data["dataset"] or {}).get("globalTags") or {}).get("tags") or []
-    return [t["tag"]["urn"] for t in tags]
+def current_tag_urns(graph: DataHubGraph, urn: str) -> list[str]:
+    existing = graph.get_aspect(urn, GlobalTagsClass)
+    return [a.tag for a in existing.tags] if existing else []
 
 
 def add_tags(graph: DataHubGraph, urn: str, tag_urns: list[str]) -> list[str]:
-    """Attach tags to an entity without dropping tags already present.
-
-    Returns the full tag set after the write. Idempotent: re-adding an existing
-    tag is a no-op.
-    """
-    existing = _current_tag_urns(graph, urn)
-    merged = list(dict.fromkeys([*existing, *tag_urns]))  # union, order-stable
-    if merged == existing:
-        return existing
-    graph.emit(
-        MetadataChangeProposalWrapper(
-            entityUrn=urn,
-            aspect=GlobalTagsClass(tags=[TagAssociationClass(tag=t) for t in merged]),
-        )
-    )
-    return merged
+    """Attach tags to an entity without dropping tags already present or their
+    per-tag attribution. Returns the full tag set after the write. Idempotent."""
+    existing = graph.get_aspect(urn, GlobalTagsClass)
+    associations = list(existing.tags) if existing else []
+    have = {a.tag for a in associations}
+    to_add = [t for t in tag_urns if t not in have]
+    if not to_add:
+        return [a.tag for a in associations]
+    associations.extend(TagAssociationClass(tag=t) for t in to_add)
+    graph.emit(MetadataChangeProposalWrapper(entityUrn=urn, aspect=GlobalTagsClass(tags=associations)))
+    return [a.tag for a in associations]
 
 
 def remove_tags(graph: DataHubGraph, urn: str, tag_urns: list[str]) -> list[str]:
-    """Remove specific tags, leaving all others intact. Returns the remaining set."""
+    """Remove specific tags, leaving all others (and their attribution) intact."""
+    existing = graph.get_aspect(urn, GlobalTagsClass)
+    if not existing:
+        return []
     drop = set(tag_urns)
-    existing = _current_tag_urns(graph, urn)
-    remaining = [t for t in existing if t not in drop]
-    if remaining == existing:
-        return existing
-    graph.emit(
-        MetadataChangeProposalWrapper(
-            entityUrn=urn,
-            aspect=GlobalTagsClass(tags=[TagAssociationClass(tag=t) for t in remaining]),
-        )
-    )
-    return remaining
-
-
-def _current_properties(graph: DataHubGraph, urn: str) -> tuple[str | None, dict[str, str]]:
-    data = graph.execute_graphql(
-        "query p($urn:String!){dataset(urn:$urn){properties{description "
-        "customProperties{key value}}}}",
-        variables={"urn": urn},
-    )
-    props = (data["dataset"] or {}).get("properties") or {}
-    custom = {p["key"]: p["value"] for p in (props.get("customProperties") or [])}
-    return props.get("description"), custom
+    remaining = [a for a in existing.tags if a.tag not in drop]
+    if len(remaining) == len(existing.tags):
+        return [a.tag for a in existing.tags]
+    graph.emit(MetadataChangeProposalWrapper(entityUrn=urn, aspect=GlobalTagsClass(tags=remaining)))
+    return [a.tag for a in remaining]
 
 
 def add_custom_properties(graph: DataHubGraph, urn: str, new_props: dict[str, str]) -> dict[str, str]:
-    """Merge custom properties onto a dataset without dropping existing ones or
-    its description. Returns the merged property map."""
-    description, existing = _current_properties(graph, urn)
-    merged = {**existing, **new_props}
-    if merged == existing:
-        return existing
-    graph.emit(
-        MetadataChangeProposalWrapper(
-            entityUrn=urn,
-            aspect=DatasetPropertiesClass(description=description, customProperties=merged),
-        )
-    )
+    """Merge custom properties onto a dataset, preserving the entire existing
+    DatasetProperties aspect (name, externalUrl, description, ...). Returns the
+    merged custom-property map."""
+    existing = graph.get_aspect(urn, DatasetPropertiesClass)
+    if existing is None:
+        existing = DatasetPropertiesClass(customProperties={})
+    current = dict(existing.customProperties or {})
+    merged = {**current, **new_props}
+    if merged == current:
+        return current
+    existing.customProperties = merged
+    graph.emit(MetadataChangeProposalWrapper(entityUrn=urn, aspect=existing))
     return merged

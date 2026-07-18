@@ -128,10 +128,12 @@ def _schema_aspect(name: str, cols: list[tuple[str, str]]) -> SchemaMetadataClas
     )
 
 
-def _props_aspect(node: dict) -> DatasetPropertiesClass:
+def _props_aspect(name: str, node: dict) -> DatasetPropertiesClass:
     custom = {f"unit:{field}": unit for field, unit in node.get("units", {}).items()}
     custom.update(node.get("extra_props", {}))
-    return DatasetPropertiesClass(description=node["description"], customProperties=custom)
+    return DatasetPropertiesClass(
+        name=name, description=node["description"], customProperties=custom
+    )
 
 
 def _ownership_aspect(owner: str) -> OwnershipClass:
@@ -150,7 +152,7 @@ def main() -> None:
 
     for name, node in NODES.items():
         urn = _urn(name)
-        graph.emit(MetadataChangeProposalWrapper(entityUrn=urn, aspect=_props_aspect(node)))
+        graph.emit(MetadataChangeProposalWrapper(entityUrn=urn, aspect=_props_aspect(name, node)))
         graph.emit(MetadataChangeProposalWrapper(entityUrn=urn, aspect=_schema_aspect(name, node["schema"])))
         graph.emit(MetadataChangeProposalWrapper(entityUrn=urn, aspect=_ownership_aspect(node["owner"])))
         if node["upstream"]:
