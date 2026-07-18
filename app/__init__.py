@@ -1,0 +1,2 @@
+"""SciGuard demo application."""
+

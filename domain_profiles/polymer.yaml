@@ -1,0 +1,14 @@
+name: polymer
+version: 1
+extends: materials
+rules:
+  - id: tg-unit-change
+    field: Tg
+    change: unit
+    severity: critical
+    accepted_units: [degC, K]
+    remediation:
+      - verify source unit and conversion provenance
+      - update preprocessing conversion
+      - revalidate affected models and reports
+

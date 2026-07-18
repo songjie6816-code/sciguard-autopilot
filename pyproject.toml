@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sciguard"
+version = "0.1.0"
+description = "Scientific data and ML trust agent powered by DataHub context"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+license = { text = "Apache-2.0" }
+authors = [{ name = "SciGuard contributors" }]
+dependencies = [
+  "acryl-datahub>=1.6.0,<2",
+  "pydantic>=2.8,<3",
+  "python-dotenv>=1.0,<2",
+  "PyYAML>=6.0,<7",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2,<9",
+  "pytest-cov>=5,<7",
+  "ruff>=0.6,<1",
+]
+app = ["streamlit>=1.36,<2"]
+
+[tool.setuptools.packages.find]
+include = ["app*", "core*", "datahub_client*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
