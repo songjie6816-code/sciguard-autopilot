@@ -39,8 +39,11 @@ def test_bad_severity_is_rejected_at_load() -> None:
 
 def test_polymer_profile_extends_chain() -> None:
     assert load_profile("generic").rules == []
-    assert load_profile("materials").rules == []
-    assert any(r.id == "tg-unit-change" for r in load_profile("polymer").rules)
+    materials_ids = {r.id for r in load_profile("materials").rules}
+    assert {"mn-unit-change", "mw-unit-change"} <= materials_ids
+    polymer_ids = {r.id for r in load_profile("polymer").rules}
+    assert "tg-unit-change" in polymer_ids            # own rule
+    assert "mn-unit-change" in polymer_ids            # inherited from materials
 
 
 def test_child_rule_overrides_parent_by_id(tmp_path, monkeypatch) -> None:

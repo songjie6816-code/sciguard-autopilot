@@ -1,0 +1,116 @@
+{
+  "description": "Labelled metadata-change scenarios for SciGuard evaluation. Each scenario mutates a dataset's live DataHub state and declares the expected detection, severity and (for actionable cases) impact ground truth. Impact ground truth per change site lives in `cones` because the downstream cone depends only on lineage, not on the change.",
+  "cones": {
+    "raw_polymer_experiments": {
+      "affected": ["cleaned_polymer_dataset", "polymer_feature_table", "tg_prediction_model", "candidate_report"],
+      "owners": ["data_engineer", "ml_engineer", "research_lead"],
+      "tag_targets": ["tg_prediction_model"]
+    },
+    "cleaned_polymer_dataset": {
+      "affected": ["polymer_feature_table", "tg_prediction_model", "candidate_report"],
+      "owners": ["ml_engineer", "research_lead"],
+      "tag_targets": ["tg_prediction_model"]
+    },
+    "polymer_feature_table": {
+      "affected": ["tg_prediction_model", "candidate_report"],
+      "owners": ["ml_engineer", "research_lead"],
+      "tag_targets": ["tg_prediction_model"]
+    }
+  },
+  "scenarios": [
+    {
+      "id": "tg-unit-raw",
+      "dataset": "raw_polymer_experiments",
+      "profile": "polymer",
+      "mutations": [{"op": "unit", "field": "tg_value", "to": "K"}],
+      "expected": {"severity": "critical", "changes": [["unit_change", "tg_value"]]}
+    },
+    {
+      "id": "mn-unit-raw",
+      "dataset": "raw_polymer_experiments",
+      "profile": "polymer",
+      "mutations": [{"op": "unit", "field": "mn_g_mol", "to": "kg/mol"}],
+      "expected": {"severity": "high", "changes": [["unit_change", "mn_g_mol"]]}
+    },
+    {
+      "id": "mw-unit-raw",
+      "dataset": "raw_polymer_experiments",
+      "profile": "polymer",
+      "mutations": [{"op": "unit", "field": "mw_g_mol", "to": "kDa"}],
+      "expected": {"severity": "high", "changes": [["unit_change", "mw_g_mol"]]}
+    },
+    {
+      "id": "remove-sampleid-raw",
+      "dataset": "raw_polymer_experiments",
+      "profile": "polymer",
+      "mutations": [{"op": "remove_field", "field": "sample_id"}],
+      "expected": {"severity": "critical", "changes": [["field_removed", "sample_id"]]}
+    },
+    {
+      "id": "remove-smiles-raw",
+      "dataset": "raw_polymer_experiments",
+      "profile": "polymer",
+      "mutations": [{"op": "remove_field", "field": "smiles"}],
+      "expected": {"severity": "high", "changes": [["field_removed", "smiles"]]}
+    },
+    {
+      "id": "tg-unit-cleaned",
+      "dataset": "cleaned_polymer_dataset",
+      "profile": "polymer",
+      "mutations": [{"op": "unit", "field": "tg_degC", "to": "K"}],
+      "expected": {"severity": "critical", "changes": [["unit_change", "tg_degC"]]}
+    },
+    {
+      "id": "tg-unit-features",
+      "dataset": "polymer_feature_table",
+      "profile": "polymer",
+      "mutations": [{"op": "unit", "field": "tg_degC", "to": "K"}],
+      "expected": {"severity": "critical", "changes": [["unit_change", "tg_degC"]]}
+    },
+    {
+      "id": "multi-tg-and-mn-raw",
+      "dataset": "raw_polymer_experiments",
+      "profile": "polymer",
+      "mutations": [
+        {"op": "unit", "field": "tg_value", "to": "K"},
+        {"op": "unit", "field": "mn_g_mol", "to": "kg/mol"}
+      ],
+      "expected": {"severity": "critical", "changes": [["unit_change", "tg_value"], ["unit_change", "mn_g_mol"]]}
+    },
+    {
+      "id": "remove-sampleid-cleaned",
+      "dataset": "cleaned_polymer_dataset",
+      "profile": "polymer",
+      "mutations": [{"op": "remove_field", "field": "sample_id"}],
+      "expected": {"severity": "critical", "changes": [["field_removed", "sample_id"]]}
+    },
+    {
+      "id": "neg-pdi-unit-raw",
+      "dataset": "raw_polymer_experiments",
+      "profile": "polymer",
+      "mutations": [{"op": "unit", "field": "pdi", "to": "ratio"}],
+      "expected": {"severity": "none", "changes": [["unit_change", "pdi"]]}
+    },
+    {
+      "id": "neg-remove-protocol-raw",
+      "dataset": "raw_polymer_experiments",
+      "profile": "polymer",
+      "mutations": [{"op": "remove_field", "field": "test_protocol"}],
+      "expected": {"severity": "none", "changes": [["field_removed", "test_protocol"]]}
+    },
+    {
+      "id": "neg-remove-measuredon-raw",
+      "dataset": "raw_polymer_experiments",
+      "profile": "polymer",
+      "mutations": [{"op": "remove_field", "field": "measured_on"}],
+      "expected": {"severity": "none", "changes": [["field_removed", "measured_on"]]}
+    },
+    {
+      "id": "neg-add-notes-raw",
+      "dataset": "raw_polymer_experiments",
+      "profile": "polymer",
+      "mutations": [{"op": "add_field", "field": "notes", "to": "string"}],
+      "expected": {"severity": "none", "changes": [["field_added", "notes"]]}
+    }
+  ]
+}

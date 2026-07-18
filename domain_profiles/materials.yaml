@@ -1,5 +1,20 @@
 name: materials
 version: 1
 extends: generic
-rules: []
-
+rules:
+  - id: mn-unit-change
+    field: Mn
+    change: unit
+    severity: high
+    accepted_units: [g/mol]
+    remediation:
+      - confirm molecular-weight unit and GPC calibration basis
+      - re-derive molecular-weight features and revalidate models
+  - id: mw-unit-change
+    field: Mw
+    change: unit
+    severity: high
+    accepted_units: [g/mol]
+    remediation:
+      - confirm molecular-weight unit and GPC calibration basis
+      - re-derive molecular-weight features and revalidate models

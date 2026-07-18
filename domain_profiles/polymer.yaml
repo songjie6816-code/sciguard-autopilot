@@ -11,4 +11,17 @@ rules:
       - verify source unit and conversion provenance
       - update preprocessing conversion
       - revalidate affected models and reports
-
+  - id: sample-id-removed
+    field: sample_id
+    change: field_removed
+    severity: critical
+    remediation:
+      - restore the primary sample identifier
+      - block downstream joins until sample identity is recovered
+  - id: smiles-removed
+    field: smiles
+    change: field_removed
+    severity: high
+    remediation:
+      - restore the SMILES structure identifier
+      - re-link structures before regenerating features
