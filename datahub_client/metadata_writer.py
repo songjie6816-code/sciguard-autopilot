@@ -9,7 +9,11 @@ from __future__ import annotations
 
 from datahub.emitter.mcp import MetadataChangeProposalWrapper
 from datahub.ingestion.graph.client import DataHubGraph
-from datahub.metadata.schema_classes import GlobalTagsClass, TagAssociationClass
+from datahub.metadata.schema_classes import (
+    DatasetPropertiesClass,
+    GlobalTagsClass,
+    TagAssociationClass,
+)
 
 
 def _current_tag_urns(graph: DataHubGraph, urn: str) -> list[str]:
@@ -54,3 +58,30 @@ def remove_tags(graph: DataHubGraph, urn: str, tag_urns: list[str]) -> list[str]
         )
     )
     return remaining
+
+
+def _current_properties(graph: DataHubGraph, urn: str) -> tuple[str | None, dict[str, str]]:
+    data = graph.execute_graphql(
+        "query p($urn:String!){dataset(urn:$urn){properties{description "
+        "customProperties{key value}}}}",
+        variables={"urn": urn},
+    )
+    props = (data["dataset"] or {}).get("properties") or {}
+    custom = {p["key"]: p["value"] for p in (props.get("customProperties") or [])}
+    return props.get("description"), custom
+
+
+def add_custom_properties(graph: DataHubGraph, urn: str, new_props: dict[str, str]) -> dict[str, str]:
+    """Merge custom properties onto a dataset without dropping existing ones or
+    its description. Returns the merged property map."""
+    description, existing = _current_properties(graph, urn)
+    merged = {**existing, **new_props}
+    if merged == existing:
+        return existing
+    graph.emit(
+        MetadataChangeProposalWrapper(
+            entityUrn=urn,
+            aspect=DatasetPropertiesClass(description=description, customProperties=merged),
+        )
+    )
+    return merged

@@ -1,0 +1,29 @@
+{
+  "incident_id": "tg-unit-change-001",
+  "description": "A new version of raw_polymer_experiments arrived with Tg reported in Kelvin instead of Celsius, but preprocessing still assumes Celsius.",
+  "dataset": "raw_polymer_experiments",
+  "profile": "polymer",
+  "after": {
+    "fields": {
+      "sample_id": "string",
+      "polymer_name": "string",
+      "polymer_class": "string",
+      "smiles": "string",
+      "mn_g_mol": "double",
+      "mw_g_mol": "double",
+      "pdi": "double",
+      "tg_value": "double",
+      "tg_unit": "string",
+      "measurement_method": "string",
+      "gpc_calibration": "string",
+      "test_protocol": "string",
+      "measured_on": "string"
+    },
+    "units": {
+      "tg_value": "K",
+      "mn_g_mol": "g/mol",
+      "mw_g_mol": "g/mol",
+      "pdi": "dimensionless"
+    }
+  }
+}
