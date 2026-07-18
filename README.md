@@ -62,6 +62,24 @@ the sample loader connects directly to GMS and does not create an access token.
 See [docs/development.md](docs/development.md) for verified environment details and
 troubleshooting notes.
 
+## Demo and evaluation
+
+First seed the synthetic polymer lineage graph into DataHub, then run either the
+end-to-end incident, the quantitative evaluation, or the web demo:
+
+```bash
+python -m pip install -e '.[app]'                       # adds Streamlit
+PYTHONPATH=. python data/synthetic_polymer/generate.py
+PYTHONPATH=. python data/synthetic_polymer/ingest_to_datahub.py
+PYTHONPATH=. python examples/run_tg_unit_incident.py    # CLI incident + write-back
+PYTHONPATH=. python evaluation/harness.py               # metrics + DataHub ablation
+PYTHONPATH=. streamlit run app/streamlit_app.py         # interactive demo
+```
+
+The web demo lets you pick a scientific-data change and watch SciGuard trace the
+impact through DataHub lineage, score the risk, and write a `model-at-risk` tag
+back to the catalog. See [docs/evaluation.md](docs/evaluation.md) for the metrics.
+
 ## Repository layout
 
 ```text
