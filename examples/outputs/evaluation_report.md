@@ -6,21 +6,21 @@
 - change detection accuracy: 100.0% (13/13)
 - risk-severity accuracy: 100.0% (13/13)
 - false-alarm rate on negatives: 0.0% (0/4)
-- owner-notification recall: 100.0%
+- owner-notification precision/recall: 100.0% / 100.0%
 - model-at-risk tag targeting: 100.0% (9/9)
 
 ## Impact analysis over 3 distinct lineage cones
 | approach | precision | recall | F1 | exact cone |
 |---|---|---|---|---|
 | WITH DataHub lineage | 100.0% | 100.0% | 100.0% | 3/3 |
-| WITHOUT DataHub (catalog search) | 75.0% | 100.0% | 85.7% | 0/3 |
+| WITHOUT DataHub (catalog search) | 75.0% | 100.0% | 85.7% | 1/3 |
 
 The no-lineage search baseline cannot tell dependency direction, so it
 flags upstream/sibling datasets as affected (false positives: ['cleaned_polymer_dataset', 'raw_polymer_experiments']).
 Only lineage recovers the exact downstream cone with correct direction.
 
 ## Latency
-- mean per-scenario: 50.3 ms
+- mean per-scenario: 42.9 ms
 
 ## Per-scenario
 | scenario | detect | severity | note |

@@ -97,7 +97,7 @@ def run() -> dict:
             "detect_ok": detected == {tuple(x) for x in expected["changes"]},
             "severity_ok": assessment.overall_severity == expected["severity"],
             "actionable": assessment.is_actionable,
-            "owner_recall": counts(set(assessment.responsible_owners), set(cone["owners"])),
+            "owner": counts(set(assessment.responsible_owners), set(cone["owners"])),
             "tag_ok": set(plan.tag_targets) == {_urn(n) for n in cone["tag_targets"]},
             "latency_ms": latency_ms,
         })
@@ -115,6 +115,7 @@ def run() -> dict:
             "lineage": counts(lineage_names, expected),
             "lineage_exact": lineage_names == expected,
             "search": counts(search_names, expected),
+            "search_exact": search_names == expected,
             "search_false_positives": sorted(search_names - expected),
         })
 
@@ -133,13 +134,14 @@ def summarize(result: dict) -> str:
     detect_ok = sum(r["detect_ok"] for r in rows)
     severity_ok = sum(r["severity_ok"] for r in rows)
     false_alarms = sum(r["actionable"] for r in neg)
-    owner = aggregate([r["owner_recall"] for r in pos])
+    owner = aggregate([r["owner"] for r in pos])
     tag_ok = sum(r["tag_ok"] for r in pos)
     mean_latency = sum(r["latency_ms"] for r in rows) / len(rows)
 
     lineage = aggregate([i["lineage"] for i in impact])
     search = aggregate([i["search"] for i in impact])
     lineage_exact = sum(i["lineage_exact"] for i in impact)
+    search_exact = sum(i["search_exact"] for i in impact)
     search_fps = sorted({fp for i in impact for fp in i["search_false_positives"]})
 
     lines = ["# SciGuard evaluation report", ""]
@@ -153,7 +155,7 @@ def summarize(result: dict) -> str:
     lines.append(f"- change detection accuracy: {_pct(detect_ok / len(rows))} ({detect_ok}/{len(rows)})")
     lines.append(f"- risk-severity accuracy: {_pct(severity_ok / len(rows))} ({severity_ok}/{len(rows)})")
     lines.append(f"- false-alarm rate on negatives: {_pct(false_alarms / len(neg))} ({false_alarms}/{len(neg)})")
-    lines.append(f"- owner-notification recall: {_pct(owner.recall)}")
+    lines.append(f"- owner-notification precision/recall: {_pct(owner.precision)} / {_pct(owner.recall)}")
     lines.append(f"- model-at-risk tag targeting: {_pct(tag_ok / len(pos))} ({tag_ok}/{len(pos)})")
     lines.append("")
     lines.append(f"## Impact analysis over {len(impact)} distinct lineage cones")
@@ -165,7 +167,7 @@ def summarize(result: dict) -> str:
     )
     lines.append(
         f"| WITHOUT DataHub (catalog search) | {_pct(search.precision)} | {_pct(search.recall)} | "
-        f"{_pct(search.f1)} | 0/{len(impact)} |"
+        f"{_pct(search.f1)} | {search_exact}/{len(impact)} |"
     )
     lines.append("")
     lines.append("The no-lineage search baseline cannot tell dependency direction, so it")
@@ -189,6 +191,7 @@ def summarize(result: dict) -> str:
 def gate(result: dict) -> list[str]:
     """Return a list of regression failures; empty means the evaluation passed."""
     rows, impact = result["rows"], result["impact"]
+    pos = [r for r in rows if r["is_positive"]]
     failures = []
     if not all(r["detect_ok"] for r in rows):
         failures.append("change detection is not 100%")
@@ -204,6 +207,14 @@ def gate(result: dict) -> list[str]:
         )
     if not all(i["lineage_exact"] for i in impact):
         failures.append("lineage did not recover an exact cone for every change site")
+    owner = aggregate([r["owner"] for r in pos])
+    if owner.precision < 1.0 or owner.recall < 1.0:
+        failures.append(
+            f"owner notification is not exact (precision {_pct(owner.precision)}, "
+            f"recall {_pct(owner.recall)}) — notifies the wrong or too many owners"
+        )
+    if not all(r["tag_ok"] for r in pos):
+        failures.append("model-at-risk tag targeting regressed on an actionable scenario")
     return failures
 
 

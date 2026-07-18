@@ -15,16 +15,16 @@ def _perfect_result() -> dict:
     return {
         "rows": [
             {"is_positive": True, "detect_ok": True, "severity_ok": True,
-             "actionable": True, "owner_recall": PRF(tp=1, fp=0, fn=0),
+             "actionable": True, "owner": PRF(tp=1, fp=0, fn=0),
              "tag_ok": True, "latency_ms": 1.0},
             {"is_positive": False, "detect_ok": True, "severity_ok": True,
-             "actionable": False, "owner_recall": PRF(tp=0, fp=0, fn=0),
+             "actionable": False, "owner": PRF(tp=0, fp=0, fn=0),
              "tag_ok": True, "latency_ms": 1.0},
         ],
         "impact": [
             {"dataset": "d", "expected": {"a", "b"}, "lineage": PRF(tp=2, fp=0, fn=0),
              "lineage_exact": True, "search": PRF(tp=2, fp=3, fn=0),
-             "search_false_positives": ["x", "y", "z"]},
+             "search_exact": False, "search_false_positives": ["x", "y", "z"]},
         ],
     }
 
@@ -51,6 +51,24 @@ def test_gate_fails_on_false_alarm() -> None:
     r = _perfect_result()
     r["rows"][1]["actionable"] = True  # negative control fired
     assert any("false alarm" in f for f in harness.gate(r))
+
+
+def test_gate_fails_on_missed_owners() -> None:
+    r = _perfect_result()
+    r["rows"][0]["owner"] = PRF(tp=0, fp=0, fn=3)  # notified nobody
+    assert any("owner" in f for f in harness.gate(r))
+
+
+def test_gate_fails_on_owner_spam() -> None:
+    r = _perfect_result()
+    r["rows"][0]["owner"] = PRF(tp=3, fp=50, fn=0)  # notified everyone
+    assert any("owner" in f for f in harness.gate(r))
+
+
+def test_gate_fails_on_tag_regression() -> None:
+    r = _perfect_result()
+    r["rows"][0]["tag_ok"] = False  # tagged nothing / wrong target
+    assert any("tag" in f for f in harness.gate(r))
 
 
 def _graph_or_skip() -> None:
