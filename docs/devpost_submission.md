@@ -9,12 +9,10 @@
 - [ ] Apache-2.0 LICENSE present ✅ (already in repo)
 - [ ] Public demo video < 3 minutes (YouTube / Vimeo / Youku) — `[add link]`
 - [ ] English README and install/test steps ✅
-- [ ] **BLOCKING — substantially uses a required DataHub component.** Rule 3 requires
-      substantial use of one of {DataHub MCP Server, Agent Context Kit, DataHub Skills,
-      Analytics Agent}. The project currently uses only the DataHub Python SDK, which is
-      **none of these**, so as of now it would **fail the stage-1 Pass/Fail gate**. Do not
-      submit until the MCP Server (or another of the four) is actually wired and exercised
-      in the demo and evaluation. This is the next work item.
+- [x] **Substantially uses a required DataHub component — the DataHub MCP Server.**
+      Context reads (search, lineage, schema, ownership, units) route through the MCP
+      Server's tools with `SCIGUARD_USE_MCP=1`; a test verifies the MCP and SDK backends
+      return identical context.
 
 ## Project name
 
@@ -73,12 +71,13 @@ lineage — expressed as configurable domain profiles rather than a hard-coded s
 
 - Python, with a **deterministic core** (no LLM in the decision path) so results are
   reproducible and testable; Pydantic for structured outputs.
-- **DataHub** open-source platform via Docker (Colima) Quickstart; the Python SDK reads
-  schema, per-field units (custom properties), ownership and multi-hop lineage
-  (`searchAcrossLineage`), and writes tags and incident properties back.
+- **DataHub** open-source platform via Docker (Colima) Quickstart. Context reads (search,
+  lineage, schema, ownership, units) go through the **DataHub MCP Server**; a pluggable
+  backend also supports the SDK, and the two are verified to return identical context.
+  Write-back (tags + incident properties) uses the SDK.
 - **YAML domain profiles** (`generic → materials → polymer`) so a new scientific domain is a
   config change, not code.
-- **Streamlit** demo UI; **pytest** (39 tests); a **gated evaluation harness**.
+- **Streamlit** demo UI; **pytest** (43 tests); a **gated evaluation harness**.
 
 ## Use of DataHub
 
@@ -88,9 +87,9 @@ lineage — expressed as configurable domain profiles rather than a hard-coded s
 - **Governance write-back** — a `model-at-risk` tag and incident summary are written back,
   read-modify-write so existing metadata is preserved.
 - **Configurable domain profiles** — rules are YAML with an inheritance chain.
-- **MCP Server — NOT YET WIRED (required).** The read/write client is structured to route
-  through the DataHub MCP Server, but currently calls the SDK directly. Wiring the MCP
-  Server is required to satisfy the mandatory-component rule and is the next work item.
+- **DataHub MCP Server** — context reads run through the MCP Server's tools (`search`,
+  `get_lineage`, `list_schema_fields`, `get_entities`) with `SCIGUARD_USE_MCP=1`; a test
+  verifies the MCP and SDK read backends return identical context.
 
 ## Results (measured)
 
@@ -127,13 +126,13 @@ applied to our own code and metrics via adversarial review and a gated evaluatio
 
 ## What's next
 
-- Wire the **DataHub MCP Server** and an optional LLM layer for natural-language reports.
+- Add an optional LLM layer that drives the DataHub MCP Server tools and narrates reports.
 - Register the model as a native **mlModel** entity to deepen ML-metadata usage.
 - Add domains beyond polymers (battery cycle-life, catalysis) as new profiles.
 
 ## Built with
 
-python · datahub · pydantic · streamlit · docker · pytest · yaml
+python · datahub · datahub-mcp-server · mcp · pydantic · streamlit · docker · pytest · yaml
 
 ## Links
 

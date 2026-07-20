@@ -11,8 +11,6 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-from datahub_client import metadata_reader as reader
-
 
 class AffectedEntity(BaseModel):
     urn: str
@@ -41,24 +39,27 @@ def _infer_role(entity_type: str | None, name: str | None) -> str:
     return "dataset"
 
 
-def analyze_impact(graph, changed_urn: str) -> list[AffectedEntity]:
+def analyze_impact(backend, changed_urn: str) -> list[AffectedEntity]:
     """Return every downstream entity affected by a change at `changed_urn`,
-    ordered by lineage distance and annotated with role and owners."""
+    ordered by lineage distance and annotated with role and owners.
+
+    `backend` is any read backend (SDK or MCP; see datahub_client.backends).
+    """
     affected: list[AffectedEntity] = []
-    for hit in reader.get_all_downstream(graph, changed_urn):
+    for hit in backend.get_all_downstream(changed_urn):
         affected.append(
             AffectedEntity(
                 urn=hit.urn,
                 name=hit.name,
                 role=_infer_role(hit.entity_type, hit.name),
                 degree=hit.degree,
-                owners=reader.get_owners(graph, hit.urn),
+                owners=backend.get_owners(hit.urn),
             )
         )
     return affected
 
 
-def impact_via_search(graph, changed_name: str, platform: str | None = None) -> list[str]:
+def impact_via_search(backend, changed_name: str, platform: str | None = None) -> list[str]:
     """No-lineage baseline: approximate impact by catalog search on the changed
     dataset's name, excluding the dataset itself. This is what a search-only
     (no lineage graph) workflow can do; it cannot tell direction or hop distance,
@@ -69,7 +70,7 @@ def impact_via_search(graph, changed_name: str, platform: str | None = None) -> 
     """
     return [
         hit.name
-        for hit in reader.search_datasets(graph, query=changed_name, count=100)
+        for hit in backend.search_datasets(query=changed_name, count=100)
         if hit.name
         and hit.name != changed_name
         and (platform is None or hit.platform == platform)

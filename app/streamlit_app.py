@@ -25,6 +25,7 @@ from core.profiles import load_profile
 from core.risk_engine import assess
 from datahub_client import metadata_reader as reader
 from datahub_client import metadata_writer as writer
+from datahub_client.backends import open_reader
 
 ROOT = Path(__file__).resolve().parents[1]
 SCENARIOS = json.loads((ROOT / "evaluation" / "scenarios.json").read_text())
@@ -46,6 +47,11 @@ def _urn(name: str) -> str:
 @st.cache_resource
 def graph():
     return reader.connect()
+
+
+@st.cache_resource
+def read_backend():
+    return open_reader()
 
 
 def describe_mutation(m: dict) -> str:
@@ -91,9 +97,12 @@ st.caption(
 
 try:
     g = graph()
+    backend = read_backend()
 except Exception as exc:  # noqa: BLE001
-    st.error(f"Cannot reach DataHub GMS. Start the Quickstart first.\n\n{exc}")
+    st.error(f"Cannot reach DataHub. Start the Quickstart first.\n\n{exc}")
     st.stop()
+
+read_source = "DataHub MCP Server" if type(backend).__name__ == "DataHubMCP" else "DataHub SDK"
 
 scenarios = SCENARIOS["scenarios"]
 labels = {s["id"]: s for s in scenarios}
@@ -109,17 +118,18 @@ with st.sidebar:
     for m in sc["mutations"]:
         st.markdown(f"- {describe_mutation(m)}")
     st.caption("Ground truth expected severity: " + sc["expected"]["severity"])
+    st.caption(f"Reading DataHub context via: {read_source}")
 
 dataset = sc["dataset"]
 changed_urn = _urn(dataset)
 
 before = Snapshot(
-    fields={f["path"]: (f["nativeType"] or "") for f in reader.get_schema_fields(g, changed_urn)},
-    units=reader.get_units(g, changed_urn),
+    fields={f["path"]: (f["nativeType"] or "") for f in backend.get_schema_fields(changed_urn)},
+    units=backend.get_units(changed_urn),
 )
 after = apply_mutations(before, sc["mutations"])
 changes = detect_changes(before, after)
-affected = analyze_impact(g, changed_urn)
+affected = analyze_impact(backend, changed_urn)
 profile = load_profile(sc["profile"])
 assessment = assess(profile, changes, affected)
 plan = remediation.build_plan(profile, assessment, dataset)
@@ -173,7 +183,7 @@ st.divider()
 st.subheader("Why DataHub — impact recall with vs without the lineage graph")
 expected_cone = set(SCENARIOS["cones"][dataset]["affected"])
 lineage_found = {e.name for e in affected}
-search_found = set(impact_via_search(g, dataset, platform=PLATFORM))
+search_found = set(impact_via_search(backend, dataset, platform=PLATFORM))
 a1, a2 = st.columns(2)
 a1.metric(
     "WITH DataHub lineage",

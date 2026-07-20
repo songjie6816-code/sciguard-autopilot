@@ -75,7 +75,9 @@ control, and the DataHub ablation — not a claim of real-world accuracy.
   always read-modify-write so existing catalog metadata is never clobbered.
 - **Configurable domain profiles** — rules are YAML (`generic → materials → polymer`), so a
   new scientific domain is a config change, not a code change.
-- **MCP-ready** — the read/write client maps directly onto the DataHub MCP Server tools.
+- **DataHub MCP Server** — context reads (search, lineage, schema, ownership, units) run
+  through the DataHub MCP Server's tools with `SCIGUARD_USE_MCP=1`. The SDK and MCP read
+  backends are interchangeable and verified to return identical context.
 
 ## Demo scenario
 
@@ -122,12 +124,16 @@ Seed the synthetic polymer lineage graph into DataHub, then run any of the three
 points:
 
 ```bash
-python -m pip install -e '.[app]'                       # adds Streamlit
+python -m pip install -e '.[app,mcp]'                   # Streamlit + MCP client
+uv tool install mcp-server-datahub@latest               # the DataHub MCP Server
 PYTHONPATH=. python data/synthetic_polymer/generate.py
 PYTHONPATH=. python data/synthetic_polymer/ingest_to_datahub.py
 PYTHONPATH=. python examples/run_tg_unit_incident.py    # CLI incident + write-back
 PYTHONPATH=. python evaluation/harness.py               # metrics + DataHub ablation
 PYTHONPATH=. streamlit run app/streamlit_app.py         # interactive demo
+
+# Route context reads through the DataHub MCP Server instead of the SDK:
+SCIGUARD_USE_MCP=1 PYTHONPATH=. python examples/run_tg_unit_incident.py
 ```
 
 The web demo lets you pick a scientific-data change and watch SciGuard trace the impact

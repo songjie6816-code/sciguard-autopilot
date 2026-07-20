@@ -42,3 +42,18 @@ DATAHUB_GMS_URL=http://localhost:8080 datahub datapack load showcase-ecommerce
 Do not run `datahub init` for this local plan. With the current CLI/server version pair,
 the login succeeds but token creation is rejected because metadata-service authentication
 is disabled. This does not affect local ingestion or the browser login.
+
+## DataHub MCP Server
+
+Context reads can route through the DataHub MCP Server (`SCIGUARD_USE_MCP=1`). Install the
+server as a uv tool and the MCP client into the environment:
+
+```bash
+uv tool install mcp-server-datahub@latest
+python -m pip install -e '.[mcp]'
+```
+
+Because the local Quickstart has authentication disabled, the server accepts any
+`DATAHUB_GMS_TOKEN` value; `datahub_client/mcp_client.py` sets a placeholder token and
+points `DATAHUB_GMS_URL` at `http://localhost:8080`. On a slow network, install the uv tool
+with a fast mirror and no proxy, e.g. `UV_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple`.

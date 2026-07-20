@@ -32,6 +32,7 @@ from core.lineage_analyzer import analyze_impact, impact_via_search
 from core.profiles import load_profile
 from core.risk_engine import assess
 from datahub_client import metadata_reader as reader
+from datahub_client.backends import SdkReader
 from evaluation.metrics import aggregate, counts
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -44,11 +45,11 @@ def _urn(name: str) -> str:
     return make_dataset_urn(platform=PLATFORM, name=name, env="PROD")
 
 
-def _read_before(graph, dataset: str) -> Snapshot:
+def _read_before(backend, dataset: str) -> Snapshot:
     urn = _urn(dataset)
     return Snapshot(
-        fields={f["path"]: (f["nativeType"] or "") for f in reader.get_schema_fields(graph, urn)},
-        units=reader.get_units(graph, urn),
+        fields={f["path"]: (f["nativeType"] or "") for f in backend.get_schema_fields(urn)},
+        units=backend.get_units(urn),
     )
 
 
@@ -73,18 +74,18 @@ def _apply(before: Snapshot, mutations: list[dict]) -> Snapshot:
 def run() -> dict:
     spec = json.loads(SCENARIOS.read_text())
     cones = spec["cones"]
-    graph = reader.connect()
+    backend = SdkReader(reader.connect())
 
     # Per-scenario: detection, severity, false-alarm, latency, tag targeting.
     rows = []
     for sc in spec["scenarios"]:
         dataset, expected, cone = sc["dataset"], sc["expected"], cones[sc["dataset"]]
-        before = _read_before(graph, dataset)
+        before = _read_before(backend, dataset)
         after = _apply(before, sc["mutations"])
 
         t0 = time.perf_counter()
         changes = detect_changes(before, after)
-        affected = analyze_impact(graph, _urn(dataset))
+        affected = analyze_impact(backend, _urn(dataset))
         profile = load_profile(sc["profile"])
         assessment = assess(profile, changes, affected)
         plan = remediation.build_plan(profile, assessment, dataset)
@@ -107,8 +108,8 @@ def run() -> dict:
     impact = []
     for dataset in {sc["dataset"] for sc in spec["scenarios"] if cones.get(sc["dataset"])}:
         expected = set(cones[dataset]["affected"])
-        lineage_names = {e.name for e in analyze_impact(graph, _urn(dataset))}
-        search_names = set(impact_via_search(graph, dataset, platform=PLATFORM))
+        lineage_names = {e.name for e in analyze_impact(backend, _urn(dataset))}
+        search_names = set(impact_via_search(backend, dataset, platform=PLATFORM))
         impact.append({
             "dataset": dataset,
             "expected": expected,
