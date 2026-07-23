@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import test from "node:test";
 
 test("judge build is a no-login static replay with no localhost evidence links", async () => {
@@ -20,4 +20,32 @@ test("judge build is a no-login static replay with no localhost evidence links",
   assert.equal(manifest.mode, "RECORDED_REPLAY");
   assert.equal(manifest.status, "COMPLETED");
   assert.equal(events.trim().split("\n").length, manifest.event_count);
+});
+
+test("judge bundle contains the P1 cockpit, measured comparison, and Evidence Drawer", async () => {
+  const assetsRoot = new URL("../judge-dist/assets/", import.meta.url);
+  const assetNames = await readdir(assetsRoot);
+  const bundleText = (
+    await Promise.all(
+      assetNames
+        .filter((name) => name.endsWith(".js") || name.endsWith(".css"))
+        .map((name) => readFile(new URL(name, assetsRoot), "utf8")),
+    )
+  ).join("\n");
+
+  for (const expected of [
+    "A model succeeded.",
+    "TRACE IMPACT",
+    "VERIFY RECOVERY",
+    "Search can find similar names; directed lineage proves the exact downstream decision cone.",
+    "SEARCH-ONLY DATAHUB",
+    "69.8%",
+    "NO DATAHUB",
+    "NOT YET MEASURED",
+    "PUBLIC EVIDENCE RECEIPT",
+    "not a digital signature and not proof of origin",
+  ]) {
+    assert.match(bundleText, new RegExp(expected.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+  assert.doesNotMatch(bundleText, /href=["']https?:\/\/(?:localhost|127\.0\.0\.1)/i);
 });
