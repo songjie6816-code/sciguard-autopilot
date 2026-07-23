@@ -25,6 +25,9 @@ class SdkReader:
     def get_all_downstream(self, urn: str):
         return reader.get_all_downstream(self.graph, urn)
 
+    def get_all_upstream(self, urn: str):
+        return reader.get_all_upstream(self.graph, urn)
+
     def get_schema_fields(self, urn: str):
         return reader.get_schema_fields(self.graph, urn)
 
@@ -33,6 +36,12 @@ class SdkReader:
 
     def get_owners(self, urn: str):
         return reader.get_owners(self.graph, urn)
+
+    def get_asset_context(self, urn: str):
+        return reader.get_asset_context(self.graph, urn)
+
+    def get_fine_grained_lineage(self, urn: str):
+        return reader.get_fine_grained_lineage(self.graph, urn)
 
     def close(self) -> None:  # symmetry with the MCP backend
         pass

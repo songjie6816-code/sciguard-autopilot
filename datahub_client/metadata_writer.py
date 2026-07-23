@@ -64,3 +64,18 @@ def add_custom_properties(graph: DataHubGraph, urn: str, new_props: dict[str, st
     existing.customProperties = merged
     graph.emit(MetadataChangeProposalWrapper(entityUrn=urn, aspect=existing))
     return merged
+
+
+def remove_custom_properties(graph: DataHubGraph, urn: str, keys: list[str]) -> dict[str, str]:
+    """Remove only the named custom properties while preserving the complete aspect."""
+    existing = graph.get_aspect(urn, DatasetPropertiesClass)
+    if existing is None:
+        return {}
+    current = dict(existing.customProperties or {})
+    drop = set(keys)
+    remaining = {key: value for key, value in current.items() if key not in drop}
+    if remaining == current:
+        return current
+    existing.customProperties = remaining
+    graph.emit(MetadataChangeProposalWrapper(entityUrn=urn, aspect=existing))
+    return remaining

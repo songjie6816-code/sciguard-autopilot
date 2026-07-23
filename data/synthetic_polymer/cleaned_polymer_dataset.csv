@@ -1,181 +1,421 @@
-sample_id,polymer_name,polymer_class,smiles,mn_g_mol,mw_g_mol,pdi,tg_degC
-PLY-0001,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,26163.3,48164.2,1.841,26.04
-PLY-0002,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,25001.5,58557.3,2.342,28.68
-PLY-0003,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,38862.8,90577.6,2.331,142.92
-PLY-0004,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,32292.1,67321.3,2.085,6.29
-PLY-0005,polyisobutylene,vinyl,*CC(*)(C)C,227686.7,434354.6,1.908,-69.41
-PLY-0006,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,20792.2,35418.5,1.703,139.58
-PLY-0007,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,53958.4,99187.7,1.838,-125.83
-PLY-0008,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,98041.0,216632.5,2.21,31.61
-PLY-0009,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,61719.2,132527.9,2.147,-126.71
-PLY-0010,poly(vinyl chloride),vinyl,*CC(*)Cl,133323.6,209621.7,1.572,80.81
-PLY-0011,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,161433.1,320052.1,1.983,104.99
-PLY-0012,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,41388.4,87452.9,2.113,8.24
-PLY-0013,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,28183.7,66018.6,2.342,75.31
-PLY-0014,poly(vinyl chloride),vinyl,*CC(*)Cl,32219.3,72195.4,2.241,78.09
-PLY-0015,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,96768.9,190432.2,1.968,8.39
-PLY-0016,poly(vinyl chloride),vinyl,*CC(*)Cl,118012.2,228954.0,1.94,80.52
-PLY-0017,polystyrene,vinyl,*CC(*)c1ccccc1,170976.0,408480.1,2.389,96.96
-PLY-0018,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,33289.7,70369.3,2.114,73.2
-PLY-0019,polystyrene,vinyl,*CC(*)c1ccccc1,73881.7,123798.2,1.676,96.7
-PLY-0020,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,104753.7,175161.3,1.672,102.69
-PLY-0021,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,21854.9,34984.3,1.601,73.32
-PLY-0022,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,31224.3,55547.7,1.779,26.21
-PLY-0023,poly(vinyl chloride),vinyl,*CC(*)Cl,109039.0,254459.6,2.334,81.81
-PLY-0024,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,78474.0,118672.0,1.512,-127.2
-PLY-0025,poly(vinyl chloride),vinyl,*CC(*)Cl,149012.0,299437.8,2.009,79.6
-PLY-0026,polypropylene (atactic),polyolefin,*CC(*)C,109945.3,180644.9,1.643,-18.76
-PLY-0027,polypropylene (atactic),polyolefin,*CC(*)C,111016.8,260412.1,2.346,-17.75
-PLY-0028,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,95161.2,180149.4,1.893,9.34
-PLY-0029,polypropylene (atactic),polyolefin,*CC(*)C,88224.6,147823.2,1.676,-20.56
-PLY-0030,polystyrene,vinyl,*CC(*)c1ccccc1,55316.7,95169.3,1.72,100.29
-PLY-0031,polypropylene (atactic),polyolefin,*CC(*)C,149160.0,355800.0,2.385,-18.09
-PLY-0032,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,23227.8,39820.0,1.714,73.71
-PLY-0033,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,33701.0,74005.0,2.196,101.72
-PLY-0034,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,22306.1,38277.6,1.716,-126.79
-PLY-0035,polypropylene (atactic),polyolefin,*CC(*)C,38955.4,72209.1,1.854,-19.27
-PLY-0036,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,54849.6,126690.6,2.31,-123.58
-PLY-0037,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,106503.5,213830.2,2.008,26.67
-PLY-0038,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,36322.8,72863.4,2.006,76.68
-PLY-0039,polypropylene (atactic),polyolefin,*CC(*)C,63398.3,142946.4,2.255,-19.39
-PLY-0040,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,23250.8,44110.4,1.897,-130.26
-PLY-0041,polyisobutylene,vinyl,*CC(*)(C)C,87256.3,203254.2,2.329,-70.95
-PLY-0042,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,50726.0,86740.9,1.71,29.45
-PLY-0043,polystyrene,vinyl,*CC(*)c1ccccc1,64833.3,128827.1,1.987,101.53
-PLY-0044,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,33592.6,60227.0,1.793,73.69
-PLY-0045,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,66660.5,116519.6,1.748,28.2
-PLY-0046,polyisobutylene,vinyl,*CC(*)(C)C,96037.2,160750.8,1.674,-71.87
-PLY-0047,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,111213.1,184200.6,1.656,27.51
-PLY-0048,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,110993.2,170704.0,1.538,106.53
-PLY-0049,polystyrene,vinyl,*CC(*)c1ccccc1,34060.5,72655.1,2.133,95.28
-PLY-0050,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,21160.2,32907.3,1.555,140.18
-PLY-0051,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,97421.3,168637.7,1.731,102.75
-PLY-0052,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,26971.4,45611.4,1.691,72.38
-PLY-0053,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,37017.2,86156.5,2.327,6.22
-PLY-0054,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,27525.6,64687.5,2.35,-126.42
-PLY-0055,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,56060.5,133577.0,2.383,6.38
-PLY-0056,poly(vinyl chloride),vinyl,*CC(*)Cl,147162.7,267270.3,1.816,80.67
-PLY-0057,polystyrene,vinyl,*CC(*)c1ccccc1,141911.7,227686.8,1.604,100.63
-PLY-0058,polypropylene (atactic),polyolefin,*CC(*)C,102389.1,161755.8,1.58,-19.28
-PLY-0059,polystyrene,vinyl,*CC(*)c1ccccc1,181322.1,333485.2,1.839,102.43
-PLY-0060,poly(vinyl chloride),vinyl,*CC(*)Cl,86133.0,180067.0,2.091,81.79
-PLY-0061,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,23170.3,40394.2,1.743,139.21
-PLY-0062,polyisobutylene,vinyl,*CC(*)(C)C,82286.7,174868.5,2.125,-71.52
-PLY-0063,polypropylene (atactic),polyolefin,*CC(*)C,89923.0,213430.9,2.373,-19.32
-PLY-0064,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,65558.9,104845.0,1.599,-123.26
-PLY-0065,polyisobutylene,vinyl,*CC(*)(C)C,183014.8,321099.5,1.755,-69.82
-PLY-0066,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,36439.8,77356.4,2.123,75.81
-PLY-0067,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,177091.3,386508.4,2.183,103.72
-PLY-0068,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,34289.9,81044.9,2.364,75.73
-PLY-0069,polyisobutylene,vinyl,*CC(*)(C)C,240008.1,464820.0,1.937,-71.07
-PLY-0070,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,30458.7,48292.4,1.586,72.92
-PLY-0071,polystyrene,vinyl,*CC(*)c1ccccc1,114552.3,245111.7,2.14,99.0
-PLY-0072,polypropylene (atactic),polyolefin,*CC(*)C,186733.9,422232.9,2.261,-18.42
-PLY-0073,polystyrene,vinyl,*CC(*)c1ccccc1,171441.2,331037.3,1.931,100.46
-PLY-0074,poly(vinyl chloride),vinyl,*CC(*)Cl,107353.3,223627.9,2.083,79.86
-PLY-0075,polystyrene,vinyl,*CC(*)c1ccccc1,153631.4,270628.6,1.762,99.37
-PLY-0076,polypropylene (atactic),polyolefin,*CC(*)C,193451.2,426517.7,2.205,-16.79
-PLY-0077,polypropylene (atactic),polyolefin,*CC(*)C,32589.0,72054.1,2.211,-19.8
-PLY-0078,polystyrene,vinyl,*CC(*)c1ccccc1,45148.8,86612.0,1.918,97.14
-PLY-0079,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,43616.2,103815.8,2.38,78.58
-PLY-0080,poly(vinyl chloride),vinyl,*CC(*)Cl,68552.4,137314.7,2.003,80.45
-PLY-0081,polypropylene (atactic),polyolefin,*CC(*)C,141202.0,326630.4,2.313,-18.38
-PLY-0082,polystyrene,vinyl,*CC(*)c1ccccc1,185276.6,294982.0,1.592,98.51
-PLY-0083,polystyrene,vinyl,*CC(*)c1ccccc1,118149.2,254123.9,2.151,101.62
-PLY-0084,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,36100.6,62923.5,1.743,-127.61
-PLY-0085,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,58978.9,104157.8,1.766,103.39
-PLY-0086,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,41274.5,63985.0,1.55,76.52
-PLY-0087,polystyrene,vinyl,*CC(*)c1ccccc1,191314.8,346439.0,1.811,97.61
-PLY-0088,polyisobutylene,vinyl,*CC(*)(C)C,146936.1,345694.0,2.353,-69.42
-PLY-0089,poly(vinyl chloride),vinyl,*CC(*)Cl,127699.2,270089.8,2.115,81.78
-PLY-0090,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,19937.7,43153.9,2.164,-125.74
-PLY-0091,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,43159.2,103223.0,2.392,-128.1
-PLY-0092,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,99345.7,219988.5,2.214,7.76
-PLY-0093,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,52554.3,119365.1,2.271,104.5
-PLY-0094,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,65727.5,102950.0,1.566,-126.36
-PLY-0095,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,41215.4,98668.6,2.394,29.7
-PLY-0096,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,95188.2,142981.3,1.502,30.01
-PLY-0097,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,112657.0,240422.7,2.134,104.37
-PLY-0098,polyisobutylene,vinyl,*CC(*)(C)C,276826.9,447356.1,1.616,-70.73
-PLY-0099,polyisobutylene,vinyl,*CC(*)(C)C,202142.3,460214.9,2.277,-69.51
-PLY-0100,poly(vinyl chloride),vinyl,*CC(*)Cl,76827.8,141763.2,1.845,81.16
-PLY-0101,polystyrene,vinyl,*CC(*)c1ccccc1,121941.5,198607.0,1.629,99.02
-PLY-0102,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,52170.1,122657.3,2.351,8.82
-PLY-0103,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,12611.6,30058.8,2.383,70.9
-PLY-0104,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,52900.2,111241.9,2.103,142.83
-PLY-0105,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,104552.9,190057.8,1.818,8.23
-PLY-0106,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,70708.9,150551.5,2.129,-125.51
-PLY-0107,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,33971.6,76156.0,2.242,77.48
-PLY-0108,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,53999.0,100910.8,1.869,145.53
-PLY-0109,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,72122.9,160221.8,2.222,102.91
-PLY-0110,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,17440.6,38699.9,2.219,140.18
-PLY-0111,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,17395.2,41377.9,2.379,135.33
-PLY-0112,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,47037.2,72331.9,1.538,143.69
-PLY-0113,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,48889.4,89299.9,1.827,-126.4
-PLY-0114,polypropylene (atactic),polyolefin,*CC(*)C,140853.2,276621.3,1.964,-18.45
-PLY-0115,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,31386.2,48216.3,1.536,-125.28
-PLY-0116,poly(vinyl chloride),vinyl,*CC(*)Cl,116007.0,189438.0,1.633,80.18
-PLY-0117,polystyrene,vinyl,*CC(*)c1ccccc1,155141.1,245622.2,1.583,101.13
-PLY-0118,polypropylene (atactic),polyolefin,*CC(*)C,132773.9,240964.3,1.815,-17.31
-PLY-0119,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,38505.4,76728.8,1.993,-125.89
-PLY-0120,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,61492.3,116158.8,1.889,101.45
-PLY-0121,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,111702.3,236670.2,2.119,30.68
-PLY-0122,polyisobutylene,vinyl,*CC(*)(C)C,52457.7,97470.4,1.858,-73.01
-PLY-0123,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,47832.8,90181.2,1.885,74.16
-PLY-0124,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,21240.8,41816.5,1.969,5.3
-PLY-0125,polyisobutylene,vinyl,*CC(*)(C)C,96562.2,197121.1,2.041,-71.09
-PLY-0126,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,60880.8,127286.2,2.091,10.32
-PLY-0127,polypropylene (atactic),polyolefin,*CC(*)C,120528.1,280198.8,2.325,-20.9
-PLY-0128,polypropylene (atactic),polyolefin,*CC(*)C,184687.6,338523.8,1.833,-16.74
-PLY-0129,polypropylene (atactic),polyolefin,*CC(*)C,51883.9,123095.8,2.373,-19.8
-PLY-0130,polyisobutylene,vinyl,*CC(*)(C)C,116512.0,211263.8,1.813,-69.35
-PLY-0131,polyisobutylene,vinyl,*CC(*)(C)C,173390.8,272218.6,1.57,-70.84
-PLY-0132,poly(vinyl chloride),vinyl,*CC(*)Cl,105168.3,178657.3,1.699,82.06
-PLY-0133,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,53699.5,118133.9,2.2,143.68
-PLY-0134,polypropylene (atactic),polyolefin,*CC(*)C,101720.1,185368.3,1.822,-20.61
-PLY-0135,polyisobutylene,vinyl,*CC(*)(C)C,209577.5,476989.4,2.276,-72.5
-PLY-0136,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,21146.6,33843.2,1.6,72.37
-PLY-0137,polypropylene (atactic),polyolefin,*CC(*)C,175892.0,269879.3,1.534,-18.4
-PLY-0138,polypropylene (atactic),polyolefin,*CC(*)C,135883.9,273194.0,2.01,-16.45
-PLY-0139,poly(vinyl chloride),vinyl,*CC(*)Cl,60680.3,111788.9,1.842,79.04
-PLY-0140,polyisobutylene,vinyl,*CC(*)(C)C,299530.0,588564.0,1.965,-70.6
-PLY-0141,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,89720.1,160577.2,1.79,28.55
-PLY-0142,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,89664.1,186890.5,2.084,5.96
-PLY-0143,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,64808.4,151963.9,2.345,-128.79
-PLY-0144,poly(vinyl chloride),vinyl,*CC(*)Cl,41977.1,82471.1,1.965,81.79
-PLY-0145,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,10775.0,20826.3,1.933,70.59
-PLY-0146,polyisobutylene,vinyl,*CC(*)(C)C,147520.9,239133.4,1.621,-71.05
-PLY-0147,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,36649.1,55462.7,1.513,141.83
-PLY-0148,polyisobutylene,vinyl,*CC(*)(C)C,272309.9,613337.2,2.252,-69.63
-PLY-0149,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,63012.4,138324.4,2.195,31.58
-PLY-0150,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,21782.4,49109.2,2.255,-127.29
-PLY-0151,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,79766.3,181041.0,2.27,8.71
-PLY-0152,polyisobutylene,vinyl,*CC(*)(C)C,99353.7,228879.7,2.304,-70.77
-PLY-0153,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,71325.8,156213.6,2.19,28.04
-PLY-0154,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,144285.6,318802.4,2.21,103.73
-PLY-0155,poly(vinyl chloride),vinyl,*CC(*)Cl,114815.1,217085.9,1.891,78.48
-PLY-0156,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,45455.2,73804.4,1.624,26.72
-PLY-0157,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,131033.8,200093.2,1.527,104.87
-PLY-0158,polystyrene,vinyl,*CC(*)c1ccccc1,124660.5,198322.0,1.591,97.83
-PLY-0159,polystyrene,vinyl,*CC(*)c1ccccc1,84826.0,140790.5,1.66,98.3
-PLY-0160,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,72443.2,126514.9,1.746,-125.17
-PLY-0161,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,52934.7,80973.0,1.53,28.29
-PLY-0162,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,19025.7,38008.5,1.998,70.96
-PLY-0163,polystyrene,vinyl,*CC(*)c1ccccc1,178882.5,375800.7,2.101,100.5
-PLY-0164,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,58602.8,131602.1,2.246,30.32
-PLY-0165,polyisobutylene,vinyl,*CC(*)(C)C,133334.5,252360.3,1.893,-69.66
-PLY-0166,polypropylene (atactic),polyolefin,*CC(*)C,60416.2,91748.3,1.519,-20.42
-PLY-0167,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,25867.7,60382.1,2.334,-126.86
-PLY-0168,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,14445.2,22347.4,1.547,70.08
-PLY-0169,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,84735.0,157731.1,1.861,30.17
-PLY-0170,polystyrene,vinyl,*CC(*)c1ccccc1,104114.5,172762.9,1.659,99.61
-PLY-0171,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,42379.9,73852.2,1.743,30.73
-PLY-0172,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,91257.8,143389.3,1.571,29.17
-PLY-0173,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,29959.8,47101.1,1.572,143.58
-PLY-0174,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,100197.9,222377.2,2.219,29.65
-PLY-0175,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,54894.0,121505.9,2.213,-126.62
-PLY-0176,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,69304.5,118731.6,1.713,8.49
-PLY-0177,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,159175.3,348069.0,2.187,106.86
-PLY-0178,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,82990.0,183099.5,2.206,30.29
-PLY-0179,polyisobutylene,vinyl,*CC(*)(C)C,50865.3,121495.7,2.389,-68.56
-PLY-0180,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,56408.2,113090.7,2.005,146.8
+sample_id,batch_id,instrument_id,instrument_firmware,normalization_version,polymer_name,polymer_class,smiles,mn_g_mol,mw_g_mol,pdi,tg_degC
+P-001,B040,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,26163.3,48164.2,1.841,26.041318
+P-002,B040,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,25001.5,58557.3,2.342,28.679453
+P-003,B040,DSC-07,v4.1,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,38862.8,90577.6,2.331,142.915248
+P-004,B040,DSC-07,v4.1,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,32292.1,67321.3,2.085,6.287133
+P-005,B040,DSC-07,v4.1,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,227686.7,434354.6,1.908,-69.408441
+P-006,B040,DSC-07,v4.1,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,20792.2,35418.5,1.703,139.580127
+P-007,B040,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,53958.4,99187.7,1.838,-125.833328
+P-008,B040,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,98041.0,216632.5,2.21,31.613001
+P-009,B040,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,61719.2,132527.9,2.147,-126.714292
+P-010,B040,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,133323.6,209621.7,1.572,80.812321
+P-011,B040,DSC-07,v4.1,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,161433.1,320052.1,1.983,104.991674
+P-012,B040,DSC-07,v4.1,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,41388.4,87452.9,2.113,8.242498
+P-013,B040,DSC-07,v4.1,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,28183.7,66018.6,2.342,75.312018
+P-014,B040,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,32219.3,72195.4,2.241,78.088252
+P-015,B040,DSC-07,v4.1,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,96768.9,190432.2,1.968,8.393822
+P-016,B040,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,118012.2,228954.0,1.94,80.522053
+P-017,B040,DSC-07,v4.1,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,170976.0,408480.1,2.389,96.96079
+P-018,B040,DSC-07,v4.1,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,33289.7,70369.3,2.114,73.200051
+P-019,B040,DSC-07,v4.1,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,73881.7,123798.2,1.676,96.695793
+P-020,B040,DSC-07,v4.1,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,104753.7,175161.3,1.672,102.689482
+P-021,B040,DSC-07,v4.1,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,21854.9,34984.3,1.601,73.323223
+P-022,B040,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,31224.3,55547.7,1.779,26.213022
+P-023,B040,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,109039.0,254459.6,2.334,81.807924
+P-024,B040,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,78474.0,118672.0,1.512,-127.203228
+P-025,B040,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,149012.0,299437.8,2.009,79.601871
+P-026,B040,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,109945.3,180644.9,1.643,-18.758515
+P-027,B040,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,111016.8,260412.1,2.346,-17.745339
+P-028,B040,DSC-07,v4.1,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,95161.2,180149.4,1.893,9.341307
+P-029,B040,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,88224.6,147823.2,1.676,-20.561998
+P-030,B040,DSC-07,v4.1,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,55316.7,95169.3,1.72,100.290998
+P-031,B040,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,149160.0,355800.0,2.385,-18.093284
+P-032,B040,DSC-07,v4.1,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,23227.8,39820.0,1.714,73.710977
+P-033,B040,DSC-07,v4.1,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,33701.0,74005.0,2.196,101.723429
+P-034,B040,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,22306.1,38277.6,1.716,-126.794229
+P-035,B040,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,38955.4,72209.1,1.854,-19.270058
+P-036,B040,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,54849.6,126690.6,2.31,-123.580753
+P-037,B040,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,106503.5,213830.2,2.008,26.667249
+P-038,B040,DSC-07,v4.1,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,36322.8,72863.4,2.006,76.682805
+P-039,B040,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,63398.3,142946.4,2.255,-19.388662
+P-040,B040,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,23250.8,44110.4,1.897,-130.262321
+P-041,B040,DSC-07,v4.1,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,87256.3,203254.2,2.329,-70.950346
+P-042,B040,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,50726.0,86740.9,1.71,29.445981
+P-043,B040,DSC-07,v4.1,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,64833.3,128827.1,1.987,101.533113
+P-044,B040,DSC-07,v4.1,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,33592.6,60227.0,1.793,73.688571
+P-045,B040,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,66660.5,116519.6,1.748,28.195419
+P-046,B040,DSC-07,v4.1,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,96037.2,160750.8,1.674,-71.868171
+P-047,B040,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,111213.1,184200.6,1.656,27.514837
+P-048,B040,DSC-07,v4.1,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,110993.2,170704.0,1.538,106.532723
+P-049,B040,DSC-07,v4.1,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,34060.5,72655.1,2.133,95.275273
+P-050,B040,DSC-07,v4.1,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,21160.2,32907.3,1.555,140.179452
+P-051,B040,DSC-07,v4.1,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,97421.3,168637.7,1.731,102.749813
+P-052,B040,DSC-07,v4.1,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,26971.4,45611.4,1.691,72.375509
+P-053,B040,DSC-07,v4.1,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,37017.2,86156.5,2.327,6.219382
+P-054,B040,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,27525.6,64687.5,2.35,-126.416943
+P-055,B040,DSC-07,v4.1,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,56060.5,133577.0,2.383,6.376024
+P-056,B040,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,147162.7,267270.3,1.816,80.670497
+P-057,B040,DSC-07,v4.1,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,141911.7,227686.8,1.604,100.627916
+P-058,B040,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,102389.1,161755.8,1.58,-19.279263
+P-059,B040,DSC-07,v4.1,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,181322.1,333485.2,1.839,102.425386
+P-060,B040,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,86133.0,180067.0,2.091,81.787689
+P-061,B040,DSC-07,v4.1,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,23170.3,40394.2,1.743,139.206002
+P-062,B040,DSC-07,v4.1,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,82286.7,174868.5,2.125,-71.524939
+P-063,B040,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,89923.0,213430.9,2.373,-19.319988
+P-064,B040,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,65558.9,104845.0,1.599,-123.263913
+P-065,B040,DSC-07,v4.1,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,183014.8,321099.5,1.755,-69.81614
+P-066,B040,DSC-07,v4.1,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,36439.8,77356.4,2.123,75.808
+P-067,B040,DSC-07,v4.1,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,177091.3,386508.4,2.183,103.71951
+P-068,B040,DSC-07,v4.1,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,34289.9,81044.9,2.364,75.725471
+P-069,B040,DSC-07,v4.1,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,240008.1,464820.0,1.937,-71.069486
+P-070,B040,DSC-07,v4.1,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,30458.7,48292.4,1.586,72.916531
+P-071,B040,DSC-07,v4.1,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,114552.3,245111.7,2.14,99.001381
+P-072,B040,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,186733.9,422232.9,2.261,-18.424813
+P-073,B040,DSC-07,v4.1,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,171441.2,331037.3,1.931,100.463835
+P-074,B040,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,107353.3,223627.9,2.083,79.86095
+P-075,B040,DSC-07,v4.1,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,153631.4,270628.6,1.762,99.369335
+P-076,B040,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,193451.2,426517.7,2.205,-16.789187
+P-077,B040,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,32589.0,72054.1,2.211,-19.797278
+P-078,B040,DSC-07,v4.1,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,45148.8,86612.0,1.918,97.143472
+P-079,B040,DSC-07,v4.1,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,43616.2,103815.8,2.38,78.583334
+P-080,B040,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,68552.4,137314.7,2.003,80.445587
+P-081,B040,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,141202.0,326630.4,2.313,-18.376005
+P-082,B040,DSC-07,v4.1,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,185276.6,294982.0,1.592,98.513798
+P-083,B040,DSC-07,v4.1,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,118149.2,254123.9,2.151,101.619726
+P-084,B040,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,36100.6,62923.5,1.743,-127.607938
+P-085,B040,DSC-07,v4.1,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,58978.9,104157.8,1.766,103.390513
+P-086,B040,DSC-07,v4.1,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,41274.5,63985.0,1.55,76.522496
+P-087,B040,DSC-07,v4.1,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,191314.8,346439.0,1.811,97.612207
+P-088,B040,DSC-07,v4.1,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,146936.1,345694.0,2.353,-69.421472
+P-089,B040,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,127699.2,270089.8,2.115,81.775764
+P-090,B040,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,19937.7,43153.9,2.164,-125.736287
+P-091,B041,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,43159.2,103223.0,2.392,-128.101437
+P-092,B041,DSC-07,v4.1,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,99345.7,219988.5,2.214,7.756675
+P-093,B041,DSC-07,v4.1,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,52554.3,119365.1,2.271,104.497438
+P-094,B041,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,65727.5,102950.0,1.566,-126.35505
+P-095,B041,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,41215.4,98668.6,2.394,29.700892
+P-096,B041,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,95188.2,142981.3,1.502,30.009476
+P-097,B041,DSC-07,v4.1,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,112657.0,240422.7,2.134,104.366605
+P-098,B041,DSC-07,v4.1,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,276826.9,447356.1,1.616,-70.733801
+P-099,B041,DSC-07,v4.1,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,202142.3,460214.9,2.277,-69.512286
+P-100,B041,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,76827.8,141763.2,1.845,81.15749
+P-101,B041,DSC-07,v4.1,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,121941.5,198607.0,1.629,99.015104
+P-102,B041,DSC-07,v4.1,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,52170.1,122657.3,2.351,8.819696
+P-103,B041,DSC-07,v4.1,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,12611.6,30058.8,2.383,70.899862
+P-104,B041,DSC-07,v4.1,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,52900.2,111241.9,2.103,142.830954
+P-105,B041,DSC-07,v4.1,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,104552.9,190057.8,1.818,8.231799
+P-106,B041,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,70708.9,150551.5,2.129,-125.508975
+P-107,B041,DSC-07,v4.1,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,33971.6,76156.0,2.242,77.483123
+P-108,B041,DSC-07,v4.1,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,53999.0,100910.8,1.869,145.533479
+P-109,B041,DSC-07,v4.1,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,72122.9,160221.8,2.222,102.907502
+P-110,B041,DSC-07,v4.1,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,17440.6,38699.9,2.219,140.1816
+P-111,B041,DSC-07,v4.1,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,17395.2,41377.9,2.379,135.330249
+P-112,B041,DSC-07,v4.1,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,47037.2,72331.9,1.538,143.694691
+P-113,B041,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,48889.4,89299.9,1.827,-126.395738
+P-114,B041,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,140853.2,276621.3,1.964,-18.448893
+P-115,B041,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,31386.2,48216.3,1.536,-125.281659
+P-116,B041,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,116007.0,189438.0,1.633,80.182132
+P-117,B041,DSC-07,v4.1,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,155141.1,245622.2,1.583,101.127961
+P-118,B041,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,132773.9,240964.3,1.815,-17.314079
+P-119,B041,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,38505.4,76728.8,1.993,-125.889814
+P-120,B041,DSC-07,v4.1,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,61492.3,116158.8,1.889,101.448818
+P-121,B041,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,111702.3,236670.2,2.119,30.680395
+P-122,B041,DSC-07,v4.1,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,52457.7,97470.4,1.858,-73.014058
+P-123,B041,DSC-07,v4.1,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,47832.8,90181.2,1.885,74.157859
+P-124,B041,DSC-07,v4.1,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,21240.8,41816.5,1.969,5.297429
+P-125,B041,DSC-07,v4.1,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,96562.2,197121.1,2.041,-71.088137
+P-126,B041,DSC-07,v4.1,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,60880.8,127286.2,2.091,10.31511
+P-127,B041,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,120528.1,280198.8,2.325,-20.902686
+P-128,B041,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,184687.6,338523.8,1.833,-16.743995
+P-129,B041,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,51883.9,123095.8,2.373,-19.802146
+P-130,B041,DSC-07,v4.1,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,116512.0,211263.8,1.813,-69.350588
+P-131,B041,DSC-07,v4.1,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,173390.8,272218.6,1.57,-70.83735
+P-132,B041,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,105168.3,178657.3,1.699,82.062648
+P-133,B041,DSC-07,v4.1,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,53699.5,118133.9,2.2,143.680936
+P-134,B041,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,101720.1,185368.3,1.822,-20.613417
+P-135,B041,DSC-07,v4.1,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,209577.5,476989.4,2.276,-72.502811
+P-136,B041,DSC-07,v4.1,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,21146.6,33843.2,1.6,72.367463
+P-137,B041,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,175892.0,269879.3,1.534,-18.401349
+P-138,B041,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,135883.9,273194.0,2.01,-16.453379
+P-139,B041,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,60680.3,111788.9,1.842,79.040953
+P-140,B041,DSC-07,v4.1,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,299530.0,588564.0,1.965,-70.60069
+P-141,B041,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,89720.1,160577.2,1.79,28.550055
+P-142,B041,DSC-07,v4.1,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,89664.1,186890.5,2.084,5.956801
+P-143,B041,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,64808.4,151963.9,2.345,-128.787798
+P-144,B041,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,41977.1,82471.1,1.965,81.792257
+P-145,B041,DSC-07,v4.1,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,10775.0,20826.3,1.933,70.590848
+P-146,B041,DSC-07,v4.1,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,147520.9,239133.4,1.621,-71.050294
+P-147,B041,DSC-07,v4.1,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,36649.1,55462.7,1.513,141.832237
+P-148,B041,DSC-07,v4.1,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,272309.9,613337.2,2.252,-69.633453
+P-149,B041,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,63012.4,138324.4,2.195,31.584509
+P-150,B041,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,21782.4,49109.2,2.255,-127.287875
+P-151,B041,DSC-07,v4.1,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,79766.3,181041.0,2.27,8.709897
+P-152,B041,DSC-07,v4.1,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,99353.7,228879.7,2.304,-70.766599
+P-153,B041,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,71325.8,156213.6,2.19,28.039539
+P-154,B041,DSC-07,v4.1,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,144285.6,318802.4,2.21,103.727414
+P-155,B041,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,114815.1,217085.9,1.891,78.479407
+P-156,B041,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,45455.2,73804.4,1.624,26.716723
+P-157,B041,DSC-07,v4.1,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,131033.8,200093.2,1.527,104.865495
+P-158,B041,DSC-07,v4.1,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,124660.5,198322.0,1.591,97.834827
+P-159,B041,DSC-07,v4.1,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,84826.0,140790.5,1.66,98.301239
+P-160,B041,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,72443.2,126514.9,1.746,-125.174148
+P-161,B041,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,52934.7,80973.0,1.53,28.287717
+P-162,B041,DSC-07,v4.1,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,19025.7,38008.5,1.998,70.959806
+P-163,B041,DSC-07,v4.1,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,178882.5,375800.7,2.101,100.495253
+P-164,B041,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,58602.8,131602.1,2.246,30.322149
+P-165,B041,DSC-07,v4.1,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,133334.5,252360.3,1.893,-69.655839
+P-166,B041,DSC-07,v4.1,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,60416.2,91748.3,1.519,-20.417669
+P-167,B041,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,25867.7,60382.1,2.334,-126.8555
+P-168,B041,DSC-07,v4.1,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,14445.2,22347.4,1.547,70.078199
+P-169,B041,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,84735.0,157731.1,1.861,30.169342
+P-170,B041,DSC-07,v4.1,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,104114.5,172762.9,1.659,99.612635
+P-171,B041,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,42379.9,73852.2,1.743,30.727136
+P-172,B041,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,91257.8,143389.3,1.571,29.172381
+P-173,B041,DSC-07,v4.1,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,29959.8,47101.1,1.572,143.580756
+P-174,B041,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,100197.9,222377.2,2.219,29.649208
+P-175,B041,DSC-07,v4.1,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,54894.0,121505.9,2.213,-126.619328
+P-176,B041,DSC-07,v4.1,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,69304.5,118731.6,1.713,8.489328
+P-177,B041,DSC-07,v4.1,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,159175.3,348069.0,2.187,106.859081
+P-178,B041,DSC-07,v4.1,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,82990.0,183099.5,2.206,30.290496
+P-179,B041,DSC-07,v4.1,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,50865.3,121495.7,2.389,-68.556871
+P-180,B041,DSC-07,v4.1,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,56408.2,113090.7,2.005,146.800992
+P-181,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,21251.7,35532.3,1.672,280.085516
+P-182,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,291003.5,593962.9,2.041,203.098794
+P-183,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,41516.7,85120.0,2.05,349.522012
+P-184,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,54820.6,83117.7,1.516,144.213433
+P-185,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,46151.4,92928.3,2.014,356.170256
+P-186,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,20758.0,47495.2,2.288,138.171815
+P-187,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,195401.9,368359.0,1.885,101.448608
+P-188,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,115509.9,240127.3,2.079,353.487651
+P-189,B042,DSC-07,v4.2,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,82772.4,188307.1,2.275,254.585483
+P-190,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,34733.1,58061.1,1.672,349.522843
+P-191,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,31670.7,69130.5,2.183,372.083586
+P-192,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,114255.6,246221.7,2.155,283.333152
+P-193,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,97140.7,222573.5,2.291,299.922016
+P-194,B042,DSC-07,v4.2,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,161274.7,263441.7,1.633,253.979136
+P-195,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,124654.1,281350.3,2.257,353.175077
+P-196,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,79606.4,145655.5,1.83,146.029907
+P-197,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,175901.1,394047.9,2.24,201.239779
+P-198,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,31254.7,72547.0,2.321,302.099454
+P-199,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,69850.1,127600.1,1.827,200.012098
+P-200,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,102494.8,188713.9,1.841,302.222508
+P-201,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,32864.5,58421.1,1.778,368.902448
+P-202,B042,DSC-07,v4.2,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,167182.2,389955.8,2.333,253.538375
+P-203,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,299514.1,674352.6,2.251,204.109494
+P-204,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,85384.6,167821.3,1.965,416.72078
+P-205,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,127147.5,282340.0,2.221,357.166209
+P-206,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,27051.7,42839.5,1.584,348.227319
+P-207,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,39265.1,93034.5,2.369,102.847163
+P-208,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,185094.3,432847.3,2.339,201.467565
+P-209,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,42903.6,64452.0,1.502,144.449351
+P-210,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,43091.2,99330.8,2.305,301.380316
+P-211,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,50772.2,100525.4,1.98,145.058986
+P-212,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,127867.9,229610.2,1.796,356.697436
+P-213,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,42296.9,94651.7,2.238,145.798682
+P-214,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,49052.5,92894.9,1.894,144.292358
+P-215,B042,DSC-07,v4.2,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,160158.0,273894.3,1.71,256.796644
+P-216,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,212996.2,363200.4,1.705,201.140521
+P-217,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,87171.8,143595.7,1.647,284.983285
+P-218,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,76859.7,173019.9,2.251,281.675891
+P-219,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,153111.2,302585.6,1.976,201.77785
+P-220,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,109704.3,170835.9,1.557,99.021311
+P-221,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,79646.8,157786.4,1.981,147.808528
+P-222,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,25800.4,56271.2,2.181,280.030444
+P-223,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,141241.6,229700.3,1.626,101.851019
+P-224,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,40040.6,90415.7,2.258,351.561397
+P-225,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,44422.0,86193.0,1.94,142.208199
+P-226,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,88699.7,210551.9,2.374,302.18288
+P-227,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,30950.8,46585.6,1.505,369.913886
+P-228,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,92024.0,157529.5,1.712,204.109789
+P-229,B042,DSC-07,v4.2,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,141773.8,226102.0,1.595,255.747468
+P-230,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,136943.2,314986.5,2.3,99.802206
+P-231,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,48164.6,84597.4,1.756,347.858215
+P-232,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,123721.3,212744.3,1.72,357.189252
+P-233,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,27287.2,52829.5,1.936,143.144908
+P-234,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,64956.0,124920.2,1.923,351.147317
+P-235,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,124609.7,268908.4,2.158,99.914967
+P-236,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,41444.9,66614.0,1.607,347.88832
+P-237,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,168781.5,328563.2,1.947,107.337286
+P-238,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,12651.0,20947.0,1.656,344.3561
+P-239,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,85262.7,173670.3,2.037,203.847651
+P-240,B042,DSC-07,v4.2,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,188359.1,340874.8,1.81,254.766399
+P-241,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,118046.5,275526.9,2.334,99.183694
+P-242,B042,DSC-07,v4.2,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,115139.7,261833.2,2.274,254.516096
+P-243,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,30234.8,68262.8,2.258,143.88426
+P-244,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,102613.4,158392.0,1.544,300.511141
+P-245,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,67392.7,107850.1,1.6,203.850121
+P-246,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,69902.6,153650.0,2.198,352.60736
+P-247,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,68562.3,147109.2,2.146,145.663148
+P-248,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,94238.6,178411.9,1.893,147.724372
+P-249,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,111239.4,208275.3,1.872,303.712532
+P-250,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,20996.7,45468.9,2.166,297.070033
+P-251,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,158714.0,273916.4,1.726,202.097702
+P-252,B042,DSC-07,v4.2,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,79647.7,137010.5,1.72,254.352872
+P-253,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,134431.0,214820.2,1.598,99.302617
+P-254,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,123241.5,225211.9,1.827,102.948094
+P-255,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,23208.3,52942.5,2.281,345.800138
+P-256,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,49534.2,117299.7,2.368,349.562746
+P-257,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,42728.2,70423.6,1.648,281.385212
+P-258,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,187083.1,405807.8,2.169,203.782364
+P-259,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,39841.4,92202.8,2.314,146.749148
+P-260,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,36670.9,60915.7,1.661,349.539275
+P-261,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,100790.2,191699.5,1.902,201.829678
+P-262,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,42771.3,85311.9,1.995,349.892615
+P-263,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,35669.9,71878.5,2.015,300.266584
+P-264,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,125064.0,253434.5,2.026,103.211964
+P-265,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,31878.1,68081.4,2.136,282.313231
+P-266,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,107765.3,199708.1,1.853,302.846693
+P-267,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,70877.5,139990.3,1.975,301.408461
+P-268,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,259617.1,621963.2,2.396,201.359796
+P-269,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,42759.2,65503.4,1.532,298.165761
+P-270,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,140808.0,289449.2,2.056,354.957084
+P-271,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,42630.6,83904.2,1.968,145.762217
+P-272,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,134011.7,243306.7,1.816,371.41616
+P-273,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,291487.3,597867.2,2.051,207.375016
+P-274,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,83977.3,195377.0,2.327,279.973535
+P-275,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,34360.2,61778.2,1.798,348.223567
+P-276,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,228598.5,353491.4,1.546,204.280642
+P-277,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,142781.0,331732.7,2.323,99.055397
+P-278,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,55014.1,85245.8,1.55,201.451641
+P-279,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,46600.0,83204.9,1.786,355.65635
+P-280,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,23405.9,38172.4,1.631,281.391735
+P-281,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,113910.8,197981.7,1.738,284.904747
+P-282,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,102516.2,204211.5,1.992,283.169741
+P-283,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,135814.9,214559.7,1.58,353.455709
+P-284,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,124218.6,280577.8,2.259,357.521234
+P-285,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,39020.7,69671.3,1.785,145.145567
+P-286,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,268213.1,454724.7,1.695,198.714414
+P-287,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,235052.9,415434.9,1.767,204.752332
+P-288,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,44311.4,84848.3,1.915,347.084872
+P-289,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,45800.8,75176.7,1.641,351.956342
+P-290,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,68702.6,107374.8,1.563,144.651564
+P-291,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,89947.8,137123.2,1.524,103.681967
+P-292,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,240585.9,468757.0,1.948,203.877356
+P-293,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,90652.3,157811.6,1.741,146.356552
+P-294,B042,DSC-07,v4.2,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,164206.9,318887.8,1.942,253.491598
+P-295,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,174036.0,304647.5,1.75,101.314374
+P-296,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,242897.2,455664.4,1.876,203.351371
+P-297,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,49929.7,78266.9,1.568,347.82537
+P-298,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,70814.5,145691.2,2.057,352.428464
+P-299,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,34505.5,69860.8,2.025,348.687262
+P-300,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,165542.2,389616.3,2.354,202.60889
+P-301,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,91851.2,208490.6,2.27,144.971652
+P-302,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,32222.1,70880.0,2.2,141.966302
+P-303,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,37667.7,88931.1,2.361,146.152208
+P-304,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,230563.0,357637.0,1.551,203.109741
+P-305,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,38400.0,77023.5,2.006,302.78885
+P-306,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,25293.8,50134.5,1.982,348.597775
+P-307,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,153648.3,245651.0,1.599,202.098422
+P-308,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,52939.1,89940.5,1.699,105.887884
+P-309,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,109417.7,169894.6,1.553,355.1863
+P-310,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,74169.6,171765.4,2.316,302.510974
+P-311,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,34383.1,70255.3,2.043,345.908296
+P-312,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,41024.0,66210.7,1.614,347.790166
+P-313,B042,DSC-07,v4.2,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,109385.2,237455.4,2.171,253.991028
+P-314,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,69142.7,136344.4,1.972,145.180388
+P-315,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,110874.7,220287.9,1.987,281.934659
+P-316,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,100647.2,202619.4,2.013,283.322923
+P-317,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,109857.1,246501.2,2.244,203.438468
+P-318,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,75185.1,147571.7,1.963,352.571241
+P-319,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,34553.3,68088.1,1.971,144.516141
+P-320,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,59629.1,135175.5,2.267,145.965245
+P-321,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,71896.0,152187.6,2.117,280.236324
+P-322,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,39003.4,87855.0,2.252,102.36351
+P-323,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,142341.1,219381.0,1.541,352.616484
+P-324,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,60858.1,136136.7,2.237,149.410587
+P-325,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,15703.8,30352.7,1.933,139.016673
+P-326,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,20926.3,42777.7,2.044,301.277741
+P-327,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,46624.1,97391.8,2.089,349.737464
+P-328,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,49768.6,112277.0,2.256,353.326373
+P-329,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,63153.6,136899.4,2.168,303.167322
+P-330,B042,DSC-07,v4.2,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,69489.8,111513.7,1.605,256.775857
+P-331,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,58947.6,112051.3,1.901,145.761706
+P-332,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,178263.9,392464.1,2.202,104.260052
+P-333,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,146772.7,347977.7,2.371,102.450655
+P-334,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,89451.6,136276.7,1.523,353.820807
+P-335,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,125634.3,213506.4,1.699,202.592031
+P-336,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,96318.0,173756.5,1.804,354.597631
+P-337,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,16053.6,24575.3,1.531,345.586654
+P-338,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,47768.9,109721.9,2.297,348.46405
+P-339,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,63115.9,135260.2,2.143,299.922482
+P-340,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,38798.3,60079.3,1.549,148.012693
+P-341,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,90409.9,139550.0,1.544,355.032746
+P-342,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,94198.8,196486.4,2.086,284.029625
+P-343,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,15562.5,29159.8,1.874,345.826983
+P-344,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,93147.9,181989.5,1.954,355.312753
+P-345,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,69094.1,146606.8,2.122,303.190317
+P-346,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,106440.9,160702.5,1.51,300.913806
+P-347,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,213406.0,485266.4,2.274,199.653539
+P-348,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,198299.5,464598.7,2.343,101.441968
+P-349,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,21838.8,35109.0,1.608,103.004366
+P-350,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,10693.7,22777.7,2.13,345.771514
+P-351,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,12202.8,22531.7,1.846,143.24335
+P-352,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,92698.7,165001.8,1.78,283.40584
+P-353,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,57625.3,117272.2,2.035,370.26771
+P-354,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,109106.5,238014.3,2.181,353.385577
+P-355,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,77092.3,133284.2,1.729,281.248648
+P-356,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,86964.2,206446.5,2.374,355.676089
+P-357,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,54478.1,120545.0,2.213,146.124118
+P-358,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,274608.3,550035.2,2.003,205.0323
+P-359,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,33610.2,76867.2,2.287,144.498933
+P-360,B042,DSC-07,v4.2,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,54928.3,112260.7,2.044,250.864491
+P-361,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,58328.4,109493.6,1.877,145.945857
+P-362,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,152589.3,310825.7,2.037,104.05656
+P-363,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,78944.4,181228.9,2.296,281.770349
+P-364,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,35673.9,63093.8,1.769,351.099033
+P-365,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,153659.3,297137.2,1.934,370.592921
+P-366,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,118672.1,230576.5,1.943,102.974397
+P-367,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,33025.1,66204.9,2.005,279.745398
+P-368,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,63623.0,105332.3,1.656,102.756538
+P-369,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,30108.9,64962.0,2.158,347.064551
+P-370,B042,DSC-07,v4.2,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,120199.3,214360.1,1.783,258.079374
+P-371,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,71938.3,163297.0,2.27,285.463928
+P-372,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,23524.4,52855.5,2.247,345.734446
+P-373,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,61449.8,139841.4,2.276,104.674726
+P-374,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,65885.9,147868.0,2.244,200.536408
+P-375,B042,DSC-07,v4.2,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,53451.8,107770.9,2.016,254.10609
+P-376,B042,DSC-07,v4.2,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,172991.9,292953.5,1.693,254.018916
+P-377,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl acrylate),acrylate,*CC(*)C(=O)OC,24504.2,56968.2,2.325,277.662227
+P-378,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,78997.1,161112.5,2.039,303.028689
+P-379,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,59144.0,104751.5,1.771,201.68652
+P-380,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,126713.1,233847.8,1.845,370.531808
+P-381,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,118244.2,189906.6,1.606,103.83179
+P-382,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,185253.9,298808.0,1.613,201.398609
+P-383,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,39282.3,90212.7,2.297,142.556515
+P-384,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,178438.7,329202.8,1.845,203.149565
+P-385,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,53992.1,122303.7,2.265,370.889253
+P-386,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,24214.8,41041.6,1.695,145.879064
+P-387,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,85089.3,154625.7,1.817,202.150324
+P-388,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,56674.6,88537.1,1.562,100.58374
+P-389,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl chloride),vinyl,*CC(*)Cl,35254.5,62171.1,1.763,353.163463
+P-390,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,142933.6,283558.5,1.984,202.084094
+P-391,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,202326.0,393538.3,1.945,202.664752
+P-392,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,59924.5,135491.6,2.261,300.840591
+P-393,B042,DSC-07,v4.2,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,113591.2,266761.3,2.348,255.497588
+P-394,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,59500.6,94276.0,1.584,141.355527
+P-395,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,49181.6,99423.7,2.022,348.890659
+P-396,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,98797.6,215683.2,2.183,299.351647
+P-397,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,55837.7,133491.9,2.391,141.473517
+P-398,B042,DSC-07,v4.2,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,162508.0,300333.8,1.848,256.003547
+P-399,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,49831.7,112073.5,2.249,101.216514
+P-400,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,28552.5,55330.7,1.938,139.471988
+P-401,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,137758.9,301184.3,2.186,201.782185
+P-402,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,17593.9,41600.5,2.364,347.28526
+P-403,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,76421.5,178611.5,2.337,150.20826
+P-404,B042,DSC-07,v4.2,tg-normalizer-v1,poly(vinyl acetate),vinyl,*CC(*)OC(C)=O,54233.2,99042.8,1.826,301.028893
+P-405,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,50787.4,78535.8,1.546,143.535191
+P-406,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,20906.4,47082.0,2.252,369.933318
+P-407,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,27397.6,63704.8,2.325,349.954574
+P-408,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,57312.1,112372.6,1.961,144.444336
+P-409,B042,DSC-07,v4.2,tg-normalizer-v1,polyisobutylene,vinyl,*CC(*)(C)C,200978.6,423630.2,2.108,202.666452
+P-410,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,38992.7,90669.7,2.325,143.560803
+P-411,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,50591.9,91743.1,1.813,145.686516
+P-412,B042,DSC-07,v4.2,tg-normalizer-v1,poly(dimethylsiloxane),silicone,*O[Si](C)(C)*,54168.0,128172.3,2.366,148.148618
+P-413,B042,DSC-07,v4.2,tg-normalizer-v1,polypropylene (atactic),polyolefin,*CC(*)C,71628.0,123852.0,1.729,257.282337
+P-414,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,45958.7,82845.0,1.803,349.564031
+P-415,B042,DSC-07,v4.2,tg-normalizer-v1,polystyrene,vinyl,*CC(*)c1ccccc1,136540.1,300446.3,2.2,371.017119
+P-416,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,119353.8,251015.5,2.103,102.506511
+P-417,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,37976.5,62839.5,1.655,350.046535
+P-418,B042,DSC-07,v4.2,tg-normalizer-v1,poly(methyl methacrylate),acrylate,*CC(*)(C)C(=O)OC,94219.3,185206.3,1.966,102.199043
+P-419,B042,DSC-07,v4.2,tg-normalizer-v1,poly(ethylene terephthalate),polyester,*OCCOC(=O)c1ccc(cc1)C(=O)*,32633.4,49875.1,1.528,346.075583
+P-420,B042,DSC-07,v4.2,tg-normalizer-v1,polycarbonate,carbonate,*OC(=O)Oc1ccc(cc1)C(C)(C)c1ccc(*)cc1,16615.7,32512.6,1.957,137.695089

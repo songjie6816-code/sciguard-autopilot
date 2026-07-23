@@ -43,6 +43,19 @@ def test_add_custom_properties_noop_when_unchanged() -> None:
     assert g.emitted == []
 
 
+def test_remove_custom_properties_preserves_unrelated_metadata() -> None:
+    seed = DatasetPropertiesClass(
+        name="n",
+        description="keep",
+        customProperties={"keep": "1", "sciguard:incident": "temporary"},
+    )
+    g = FakeGraph({"DatasetPropertiesClass": seed})
+    remaining = W.remove_custom_properties(g, URN, ["sciguard:incident"])
+    assert remaining == {"keep": "1"}
+    assert g.emitted[0].name == "n"
+    assert g.emitted[0].description == "keep"
+
+
 def test_add_tags_merges_without_dropping_existing() -> None:
     seed = GlobalTagsClass(tags=[TagAssociationClass(tag="urn:li:tag:keep")])
     g = FakeGraph({"GlobalTagsClass": seed})

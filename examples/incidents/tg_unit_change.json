@@ -6,6 +6,10 @@
   "after": {
     "fields": {
       "sample_id": "string",
+      "batch_id": "string",
+      "instrument_id": "string",
+      "instrument_firmware": "string",
+      "normalization_version": "string",
       "polymer_name": "string",
       "polymer_class": "string",
       "smiles": "string",

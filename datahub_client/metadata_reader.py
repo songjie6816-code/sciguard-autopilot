@@ -11,7 +11,7 @@ import os
 from dataclasses import dataclass
 
 from datahub.ingestion.graph.client import DataHubGraph, DatahubClientConfig
-from datahub.metadata.schema_classes import OwnershipClass
+from datahub.metadata.schema_classes import OwnershipClass, UpstreamLineageClass
 
 DEFAULT_GMS_URL = "http://localhost:8080"
 
@@ -156,6 +156,21 @@ def get_all_downstream(graph: DataHubGraph, urn: str, page_size: int = 100) -> l
     Uses searchAcrossLineage and paginates through `total`, so a large impact
     cone is never silently truncated.
     """
+    return _get_all_lineage(graph, urn, "DOWNSTREAM", page_size)
+
+
+def get_all_upstream(graph: DataHubGraph, urn: str, page_size: int = 100) -> list[DownstreamHit]:
+    """Return every upstream entity, ordered by reverse-lineage distance."""
+
+    return _get_all_lineage(graph, urn, "UPSTREAM", page_size)
+
+
+def _get_all_lineage(
+    graph: DataHubGraph,
+    urn: str,
+    direction: str,
+    page_size: int,
+) -> list[DownstreamHit]:
     out: list[DownstreamHit] = []
     start = 0
     while True:
@@ -164,7 +179,7 @@ def get_all_downstream(graph: DataHubGraph, urn: str, page_size: int = 100) -> l
             variables={
                 "input": {
                     "urn": urn,
-                    "direction": "DOWNSTREAM",
+                    "direction": direction,
                     "query": "*",
                     "start": start,
                     "count": page_size,
@@ -188,6 +203,87 @@ def get_all_downstream(graph: DataHubGraph, urn: str, page_size: int = 100) -> l
             break
     out.sort(key=lambda h: h.degree)
     return out
+
+
+def get_asset_context(graph: DataHubGraph, urn: str) -> dict:
+    """Read governance and release context used by the WP3 Investigator.
+
+    Assertion associations and their recent runs are returned when present. An empty
+    list means DataHub was queried successfully and this asset currently has no runs.
+    """
+
+    data = graph.execute_graphql(
+        """
+        query context($urn: String!) {
+          dataset(urn: $urn) {
+            urn
+            properties { name customProperties { key value } }
+            tags { tags { tag { urn } } }
+            glossaryTerms { terms { term { urn } } }
+            assertions(start: 0, count: 20) {
+              assertions {
+                urn
+                info { type description }
+                runEvents(limit: 20) {
+                  runEvents {
+                    timestampMillis
+                    status
+                    result { type unexpectedCount }
+                  }
+                }
+              }
+            }
+          }
+        }
+        """,
+        variables={"urn": urn},
+    )
+    entity = data.get("dataset")
+    if not entity:
+        raise LookupError(f"DataHub dataset not found: {urn}")
+    props = entity.get("properties") or {}
+    custom = {item["key"]: item["value"] for item in props.get("customProperties") or []}
+    tags = (entity.get("tags") or {}).get("tags") or []
+    terms = (entity.get("glossaryTerms") or {}).get("terms") or []
+    assertions = (entity.get("assertions") or {}).get("assertions") or []
+    history = []
+    for assertion in assertions:
+        for run in (assertion.get("runEvents") or {}).get("runEvents") or []:
+            history.append(
+                {
+                    "assertion_urn": assertion["urn"],
+                    "type": (assertion.get("info") or {}).get("type"),
+                    "description": (assertion.get("info") or {}).get("description"),
+                    "timestamp_ms": run["timestampMillis"],
+                    "status": run["status"],
+                    "result": run.get("result"),
+                }
+            )
+    history.sort(key=lambda item: item["timestamp_ms"], reverse=True)
+    return {
+        "urn": urn,
+        "name": props.get("name") or urn,
+        "owners": get_owners(graph, urn),
+        "tags": [item["tag"]["urn"] for item in tags],
+        "terms": [item["term"]["urn"] for item in terms],
+        "properties": custom,
+        "assertion_history": history,
+        "assertions_supported": True,
+    }
+
+
+def get_fine_grained_lineage(graph: DataHubGraph, urn: str) -> list[tuple[str, str]]:
+    """Return direct ``(upstream field URN, downstream field URN)`` mappings."""
+
+    aspect = graph.get_aspect(urn, UpstreamLineageClass)
+    if not aspect:
+        return []
+    return [
+        (upstream, downstream)
+        for mapping in aspect.fineGrainedLineages or []
+        for upstream in mapping.upstreams
+        for downstream in mapping.downstreams
+    ]
 
 
 def get_lineage(graph: DataHubGraph, urn: str, direction: str = "DOWNSTREAM") -> list[str]:

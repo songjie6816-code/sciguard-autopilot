@@ -22,6 +22,7 @@ from contextlib import AsyncExitStack
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
+from datahub_client import metadata_reader
 from datahub_client.metadata_reader import DatasetHit, DownstreamHit
 
 DEFAULT_GMS_URL = "http://localhost:8080"
@@ -63,6 +64,7 @@ class DataHubMCP:
         self._thread.start()
         self._stack: AsyncExitStack | None = None
         self._session: ClientSession | None = None
+        self._fine_lineage_graph = None
         self._run(self._start(), timeout=180)
 
     async def _start(self) -> None:
@@ -112,8 +114,15 @@ class DataHubMCP:
         return out
 
     def get_all_downstream(self, urn: str) -> list[DownstreamHit]:
-        data = self._call("get_lineage", {"urn": urn, "upstream": False, "max_hops": 20})
-        results = ((data or {}).get("downstreams") or {}).get("searchResults") or []
+        return self._get_all_lineage(urn, upstream=False)
+
+    def get_all_upstream(self, urn: str) -> list[DownstreamHit]:
+        return self._get_all_lineage(urn, upstream=True)
+
+    def _get_all_lineage(self, urn: str, *, upstream: bool) -> list[DownstreamHit]:
+        data = self._call("get_lineage", {"urn": urn, "upstream": upstream, "max_hops": 20})
+        block_name = "upstreams" if upstream else "downstreams"
+        results = ((data or {}).get(block_name) or {}).get("searchResults") or []
         out: list[DownstreamHit] = []
         for r in results:
             ent = r.get("entity", {})
@@ -146,3 +155,65 @@ class DataHubMCP:
     def get_owners(self, urn: str) -> list[str]:
         owners = (self._entity(urn).get("ownership") or {}).get("owners") or []
         return [o["owner"]["urn"].split(":")[-1] for o in owners]
+
+    def get_asset_context(self, urn: str) -> dict:
+        """Read MCP-exposed governance context without claiming unsupported history.
+
+        The current DataHub MCP Server's ``get_entities`` tool does not expose assertion
+        run events. ``assertions_supported=False`` makes that limitation visible instead
+        of presenting an empty fabricated history as an observed fact.
+        """
+
+        entity = self._entity(urn)
+        if not entity:
+            raise LookupError(f"DataHub dataset not found through MCP: {urn}")
+        props = entity.get("properties") or {}
+        custom = {item["key"]: item["value"] for item in props.get("customProperties") or []}
+        owners = (entity.get("ownership") or {}).get("owners") or []
+        tags = (entity.get("tags") or {}).get("tags") or []
+        terms = (entity.get("glossaryTerms") or {}).get("terms") or []
+        return {
+            "urn": urn,
+            "name": props.get("name") or entity.get("name") or urn,
+            "owners": [item["owner"]["urn"].split(":")[-1] for item in owners],
+            "tags": [item["tag"]["urn"] for item in tags],
+            "terms": [item["term"]["urn"] for item in terms],
+            "properties": custom,
+            "assertion_history": [],
+            "assertions_supported": False,
+        }
+
+    def get_fine_grained_lineage(self, urn: str) -> list[tuple[str, str]]:
+        """Read field mappings through the SDK until MCP exposes that aspect.
+
+        The DataHub MCP Server currently exposes directed dataset lineage but not the
+        ``fineGrainedLineages`` aspect. Keeping this fallback inside the reader makes
+        the limitation explicit while preserving real MCP influence over schema,
+        units, ownership, governance context, and the initial decision-path gate.
+        """
+
+        if self._fine_lineage_graph is None:
+            self._fine_lineage_graph = metadata_reader.connect()
+        return metadata_reader.get_fine_grained_lineage(self._fine_lineage_graph, urn)
+
+    def capability_receipt(self) -> dict[str, object]:
+        """Return the honest backend boundary for event provenance and UI receipts."""
+
+        return {
+            "required_component": "DATAHUB_MCP_SERVER",
+            "mcp_tools": [
+                "search",
+                "get_lineage",
+                "list_schema_fields",
+                "get_entities",
+            ],
+            "decision_inputs_via_mcp": [
+                "schema",
+                "units",
+                "dataset_lineage",
+                "ownership",
+                "governance_context",
+            ],
+            "sdk_fallbacks": ["fine_grained_lineage", "metadata_write_back"],
+            "assertion_history_observable_via_mcp": False,
+        }

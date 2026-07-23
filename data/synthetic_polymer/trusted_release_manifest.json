@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "scientific_contract": {
+    "approved_firmware": "v4.1",
+    "expected_tg_unit": "degC",
+    "instrument_id": "DSC-07"
+  },
+  "trusted_release": {
+    "code_version": "ranker-2026.07",
+    "model_version": "tg-gbr-v3",
+    "normalization_version": "tg-normalizer-v1"
+  }
+}
