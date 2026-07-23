@@ -232,10 +232,12 @@ deep links appear only in a local full-product session. The console shows the re
 exit 0 publication outcomes. See [docs/evaluation.md](docs/evaluation.md) for the metrics and
 [docs/architecture.md](docs/architecture.md) for the design.
 
-Source cleanliness and replay provenance are separate facts. A clean checkout can build
-the Judge artifact without changing tracked files, while the current immutable replay
-retains its original manifest disclosure (`source_worktree_dirty: true`) and source commit.
-It is not relabelled or regenerated merely to make the repository appear clean.
+Source cleanliness and replay provenance are separate, recorded facts. The current
+immutable replay was generated from clean source commit
+`3a36cc1a3400a892e8fbd5bc8a035c192faa2b2e`, and both manifests record
+`source_worktree_dirty: false`. This provenance refresh did not change `events.jsonl`,
+the 38-event order, or any event semantics; its event-file SHA-256 remains
+`7ddafe7b17ecf16c68b32d4ad310a3385d537e46b9cc18de9eced2e99b1cc9cd`.
 
 ## Repository layout
 
