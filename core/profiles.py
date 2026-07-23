@@ -14,6 +14,11 @@ from pydantic import BaseModel, field_validator
 
 PROFILE_DIR = Path(__file__).resolve().parents[1] / "domain_profiles"
 ALLOWED_SEVERITY = {"low", "medium", "high", "critical"}
+ALLOWED_DECISIONS = {"HALT", "WARN", "ALLOW"}
+ALLOWED_CATALOG_STATUSES = {"HEALTHY", "AT_RISK", "QUARANTINED", "RESOLVED"}
+ALLOWED_ACTIONS = {
+    "QUARANTINE", "BLOCK_EXECUTION", "BLOCK_PUBLISH", "WRITE_BACK", "NOTIFY", "RESUME"
+}
 
 
 class Rule(BaseModel):
@@ -34,9 +39,66 @@ class Rule(BaseModel):
         return v
 
 
+class ActionPolicyRule(BaseModel):
+    decision: str
+    catalog_status: str
+    actions: list[str] = []
+
+    @field_validator("decision")
+    @classmethod
+    def _known_decision(cls, value: str) -> str:
+        if value not in ALLOWED_DECISIONS:
+            raise ValueError(f"unknown policy decision: {value}")
+        return value
+
+    @field_validator("catalog_status")
+    @classmethod
+    def _known_catalog_status(cls, value: str) -> str:
+        if value not in ALLOWED_CATALOG_STATUSES:
+            raise ValueError(f"unknown catalog status: {value}")
+        return value
+
+    @field_validator("actions")
+    @classmethod
+    def _known_actions(cls, value: list[str]) -> list[str]:
+        unknown = set(value) - ALLOWED_ACTIONS
+        if unknown:
+            raise ValueError(f"unknown enforcement actions: {sorted(unknown)}")
+        return value
+
+
+class ActionPolicy(BaseModel):
+    affected_roles: dict[str, ActionPolicyRule]
+    unaffected: ActionPolicyRule
+
+
+class RecoveryPolicy(BaseModel):
+    required_checks: list[str]
+    consecutive_clean_runs: int = 2
+    allow_one_clean_with_human_approval: bool = True
+
+
+class EscalationPolicy(BaseModel):
+    """Deterministic boundary between lightweight detection and incident response."""
+
+    minimum_severity: str = "high"
+    decision_roles: list[str] = ["model", "decision_report"]
+    require_decision_path: bool = True
+
+    @field_validator("minimum_severity")
+    @classmethod
+    def _known_minimum_severity(cls, value: str) -> str:
+        if value not in ALLOWED_SEVERITY:
+            raise ValueError(f"unknown escalation severity: {value}")
+        return value
+
+
 class Profile(BaseModel):
     name: str
     rules: list[Rule] = []
+    action_policy: ActionPolicy | None = None
+    recovery_policy: RecoveryPolicy | None = None
+    escalation_policy: EscalationPolicy | None = None
 
 
 def _tokens(field: str) -> list[str]:
@@ -67,11 +129,26 @@ def load_profile(name: str) -> Profile:
 
     # Parent-first so child rules can override by id.
     by_id: dict[str, Rule] = {}
+    action_policy: ActionPolicy | None = None
+    recovery_policy: RecoveryPolicy | None = None
+    escalation_policy: EscalationPolicy | None = None
     for raw in reversed(chain):
         for r in raw.get("rules", []) or []:
             rule = Rule(**r)
             by_id[rule.id] = rule
-    return Profile(name=name, rules=list(by_id.values()))
+        if raw.get("action_policy") is not None:
+            action_policy = ActionPolicy.model_validate(raw["action_policy"])
+        if raw.get("recovery_policy") is not None:
+            recovery_policy = RecoveryPolicy.model_validate(raw["recovery_policy"])
+        if raw.get("escalation_policy") is not None:
+            escalation_policy = EscalationPolicy.model_validate(raw["escalation_policy"])
+    return Profile(
+        name=name,
+        rules=list(by_id.values()),
+        action_policy=action_policy,
+        recovery_policy=recovery_policy,
+        escalation_policy=escalation_policy,
+    )
 
 
 def rule_matches(rule: Rule, change_kind: str, field: str) -> bool:

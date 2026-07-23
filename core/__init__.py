@@ -1,2 +1,1 @@
-"""Deterministic scientific change and risk analysis."""
-
+"""SciGuard's deterministic Sentinel, investigation, control, and recovery core."""

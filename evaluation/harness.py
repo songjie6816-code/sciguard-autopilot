@@ -6,12 +6,12 @@ compare against the hand-labelled ground truth.
 
 Impact analysis is measured over the distinct change-site datasets (the cone
 depends only on lineage, not on the mutation) with TWO real runs:
-  - WITH DataHub: analyze_impact (lineage traversal)
-  - WITHOUT DataHub: impact_via_search (catalog search, no lineage graph)
+  - WITH DataHub: trace_initial_scope (lineage traversal)
+  - SEARCH-ONLY DataHub: impact_via_search (catalog search, no lineage graph)
 Both are executed against DataHub; neither number is hardcoded.
 
 The harness GATES: main() exits non-zero if any headline metric regresses, so a
-broken (e.g. over-broad) lineage analyzer fails the evaluation instead of
+    broken (e.g. over-broad) impact mapper fails the evaluation instead of
 silently keeping a perfect-looking score.
 
 Run from the repo root:  PYTHONPATH=. python evaluation/harness.py
@@ -19,6 +19,7 @@ Run from the repo root:  PYTHONPATH=. python evaluation/harness.py
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 import time
@@ -26,18 +27,18 @@ from pathlib import Path
 
 from datahub.emitter.mce_builder import make_dataset_urn
 
-from core import remediation
-from core.change_detector import Snapshot, detect_changes
-from core.lineage_analyzer import analyze_impact, impact_via_search
+from core.impact import impact_via_search, trace_initial_scope
 from core.profiles import load_profile
-from core.risk_engine import assess
+from core.sentinel import Snapshot, assess, detect_changes
 from datahub_client import metadata_reader as reader
 from datahub_client.backends import SdkReader
 from evaluation.metrics import aggregate, counts
 
 ROOT = Path(__file__).resolve().parents[1]
 SCENARIOS = ROOT / "evaluation" / "scenarios.json"
-REPORT = ROOT / "examples" / "outputs" / "evaluation_report.md"
+GOLDEN_REPORT = ROOT / "examples" / "outputs" / "evaluation_report.md"
+DEFAULT_REPORT = ROOT / "evaluation" / "outputs" / "evaluation_report.md"
+DEFAULT_PERFORMANCE_REPORT = ROOT / "evaluation" / "outputs" / "evaluation_performance.md"
 PLATFORM = "polymer_rnd"
 
 
@@ -76,7 +77,7 @@ def run() -> dict:
     cones = spec["cones"]
     backend = SdkReader(reader.connect())
 
-    # Per-scenario: detection, severity, false-alarm, latency, tag targeting.
+    # Per-scenario: detection, severity, false-alarm, latency, control targeting.
     rows = []
     for sc in spec["scenarios"]:
         dataset, expected, cone = sc["dataset"], sc["expected"], cones[sc["dataset"]]
@@ -85,10 +86,12 @@ def run() -> dict:
 
         t0 = time.perf_counter()
         changes = detect_changes(before, after)
-        affected = analyze_impact(backend, _urn(dataset))
+        affected = trace_initial_scope(backend, _urn(dataset))
         profile = load_profile(sc["profile"])
         assessment = assess(profile, changes, affected)
-        plan = remediation.build_plan(profile, assessment, dataset)
+        control_targets = {
+            item.urn for item in assessment.affected if item.role == "model"
+        }
         latency_ms = (time.perf_counter() - t0) * 1000.0
 
         detected = {(c.kind.value, c.field) for c in changes}
@@ -99,7 +102,8 @@ def run() -> dict:
             "severity_ok": assessment.overall_severity == expected["severity"],
             "actionable": assessment.is_actionable,
             "owner": counts(set(assessment.responsible_owners), set(cone["owners"])),
-            "tag_ok": set(plan.tag_targets) == {_urn(n) for n in cone["tag_targets"]},
+            "control_ok": control_targets
+            == {_urn(n) for n in cone["control_targets"]},
             "latency_ms": latency_ms,
         })
 
@@ -108,7 +112,7 @@ def run() -> dict:
     impact = []
     for dataset in {sc["dataset"] for sc in spec["scenarios"] if cones.get(sc["dataset"])}:
         expected = set(cones[dataset]["affected"])
-        lineage_names = {e.name for e in analyze_impact(backend, _urn(dataset))}
+        lineage_names = {e.name for e in trace_initial_scope(backend, _urn(dataset))}
         search_names = set(impact_via_search(backend, dataset, platform=PLATFORM))
         impact.append({
             "dataset": dataset,
@@ -136,9 +140,7 @@ def summarize(result: dict) -> str:
     severity_ok = sum(r["severity_ok"] for r in rows)
     false_alarms = sum(r["actionable"] for r in neg)
     owner = aggregate([r["owner"] for r in pos])
-    tag_ok = sum(r["tag_ok"] for r in pos)
-    mean_latency = sum(r["latency_ms"] for r in rows) / len(rows)
-
+    control_ok = sum(r["control_ok"] for r in pos)
     lineage = aggregate([i["lineage"] for i in impact])
     search = aggregate([i["search"] for i in impact])
     lineage_exact = sum(i["lineage_exact"] for i in impact)
@@ -157,7 +159,10 @@ def summarize(result: dict) -> str:
     lines.append(f"- risk-severity accuracy: {_pct(severity_ok / len(rows))} ({severity_ok}/{len(rows)})")
     lines.append(f"- false-alarm rate on negatives: {_pct(false_alarms / len(neg))} ({false_alarms}/{len(neg)})")
     lines.append(f"- owner-notification precision/recall: {_pct(owner.precision)} / {_pct(owner.recall)}")
-    lines.append(f"- model-at-risk tag targeting: {_pct(tag_ok / len(pos))} ({tag_ok}/{len(pos)})")
+    lines.append(
+        f"- model control targeting: {_pct(control_ok / len(pos))} "
+        f"({control_ok}/{len(pos)})"
+    )
     lines.append("")
     lines.append(f"## Impact analysis over {len(impact)} distinct lineage cones")
     lines.append("| approach | precision | recall | F1 | exact cone |")
@@ -167,15 +172,14 @@ def summarize(result: dict) -> str:
         f"{_pct(lineage.f1)} | {lineage_exact}/{len(impact)} |"
     )
     lines.append(
-        f"| WITHOUT DataHub (catalog search) | {_pct(search.precision)} | {_pct(search.recall)} | "
+        f"| SEARCH-ONLY DataHub (without lineage) | {_pct(search.precision)} | "
+        f"{_pct(search.recall)} | "
         f"{_pct(search.f1)} | {search_exact}/{len(impact)} |"
     )
     lines.append("")
     lines.append("The no-lineage search baseline cannot tell dependency direction, so it")
     lines.append(f"flags upstream/sibling datasets as affected (false positives: {search_fps or 'none'}).")
     lines.append("Only lineage recovers the exact downstream cone with correct direction.")
-    lines.append("")
-    lines.append(f"## Latency\n- mean per-scenario: {mean_latency:.1f} ms")
     lines.append("")
     lines.append("## Per-scenario")
     lines.append("| scenario | detect | severity | note |")
@@ -186,6 +190,27 @@ def summarize(result: dict) -> str:
             f"| {r['id']} | {'ok' if r['detect_ok'] else 'MISS'} | "
             f"{'ok' if r['severity_ok'] else 'MISS'} | {note} |"
         )
+    return "\n".join(lines) + "\n"
+
+
+def summarize_performance(result: dict) -> str:
+    """Render timing separately so the deterministic golden remains stable."""
+
+    rows = result["rows"]
+    mean_latency = sum(r["latency_ms"] for r in rows) / len(rows)
+    lines = [
+        "# SciGuard evaluation performance sample",
+        "",
+        "> NON-DETERMINISTIC: wall-clock timings vary by machine, load, and DataHub state. "
+        "This file is never used as a correctness gate or curated golden.",
+        "",
+        f"- scenarios: {len(rows)}",
+        f"- mean per-scenario: {mean_latency:.1f} ms",
+        "",
+        "| scenario | latency (ms) |",
+        "|---|---:|",
+    ]
+    lines.extend(f"| {row['id']} | {row['latency_ms']:.1f} |" for row in rows)
     return "\n".join(lines) + "\n"
 
 
@@ -219,17 +244,72 @@ def gate(result: dict) -> list[str]:
             f"owner notification is not exact (precision {_pct(owner.precision)}, "
             f"recall {_pct(owner.recall)}) — notifies the wrong or too many owners"
         )
-    if not all(r["tag_ok"] for r in pos):
-        failures.append("model-at-risk tag targeting regressed on an actionable scenario")
+    if not all(r["control_ok"] for r in pos):
+        failures.append("model control targeting regressed on an actionable scenario")
     return failures
 
 
-def main() -> None:
+def _output_path(value: str | Path) -> Path:
+    path = Path(value)
+    return path if path.is_absolute() else ROOT / path
+
+
+def _display_path(path: Path) -> str:
+    try:
+        return str(path.relative_to(ROOT))
+    except ValueError:
+        return str(path)
+
+
+def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--output",
+        default=str(DEFAULT_REPORT),
+        help="deterministic report destination (default: ignored evaluation/outputs)",
+    )
+    parser.add_argument(
+        "--performance-output",
+        default=str(DEFAULT_PERFORMANCE_REPORT),
+        help="non-deterministic timing report destination",
+    )
+    parser.add_argument(
+        "--update-golden",
+        action="store_true",
+        help="explicitly refresh examples/outputs/evaluation_report.md",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> None:
+    args = _parse_args(argv)
     result = run()
     report = summarize(result)
-    REPORT.write_text(report)
+    output = _output_path(args.output)
+    performance_output = _output_path(args.performance_output)
+    if output.resolve() == GOLDEN_REPORT.resolve() and not args.update_golden:
+        raise SystemExit(
+            "Refusing to overwrite the curated golden without --update-golden"
+        )
+
+    output.parent.mkdir(parents=True, exist_ok=True)
+    performance_output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(report, encoding="utf-8")
+    performance_output.write_text(
+        summarize_performance(result),
+        encoding="utf-8",
+    )
+    if args.update_golden:
+        GOLDEN_REPORT.write_text(report, encoding="utf-8")
+
     print(report)
-    print(f"(written to {REPORT.relative_to(ROOT)})")
+    print(f"(deterministic report written to {_display_path(output)})")
+    print(
+        "(non-deterministic performance sample written to "
+        f"{_display_path(performance_output)})"
+    )
+    if args.update_golden:
+        print(f"(curated golden updated at {_display_path(GOLDEN_REPORT)})")
 
     failures = gate(result)
     if failures:

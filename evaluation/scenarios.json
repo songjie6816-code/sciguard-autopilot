@@ -1,20 +1,410 @@
 {
   "description": "Labelled metadata-change scenarios for SciGuard evaluation. Each scenario mutates a dataset's live DataHub state and declares the expected detection, severity and (for actionable cases) impact ground truth. Impact ground truth per change site lives in `cones` because the downstream cone depends only on lineage, not on the change.",
+  "contract": {
+    "schema_version": "1.0",
+    "event": {
+      "fields": {
+        "event_id": "string",
+        "incident_id": "string",
+        "sequence": "integer>=0",
+        "timestamp": "RFC3339 UTC string",
+        "actor": "EventActor",
+        "event_type": "EventType",
+        "summary": "string",
+        "evidence_ids": "array[string]",
+        "duration_ms": "integer>=0",
+        "payload": "object"
+      },
+      "required_fields": [
+        "event_id",
+        "incident_id",
+        "sequence",
+        "timestamp",
+        "actor",
+        "event_type",
+        "summary",
+        "evidence_ids",
+        "duration_ms",
+        "payload"
+      ],
+      "actors": [
+        "SYSTEM",
+        "SENTINEL",
+        "COORDINATOR",
+        "SCIENTIFIC_INVESTIGATOR",
+        "REALITY_CHECKER",
+        "POLICY_GUARDIAN",
+        "ENFORCER",
+        "RECOVERY_CONTROLLER"
+      ],
+      "event_types": [
+        "SIGNAL_DETECTED",
+        "ESCALATION_DECIDED",
+        "INCIDENT_CREATED",
+        "STATE_TRANSITIONED",
+        "HYPOTHESIS_PROPOSED",
+        "EVIDENCE_OBSERVED",
+        "HYPOTHESIS_RESOLVED",
+        "IMPACT_MAPPED",
+        "POLICY_DECIDED",
+        "ENFORCEMENT_APPLIED",
+        "NOTIFICATION_RECORDED",
+        "RECOVERY_CHECKED",
+        "INCIDENT_RESOLVED"
+      ]
+    },
+    "incident_states": [
+      "HEALTHY",
+      "DETECTED",
+      "INVESTIGATING",
+      "AT_RISK",
+      "QUARANTINED",
+      "RECOVERY_PENDING",
+      "RESOLVED"
+    ],
+    "transitions": [
+      ["HEALTHY", "DETECTED"],
+      ["DETECTED", "RESOLVED"],
+      ["DETECTED", "INVESTIGATING"],
+      ["INVESTIGATING", "AT_RISK"],
+      ["INVESTIGATING", "QUARANTINED"],
+      ["INVESTIGATING", "RESOLVED"],
+      ["AT_RISK", "QUARANTINED"],
+      ["AT_RISK", "RECOVERY_PENDING"],
+      ["QUARANTINED", "RECOVERY_PENDING"],
+      ["RECOVERY_PENDING", "AT_RISK"],
+      ["RECOVERY_PENDING", "QUARANTINED"],
+      ["RECOVERY_PENDING", "RESOLVED"]
+    ],
+    "policy_decisions": ["HALT", "WARN", "ALLOW"],
+    "catalog_statuses": ["HEALTHY", "AT_RISK", "QUARANTINED", "RESOLVED"],
+    "enforcement_actions": [
+      "QUARANTINE",
+      "BLOCK_EXECUTION",
+      "BLOCK_PUBLISH",
+      "WRITE_BACK",
+      "NOTIFY",
+      "RESUME"
+    ],
+    "criticality_levels": ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
+    "honesty_boundaries": {
+      "LIVE": "Events and actions produced by the current execution against current dependencies.",
+      "RECORDED_REPLAY": "Immutable events captured from a prior real run; never presented as live.",
+      "pipeline_control": "Only the implemented LocalPipelineController may be claimed; no Airflow, dbt, or production scheduler control.",
+      "data": "All demo records are deterministic synthetic data; no laboratory, patient, collaborator, or proprietary rows.",
+      "llm_authority": "An LLM may explain validated evidence but may not choose HALT, ALLOW, or RESUME."
+    }
+  },
+  "flagship": {
+    "id": "candidate-that-shouldnt-have-won",
+    "title": "The Candidate That Shouldn't Have Won",
+    "input": {
+      "candidate_id": "P-204",
+      "rank_before": 18,
+      "rank_after": 1,
+      "pipeline_status": "SUCCESS",
+      "symptom": "Candidate P-204 moved from rank #18 to #1 after last night's batch. No pipeline failed. Investigate before the morning selection meeting."
+    },
+    "root_cause": {
+      "batch_id": "B042",
+      "instrument_id": "DSC-07",
+      "instrument_firmware_before": "v4.1",
+      "instrument_firmware_after": "v4.2",
+      "expected_unit": "degC",
+      "observed_units": ["degC", "K"],
+      "normalization_version": "tg-normalizer-v1",
+      "affected_rows": 187,
+      "explanation": "Firmware v4.2 emitted part of batch B042 in Kelvin while the normalizer still treated every Tg value as Celsius."
+    },
+    "hypotheses": [
+      {"id": "H1", "claim": "model or code version drift", "expected_result": "REJECTED"},
+      {"id": "H2", "claim": "upstream scientific-data drift", "expected_result": "CONFIRMED"},
+      {"id": "H3", "claim": "legitimate experimental improvement", "expected_result": "REJECTED"}
+    ],
+    "lineage_edges": [
+      ["instrument_batch_B042", "raw_polymer_experiments"],
+      ["raw_polymer_experiments", "cleaned_polymer_dataset"],
+      ["cleaned_polymer_dataset", "tg_feature_table"],
+      ["cleaned_polymer_dataset", "molecular_weight_feature_table"],
+      ["tg_feature_table", "tg_prediction_model"],
+      ["tg_feature_table", "exploratory_dashboard"],
+      ["molecular_weight_feature_table", "durability_model"],
+      ["tg_prediction_model", "candidate_ranking_report"],
+      ["durability_model", "formulation_report"]
+    ],
+    "assets": [
+      {
+        "name": "instrument_batch_B042",
+        "role": "source_batch",
+        "owner": "lab_experimentalist",
+        "criticality": "HIGH",
+        "expected_decision": "HALT",
+        "expected_catalog_status": "QUARANTINED",
+        "enforcement_actions": ["QUARANTINE", "WRITE_BACK", "NOTIFY"]
+      },
+      {
+        "name": "raw_polymer_experiments",
+        "role": "dataset",
+        "owner": "lab_experimentalist",
+        "criticality": "HIGH",
+        "expected_decision": "WARN",
+        "expected_catalog_status": "AT_RISK",
+        "enforcement_actions": ["WRITE_BACK", "NOTIFY"]
+      },
+      {
+        "name": "cleaned_polymer_dataset",
+        "role": "dataset",
+        "owner": "data_engineer",
+        "criticality": "HIGH",
+        "expected_decision": "WARN",
+        "expected_catalog_status": "AT_RISK",
+        "enforcement_actions": ["WRITE_BACK", "NOTIFY"]
+      },
+      {
+        "name": "tg_feature_table",
+        "role": "feature_table",
+        "owner": "ml_engineer",
+        "criticality": "HIGH",
+        "expected_decision": "WARN",
+        "expected_catalog_status": "AT_RISK",
+        "enforcement_actions": ["WRITE_BACK", "NOTIFY"]
+      },
+      {
+        "name": "molecular_weight_feature_table",
+        "role": "feature_table",
+        "owner": "ml_engineer",
+        "criticality": "HIGH",
+        "expected_decision": "ALLOW",
+        "expected_catalog_status": "HEALTHY",
+        "enforcement_actions": []
+      },
+      {
+        "name": "tg_prediction_model",
+        "role": "model",
+        "owner": "ml_engineer",
+        "criticality": "CRITICAL",
+        "expected_decision": "HALT",
+        "expected_catalog_status": "AT_RISK",
+        "enforcement_actions": ["BLOCK_EXECUTION", "WRITE_BACK", "NOTIFY"]
+      },
+      {
+        "name": "durability_model",
+        "role": "model",
+        "owner": "ml_engineer",
+        "criticality": "HIGH",
+        "expected_decision": "ALLOW",
+        "expected_catalog_status": "HEALTHY",
+        "enforcement_actions": []
+      },
+      {
+        "name": "candidate_ranking_report",
+        "role": "decision_report",
+        "owner": "research_lead",
+        "criticality": "CRITICAL",
+        "expected_decision": "HALT",
+        "expected_catalog_status": "AT_RISK",
+        "enforcement_actions": ["BLOCK_PUBLISH", "WRITE_BACK", "NOTIFY"]
+      },
+      {
+        "name": "exploratory_dashboard",
+        "role": "dashboard",
+        "owner": "research_analyst",
+        "criticality": "MEDIUM",
+        "expected_decision": "WARN",
+        "expected_catalog_status": "AT_RISK",
+        "enforcement_actions": ["WRITE_BACK", "NOTIFY"]
+      },
+      {
+        "name": "formulation_report",
+        "role": "report",
+        "owner": "research_lead",
+        "criticality": "HIGH",
+        "expected_decision": "ALLOW",
+        "expected_catalog_status": "HEALTHY",
+        "enforcement_actions": []
+      }
+    ],
+    "ground_truth": {
+      "affected": [
+        "instrument_batch_B042",
+        "raw_polymer_experiments",
+        "cleaned_polymer_dataset",
+        "tg_feature_table",
+        "tg_prediction_model",
+        "candidate_ranking_report",
+        "exploratory_dashboard"
+      ],
+      "unaffected": [
+        "molecular_weight_feature_table",
+        "durability_model",
+        "formulation_report"
+      ],
+      "owners_to_notify": ["lab_experimentalist", "data_engineer", "ml_engineer", "research_lead", "research_analyst"]
+    },
+    "recovery_conditions": {
+      "required_checks": [
+        "verified_k_to_degc_conversion",
+        "unit_contract_assertion",
+        "batch_consistency_assertion",
+        "tg_model_revalidation",
+        "candidate_ranking_stability"
+      ],
+      "approval_rule": "two consecutive clean checks, or one clean check plus explicit human approval",
+      "fail_safe": "Any missing or failed check keeps the incident out of RESOLVED and forbids RESUME."
+    }
+  },
+  "presentation": {
+    "schema_version": "1.0",
+    "product_label": "SciGuard Autopilot — Scientific Decision Control Plane",
+    "primary_surface": "NEXTJS_COMMAND_CENTER",
+    "fallback_surface": "STREAMLIT",
+    "primary_route": "/incidents/{incident_id}",
+    "modes": ["LIVE", "RECORDED_REPLAY"],
+    "transport": "SSE",
+    "run_store": "JSONL",
+    "visual_semantics": {
+      "critical": "contaminated, halted, blocked, or failed",
+      "warning": "at risk, under investigation, or awaiting evidence",
+      "healthy": "unaffected, allowed, verified, or resolved",
+      "datahub": "evidence read from or state written to DataHub",
+      "neutral": "context that has not yet received a policy decision"
+    },
+    "panels": [
+      {
+        "id": "incident_header",
+        "purpose": "Keep incident ID, state, elapsed time, and LIVE/RECORDED_REPLAY globally visible.",
+        "required_data": ["incident_id", "incident_state", "elapsed_ms", "mode"]
+      },
+      {
+        "id": "rank_shock",
+        "purpose": "Show P-204 moving from rank 18 to rank 1 while every pipeline reports SUCCESS.",
+        "required_data": ["candidate_id", "rank_before", "rank_after", "pipeline_status"]
+      },
+      {
+        "id": "agent_timeline",
+        "purpose": "Render concise structured events and hypothesis outcomes without chain-of-thought.",
+        "required_data": ["sequence", "actor", "event_type", "summary", "evidence_ids"]
+      },
+      {
+        "id": "lineage_graph",
+        "purpose": "Animate DataHub lineage and distinguish contaminated and preserved branches.",
+        "required_data": ["lineage_edges", "affected", "unaffected", "owners", "datahub_links"]
+      },
+      {
+        "id": "evidence_board",
+        "purpose": "Separate observed facts, inferences, rejected hypotheses, and missing evidence.",
+        "required_data": ["evidence_id", "evidence_kind", "source", "summary", "integrity_hash"]
+      },
+      {
+        "id": "policy_surface",
+        "purpose": "Show deterministic HALT, WARN, and ALLOW decisions per asset with reason codes.",
+        "required_data": ["asset", "decision", "catalog_status", "reason_code"]
+      },
+      {
+        "id": "enforcement_console",
+        "purpose": "Show the real pipeline command result, non-zero blocked exit, incident ID, and write-back receipt.",
+        "required_data": ["command", "exit_code", "incident_id", "write_back_receipt"]
+      },
+      {
+        "id": "recovery_gate",
+        "purpose": "Keep RESUME locked until every deterministic recovery condition is satisfied.",
+        "required_data": ["checks", "approval", "resume_authorized"]
+      },
+      {
+        "id": "evaluation_theatre",
+        "purpose": "Compare NO_DATAHUB_CONTEXT, SEARCH_ONLY_DATAHUB, and FULL_DATAHUB using measured outputs.",
+        "required_data": ["mode", "impact", "owners", "actions", "metrics", "evidence_ids"]
+      }
+    ],
+    "story_beats": [
+      {
+        "id": "rank_shock",
+        "start_second": 0,
+        "end_second": 18,
+        "panels": ["incident_header", "rank_shock"],
+        "required_event_types": ["INCIDENT_CREATED"]
+      },
+      {
+        "id": "hypotheses",
+        "start_second": 18,
+        "end_second": 40,
+        "panels": ["incident_header", "agent_timeline"],
+        "required_event_types": ["HYPOTHESIS_PROPOSED"]
+      },
+      {
+        "id": "parallel_investigation",
+        "start_second": 40,
+        "end_second": 70,
+        "panels": ["agent_timeline", "lineage_graph", "evidence_board"],
+        "required_event_types": ["EVIDENCE_OBSERVED", "HYPOTHESIS_RESOLVED", "IMPACT_MAPPED"]
+      },
+      {
+        "id": "selective_containment",
+        "start_second": 70,
+        "end_second": 118,
+        "panels": ["lineage_graph", "policy_surface", "enforcement_console"],
+        "required_event_types": ["POLICY_DECIDED", "ENFORCEMENT_APPLIED"]
+      },
+      {
+        "id": "evidence_gated_recovery",
+        "start_second": 118,
+        "end_second": 150,
+        "panels": ["evidence_board", "enforcement_console", "recovery_gate"],
+        "required_event_types": ["RECOVERY_CHECKED", "STATE_TRANSITIONED", "INCIDENT_RESOLVED"]
+      },
+      {
+        "id": "quantified_proof",
+        "start_second": 150,
+        "end_second": 170,
+        "panels": ["evaluation_theatre"],
+        "required_event_types": ["EVIDENCE_OBSERVED"]
+      }
+    ],
+    "truth_rules": {
+      "show_chain_of_thought": false,
+      "allow_fabricated_metrics": false,
+      "require_evidence_for_numbers": true,
+      "live_replay_badge_is_global": true,
+      "replay_uses_live_event_schema": true,
+      "animations_may_not_advance_state": true
+    },
+    "implementation_boundary": {
+      "required": [
+        "minimal FastAPI event API",
+        "SSE event stream",
+        "JSONL run store",
+        "single-page Next.js command center",
+        "real-run replay",
+        "existing Streamlit emergency fallback"
+      ],
+      "deferred": [
+        "authentication and RBAC",
+        "multi-tenancy",
+        "database and distributed queue",
+        "WebSocket transport",
+        "Slack and Jira integrations",
+        "production scheduler adapters",
+        "multiple LLM providers",
+        "multiple scientific domains",
+        "mobile-specific UI"
+      ]
+    }
+  },
   "cones": {
     "raw_polymer_experiments": {
-      "affected": ["cleaned_polymer_dataset", "polymer_feature_table", "tg_prediction_model", "candidate_report"],
-      "owners": ["data_engineer", "ml_engineer", "research_lead"],
-      "tag_targets": ["tg_prediction_model"]
+      "affected": ["cleaned_polymer_dataset", "tg_feature_table", "molecular_weight_feature_table", "tg_prediction_model", "exploratory_dashboard", "durability_model", "candidate_ranking_report", "formulation_report"],
+      "owners": ["data_engineer", "ml_engineer", "research_analyst", "research_lead"],
+      "control_targets": ["tg_prediction_model", "durability_model"]
     },
     "cleaned_polymer_dataset": {
-      "affected": ["polymer_feature_table", "tg_prediction_model", "candidate_report"],
-      "owners": ["ml_engineer", "research_lead"],
-      "tag_targets": ["tg_prediction_model"]
+      "affected": ["tg_feature_table", "molecular_weight_feature_table", "tg_prediction_model", "exploratory_dashboard", "durability_model", "candidate_ranking_report", "formulation_report"],
+      "owners": ["ml_engineer", "research_analyst", "research_lead"],
+      "control_targets": ["tg_prediction_model", "durability_model"]
     },
-    "polymer_feature_table": {
-      "affected": ["tg_prediction_model", "candidate_report"],
-      "owners": ["ml_engineer", "research_lead"],
-      "tag_targets": ["tg_prediction_model"]
+    "tg_feature_table": {
+      "affected": ["tg_prediction_model", "exploratory_dashboard", "candidate_ranking_report"],
+      "owners": ["ml_engineer", "research_analyst", "research_lead"],
+      "control_targets": ["tg_prediction_model"]
     }
   },
   "scenarios": [
@@ -62,7 +452,7 @@
     },
     {
       "id": "tg-unit-features",
-      "dataset": "polymer_feature_table",
+      "dataset": "tg_feature_table",
       "profile": "polymer",
       "mutations": [{"op": "unit", "field": "tg_degC", "to": "K"}],
       "expected": {"severity": "critical", "changes": [["unit_change", "tg_degC"]]}

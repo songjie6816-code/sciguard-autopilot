@@ -25,3 +25,50 @@ rules:
     remediation:
       - restore the SMILES structure identifier
       - re-link structures before regenerating features
+escalation_policy:
+  minimum_severity: high
+  decision_roles: [model, decision_report]
+  require_decision_path: true
+action_policy:
+  affected_roles:
+    source_batch:
+      decision: HALT
+      catalog_status: QUARANTINED
+      actions: [QUARANTINE, WRITE_BACK, NOTIFY]
+    dataset:
+      decision: WARN
+      catalog_status: AT_RISK
+      actions: [WRITE_BACK, NOTIFY]
+    feature_table:
+      decision: WARN
+      catalog_status: AT_RISK
+      actions: [WRITE_BACK, NOTIFY]
+    model:
+      decision: HALT
+      catalog_status: AT_RISK
+      actions: [BLOCK_EXECUTION, WRITE_BACK, NOTIFY]
+    decision_report:
+      decision: HALT
+      catalog_status: AT_RISK
+      actions: [BLOCK_PUBLISH, WRITE_BACK, NOTIFY]
+    dashboard:
+      decision: WARN
+      catalog_status: AT_RISK
+      actions: [WRITE_BACK, NOTIFY]
+    report:
+      decision: WARN
+      catalog_status: AT_RISK
+      actions: [WRITE_BACK, NOTIFY]
+  unaffected:
+    decision: ALLOW
+    catalog_status: HEALTHY
+    actions: []
+recovery_policy:
+  required_checks:
+    - verified_k_to_degc_conversion
+    - unit_contract_assertion
+    - batch_consistency_assertion
+    - tg_model_revalidation
+    - candidate_ranking_stability
+  consecutive_clean_runs: 2
+  allow_one_clean_with_human_approval: true
