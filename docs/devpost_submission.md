@@ -10,9 +10,10 @@
 - [ ] Public demo video < 3 minutes (YouTube / Vimeo / Youku) — `[add link]`
 - [ ] English README and install/test steps ✅
 - [x] **Substantially uses a required DataHub component — the DataHub MCP Server.**
-      Context reads (search, lineage, schema, ownership, units) route through the MCP
-      Server's tools with `SCIGUARD_USE_MCP=1`; a test verifies the MCP and SDK backends
-      return identical context.
+      Contract, schema, directed lineage, ownership and governance context route through
+      real MCP tools with `SCIGUARD_USE_MCP=1`; live tests compare those reads with the SDK.
+      Fine-grained lineage and write-back remain explicit SDK fallbacks because the current
+      MCP tools do not expose those capabilities.
 
 ## Project name
 
@@ -20,9 +21,9 @@ SciGuard
 
 ## Elevator pitch (one line)
 
-A DataHub-powered trust agent for scientific ML: it catches a silent unit change, traces
-every affected downstream model and report through lineage, and writes a `model-at-risk`
-tag back to the catalog.
+A DataHub-powered trust agent for scientific ML: a lightweight Sentinel catches silent
+contract drift, then one evidence-bound incident workflow traces, selectively contains,
+and safely recovers the affected scientific decision path.
 
 ## Inspiration
 
@@ -35,22 +36,19 @@ no one can answer "if this changed, what downstream is now wrong, and who owns i
 
 ## What it does
 
-SciGuard runs a deterministic sense → decide → act loop, with DataHub as the context and
-action layer:
+SciGuard runs one signal → investigate → control → recover workflow, with DataHub as the
+context, evidence, and action-state layer:
 
-1. **Detect** the change by diffing schema and declared units against DataHub.
-2. **Trace** impact by walking multi-hop DataHub lineage to the affected feature tables,
-   models and reports — with their owners.
-3. **Score** the risk against configurable YAML domain-profile rules.
-4. **Remediate** with concrete fix actions and an incident report.
-5. **Write back** a `model-at-risk` tag and an incident summary to DataHub — always
-   read-modify-write, so existing catalog metadata is never clobbered.
+1. **Detect and triage** schema/unit drift with the lightweight deterministic Sentinel.
+2. **Escalate only when necessary** using profile-defined severity and decision-path gates.
+3. **Investigate independently** through DataHub reverse lineage and local trusted artifacts.
+4. **Prove field impact** so the contaminated branch is stopped and safe work remains live.
+5. **Control deterministically** with per-asset `HALT` / `WARN` / `ALLOW` decisions.
+6. **Write and recover safely** with incident-scoped DataHub state and fresh evidence checks.
 
-Demo: a synthetic polymer `Tg` prediction pipeline
-(`raw → cleaned → features → tg_prediction_model → candidate_report`). `Tg`'s unit silently
-changes Celsius → Kelvin. The demo app lets you pick where it lands; for a mid-pipeline
-change it finds the downstream feature table, model and report and — unlike a catalog
-search — does not flag the upstream raw table, scores it CRITICAL, and flags the model.
+Demo: firmware v4.2 emits 187 mixed-unit rows in batch B042. Every pipeline succeeds, but
+P-204 moves from rank #18 to #1. DataHub field lineage distinguishes the contaminated Tg
+model/ranking path from the molecular-weight durability path that should remain available.
 
 ## Who it's for
 
@@ -71,25 +69,39 @@ lineage — expressed as configurable domain profiles rather than a hard-coded s
 
 - Python, with a **deterministic core** (no LLM in the decision path) so results are
   reproducible and testable; Pydantic for structured outputs.
-- **DataHub** open-source platform via Docker (Colima) Quickstart. Context reads (search,
-  lineage, schema, ownership, units) go through the **DataHub MCP Server**; a pluggable
-  backend also supports the SDK, and the two are verified to return identical context.
-  Write-back (tags + incident properties) uses the SDK.
+- **DataHub** open-source platform via Docker (Colima) Quickstart. Contract, schema,
+  directed lineage, ownership, and governance context go through the **DataHub MCP Server**.
+  Live parity tests verify this claimed MCP surface. Fine-grained lineage and write-back
+  (tags + incident properties) use an explicit SDK fallback.
 - **YAML domain profiles** (`generic → materials → polymer`) so a new scientific domain is a
   config change, not code.
-- **Streamlit** demo UI; **pytest** (43 tests); a **gated evaluation harness**.
+- **Next.js cinematic command center** as the primary judge surface; Streamlit remains the
+  emergency fallback;
+  **pytest** and a **gated evaluation harness** protect the deterministic core.
+- An optional **bounded narration layer** receives only redacted metadata/evidence IDs,
+  returns Pydantic-validated internal/public summaries, and has no authority over policy,
+  recovery, DataHub writes, or arbitrary tool execution.
+- A minimal **FastAPI + SSE event surface** streams the frozen event schema from an
+  incident-isolated JSON/JSONL Run Store. **38 immutable events: 35 events reach recovery
+  lock, followed by 3 verified recovery events.** The bundle is integrity-checked and
+  globally labelled `RECORDED_REPLAY`, never presented as a live run.
 
 ## Use of DataHub
 
 - **Schema + units** — units stored as dataset custom properties; the detector diffs them.
 - **Multi-hop lineage** — `searchAcrossLineage` recovers the exact downstream impact cone.
+- **Field lineage** — proves the anomalous Tg field does not feed the molecular-weight branch.
 - **Ownership** — each affected entity's owner is resolved so the right people are notified.
-- **Governance write-back** — a `model-at-risk` tag and incident summary are written back,
-  read-modify-write so existing metadata is preserved.
+- **Governance and model context** — criticality, role, model version and synthetic-data tags
+  are queryable metadata used by later policy work.
+- **Governance write-back** — incident-scoped `AT_RISK`, `QUARANTINED`, and `RESOLVED`
+  controls plus evidence references are written back, read-modify-write so existing metadata
+  is preserved.
 - **Configurable domain profiles** — rules are YAML with an inheritance chain.
-- **DataHub MCP Server** — context reads run through the MCP Server's tools (`search`,
-  `get_lineage`, `list_schema_fields`, `get_entities`) with `SCIGUARD_USE_MCP=1`; a test
-  verifies the MCP and SDK read backends return identical context.
+- **DataHub MCP Server** — contract and context reads run through the MCP Server's tools
+  (`search`, `get_lineage`, `list_schema_fields`, `get_entities`) with
+  `SCIGUARD_USE_MCP=1`; live tests verify the claimed MCP read surface against the SDK.
+  Field-lineage aspect reads and metadata writes use a disclosed SDK fallback.
 
 ## Results (measured)
 
@@ -97,27 +109,31 @@ A gated evaluation harness scores 13 labelled scenarios (9 actionable + 4 negati
 against the live catalog and fails on any regression:
 
 - change detection: 100% · risk severity: 100% · false alarms on benign changes: 0%
-- impacted-entity precision/recall: 100% / 100% · owner recall: 100% · tag targeting: 100%
+- impacted-entity precision/recall: 100% / 100% · owner recall: 100% · control targeting: 100%
 
-**DataHub ablation (both arms measured, nothing hardcoded):** impact analysis with DataHub
-lineage scores precision/recall/F1 = 100% and recovers the exact cone 3/3; a no-lineage
-catalog-search baseline scores 75% precision (it flags *upstream* datasets, having no sense
-of direction) and recovers the exact cone only 1/3.
+**Current DataHub ablation (both arms measured, nothing hardcoded):** lineage traversal
+recovers every exact cone at 100% precision/recall. The explicitly labelled search-only
+DataHub baseline scores 60% precision / 83.3% recall and recovers 0/3 exact cones. WP9 adds
+a third real run that performs no DataHub calls.
 
 ## Challenges we ran into
 
 - **Write-backs that quietly delete metadata.** DataHub aspects are replace-on-write; a
   partial write nulls the fields you didn't set. We enforce read-modify-write on the whole
   aspect everywhere.
-- **Keeping the evaluation honest.** Adversarial multi-agent review caught an ablation whose
-  "without DataHub" arm was hardcoded; we rebuilt it as two real measured runs and added a
-  gate that fails when the system regresses.
+- **Keeping the evaluation honest.** The catalog-search arm still uses DataHub, so we label
+  it search-only rather than “without DataHub”; WP9 separately implements a backend that
+  forbids all DataHub access.
 
 ## Accomplishments we're proud of
 
 - A measured, defensible DataHub ablation instead of a hand-waved claim.
 - Safe, non-destructive write-back to a shared catalog.
 - Domain knowledge as configurable profiles, not a hard-coded polymer script.
+- A tested LLM capability boundary: zero raw rows, local secret/PII redaction, read-only tool
+  allowlisting, and deterministic fallback for malformed or unsafe output.
+- A projector-readable command center whose policy, process enforcement, and recovery state
+  are rendered from the same immutable events used by the API and replay.
 
 ## What we learned
 
@@ -126,7 +142,7 @@ applied to our own code and metrics via adversarial review and a gated evaluatio
 
 ## What's next
 
-- Add an optional LLM layer that drives the DataHub MCP Server tools and narrates reports.
+- Execute the third, true no-DataHub ablation without inventing a placeholder score.
 - Register the model as a native **mlModel** entity to deepen ML-metadata usage.
 - Add domains beyond polymers (battery cycle-life, catalysis) as new profiles.
 
