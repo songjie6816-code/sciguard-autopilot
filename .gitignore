@@ -6,14 +6,23 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
-build/
+.sciguard/
+/build/
 dist/
 *.egg-info/
 
 # Generated reports and local datasets (keep curated examples tracked)
 data/generated/
+evaluation/outputs/
 examples/outputs/*.tmp
+
+# Private/internal material retained locally but excluded from the public repository
+docs/FIRST_PRIZE_AGENT_GUIDE.md
+docs/screenshots/p0-judge-ready-1280x720.jpg
+docs/screenshots/p0-judge-ready-desktop-1440x900.jpg
+
+# Legacy ignored helper retained locally until cleanup is explicitly authorized
+web/build/sites-vite-plugin.ts
 
 # Machine-specific IDE / launcher config
 .claude/
-
