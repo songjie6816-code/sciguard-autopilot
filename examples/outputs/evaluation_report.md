@@ -7,20 +7,17 @@
 - risk-severity accuracy: 100.0% (13/13)
 - false-alarm rate on negatives: 0.0% (0/4)
 - owner-notification precision/recall: 100.0% / 100.0%
-- model-at-risk tag targeting: 100.0% (9/9)
+- model control targeting: 100.0% (9/9)
 
 ## Impact analysis over 3 distinct lineage cones
 | approach | precision | recall | F1 | exact cone |
 |---|---|---|---|---|
 | WITH DataHub lineage | 100.0% | 100.0% | 100.0% | 3/3 |
-| WITHOUT DataHub (catalog search) | 75.0% | 100.0% | 85.7% | 1/3 |
+| SEARCH-ONLY DataHub (without lineage) | 60.0% | 83.3% | 69.8% | 0/3 |
 
 The no-lineage search baseline cannot tell dependency direction, so it
-flags upstream/sibling datasets as affected (false positives: ['cleaned_polymer_dataset', 'raw_polymer_experiments']).
+flags upstream/sibling datasets as affected (false positives: ['candidate_report', 'durability_model', 'instrument_batch_B042', 'molecular_weight_feature_table', 'polymer_feature_table', 'raw_polymer_experiments']).
 Only lineage recovers the exact downstream cone with correct direction.
-
-## Latency
-- mean per-scenario: 62.9 ms
 
 ## Per-scenario
 | scenario | detect | severity | note |
