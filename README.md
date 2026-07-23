@@ -87,7 +87,7 @@ runs. Evaluation 2.0 will add a third mode that performs no DataHub calls at all
 
 ## Results
 
-`python evaluation/harness.py` scores 13 labelled scenarios (9 actionable + 4 negative
+`PYTHONPATH=. python evaluation/harness.py` scores 13 labelled scenarios (9 actionable + 4 negative
 controls) against the live catalog and **fails (non-zero exit) if any metric regresses**:
 
 - change-detection accuracy: **100%**
