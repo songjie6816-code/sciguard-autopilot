@@ -9,6 +9,14 @@ import type {
   RunMode,
   SciGuardEvent,
 } from "./types";
+import {
+  DATAHUB_CAPABILITY_BOUNDARY,
+  DATAHUB_DECISION_EXPLANATION,
+  JUDGE_STAGES,
+  WHY_DATAHUB_RESULTS,
+  stageIndexForEvent,
+  stageIndexFromEvents,
+} from "./judge-experience.mjs";
 
 const CONFIGURED_API_BASE = process.env.NEXT_PUBLIC_SCIGUARD_API_URL ?? "";
 const STATIC_JUDGE_BUILD =
@@ -183,25 +191,19 @@ async function verifyReplayBundle(
   return replayEvents;
 }
 
-function storyBeat(events: SciGuardEvent[]): number {
-  if (!events.some((event) => event.event_type === "SIGNAL_DETECTED")) return 1;
-  if (!events.some((event) => event.event_type === "HYPOTHESIS_PROPOSED")) return 1;
-  if (!events.some((event) => event.event_type === "HYPOTHESIS_RESOLVED")) return 2;
-  if (!events.some((event) => event.event_type === "IMPACT_MAPPED")) return 3;
-  if (!events.some((event) => numberValue(event.payload.exit_code, -1) === 42)) return 4;
-  if (!events.some((event) => event.event_type === "INCIDENT_RESOLVED")) return 5;
-  return 6;
-}
-
 function EvidenceLink({
   id,
   onSelect,
 }: {
   id: string;
-  onSelect: (id: string) => void;
+  onSelect: (id: string, trigger: HTMLButtonElement) => void;
 }) {
   return (
-    <button className="evidence-link" onClick={() => onSelect(id)} type="button">
+    <button
+      className="evidence-link"
+      onClick={(event) => onSelect(id, event.currentTarget)}
+      type="button"
+    >
       <span>↗</span> {shortEvidence(id)}
     </button>
   );
@@ -243,7 +245,13 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
   );
   const [mode, setMode] = useState<RunMode>("RECORDED_REPLAY");
   const [localDataHubEnabled, setLocalDataHubEnabled] = useState(false);
+  const [focusedStage, setFocusedStage] = useState(0);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerEventId, setDrawerEventId] = useState<string | null>(null);
   const eventSource = useRef<EventSource | null>(null);
+  const drawerRef = useRef<HTMLElement | null>(null);
+  const drawerCloseRef = useRef<HTMLButtonElement | null>(null);
+  const drawerTriggerRef = useRef<HTMLElement | null>(null);
 
   const apiBase = useMemo(() => {
     if (judgeMode) return "";
@@ -336,6 +344,47 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
     return () => window.clearTimeout(timer);
   }, [events.length, playing, visibleCount]);
 
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.setTimeout(() => drawerCloseRef.current?.focus(), 0);
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setDrawerOpen(false);
+        window.setTimeout(() => drawerTriggerRef.current?.focus(), 0);
+        return;
+      }
+      if (event.key !== "Tab" || !drawerRef.current) return;
+      const focusable = Array.from(
+        drawerRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), summary, [tabindex]:not([tabindex="-1"])',
+        ),
+      );
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable.at(-1) ?? first;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [drawerOpen]);
+
+  const closeDrawer = useCallback(() => {
+    setDrawerOpen(false);
+    window.setTimeout(() => drawerTriggerRef.current?.focus(), 0);
+  }, []);
+
   const connectLiveStream = useCallback((runManifest: RunManifest) => {
     eventSource.current?.close();
     if (!apiBase) return;
@@ -386,7 +435,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
     () => events.slice(0, visibleCount),
     [events, visibleCount],
   );
-  const beat = storyBeat(visibleEvents);
+  const activeStage = stageIndexFromEvents(visibleEvents);
   const incidentState = stateFromEvents(visibleEvents, manifest ? "READY" : "LOADING");
   const latestEvent = visibleEvents.at(-1);
   const controllerRuntime = formatSeconds(eventSpanMs(events));
@@ -397,6 +446,9 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
       : manifest
         ? "READY"
         : "LOADING";
+
+  const displayedFocusedStage =
+    playing || playbackState === "COMPLETE" ? activeStage : focusedStage;
 
   const evidence = useMemo(() => {
     const records = new Map<string, EvidenceRecord>();
@@ -527,8 +579,81 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
       ? `${LOCAL_DATAHUB_BASE}/dataset/${encodeURIComponent(selectedUrn)}`
       : null;
 
+  const openEvidence = useCallback(
+    (id: string, trigger: HTMLElement, eventId: string | null = null) => {
+      drawerTriggerRef.current = trigger;
+      setSelectedEvidence(id);
+      setDrawerEventId(eventId);
+      setDrawerOpen(true);
+    },
+    [],
+  );
+
+  const inspectStage = useCallback(
+    (index: number, trigger: HTMLButtonElement) => {
+      setFocusedStage(index);
+      const matchingEvent = [...visibleEvents]
+        .reverse()
+        .find((event) => stageIndexForEvent(event) === index);
+      openEvidence(
+        matchingEvent?.evidence_ids[0] ?? `stage:${JUDGE_STAGES[index].id}`,
+        trigger,
+        matchingEvent?.event_id ?? null,
+      );
+    },
+    [openEvidence, visibleEvents],
+  );
+
+  const drawerEvent =
+    visibleEvents.find((event) => event.event_id === drawerEventId) ??
+    visibleEvents.find((event) => event.evidence_ids.includes(selectedEvidence));
+  const drawerRecord = evidence.get(selectedEvidence);
+  const drawerPayload = drawerRecord?.payload ?? drawerEvent?.payload ?? {};
+  const drawerChanges = Array.isArray(drawerPayload.changes)
+    ? objectValue(drawerPayload.changes[0])
+    : {};
+  const drawerUrn =
+    stringValue(drawerPayload.datahub_urn) ||
+    stringValue(drawerPayload.urn) ||
+    stringValue(drawerPayload.source_urn) ||
+    stringValue(drawerPayload.changed_urn) ||
+    stringValue(drawerPayload.start_urn) ||
+    stringValue(drawerPayload.model_urn) ||
+    "Not present in this evidence";
+  const drawerField =
+    stringArray(drawerPayload.source_fields)[0] ||
+    stringValue(drawerPayload.field) ||
+    stringValue(drawerChanges.field) ||
+    (selectedEvidence.startsWith("unit-") ? "tg_value" : "Not present in this evidence");
+  const downstreamImpact =
+    stringValue(drawerPayload.deterministic_effect) ||
+    stringValue(drawerPayload.field_cone) ||
+    stringValue(drawerPayload.reason_code) ||
+    stringValue(drawerPayload.decision) ||
+    (stringArray(drawerPayload.affected_names).length
+      ? `${stringArray(drawerPayload.affected_names).length} affected / ${stringArray(drawerPayload.unaffected_names).length} preserved assets`
+      : "Not present in this evidence");
+  const policyRule =
+    stringArray(drawerPayload.matched_rule_ids).join(", ") ||
+    stringValue(drawerPayload.reason_code) ||
+    "Not present in this evidence";
+  const enforcementAction =
+    stringArray(drawerPayload.actions).join(", ") ||
+    stringValue(drawerPayload.decision) ||
+    (typeof drawerPayload.exit_code === "number"
+      ? `Process exit ${drawerPayload.exit_code}`
+      : "Not present in this evidence");
+  const drawerStageIndex = drawerEvent
+    ? stageIndexForEvent(drawerEvent)
+    : JUDGE_STAGES.findIndex(
+        (stage) => selectedEvidence === `stage:${stage.id}`,
+      );
+  const drawerResolvedStageIndex =
+    drawerStageIndex >= 0 ? drawerStageIndex : displayedFocusedStage;
+  const drawerStage = JUDGE_STAGES[drawerResolvedStageIndex];
+
   return (
-    <main className="command-center">
+    <main className={`command-center ${judgeMode ? "judge-mode" : "product-mode"} stage-focus-${activeStage + 1}`}>
       <header className="global-header">
         <div className="brand-lockup">
           <div className="brand-mark" aria-hidden="true"><span>SG</span></div>
@@ -592,7 +717,88 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
         </div>
       </section>
 
-      <section className="hero-section" aria-labelledby="incident-title">
+      {judgeMode && (
+        <section className="judge-cockpit" aria-labelledby="judge-cockpit-title">
+          <div className="cockpit-lead">
+            <span className="kicker">PUBLIC JUDGE MODE · DETERMINISTIC SYNTHETIC DATA</span>
+            <h1 id="judge-cockpit-title">A model succeeded. <em>The science did not.</em></h1>
+            <p>
+              P-204 jumped from trusted rank <strong>#18</strong> to <strong>#1</strong> after
+              187 B042 rows violated the Kelvin / Celsius contract.
+            </p>
+            <button
+              aria-label="Run the 15 second verified replay from the Judge Cockpit"
+              className="button primary cockpit-run"
+              disabled={integrity === "failed"}
+              onClick={() =>
+                void playStory().catch((error: unknown) => {
+                  setIntegrity("failed");
+                  setNotice(error instanceof Error ? error.message : "Replay failed");
+                })
+              }
+              type="button"
+            >
+              {playing ? "PLAYING VERIFIED REPLAY" : "RUN 15s VERIFIED REPLAY"}
+            </button>
+          </div>
+          <button
+            className={`cockpit-card signal-card ${activeStage === 0 ? "stage-current" : ""}`}
+            onClick={(event) => openEvidence(rankEvidence, event.currentTarget)}
+            type="button"
+          >
+            <small>SIGNAL · WHY DANGEROUS</small>
+            <strong>P-204&nbsp; #18 → #1</strong>
+            <span>Pipeline SUCCESS · scientific contract FAILED</span>
+          </button>
+          <button
+            className={`cockpit-card cause-card ${[1, 2].includes(activeStage) ? "stage-current" : ""}`}
+            onClick={(event) => openEvidence(unitEvidence, event.currentTarget)}
+            type="button"
+          >
+            <small>ROOT CAUSE · DATAHUB TRACE</small>
+            <strong>187 rows · K / °C</strong>
+            <span>Field lineage proves 6 affected and 3 preserved assets</span>
+          </button>
+          <button
+            className={`cockpit-card decision-card ${[3, 4].includes(activeStage) ? "stage-current" : ""}`}
+            onClick={(event) => openEvidence(impactEvidence, event.currentTarget)}
+            type="button"
+          >
+            <small>DETERMINISTIC CONTROL</small>
+            <strong><b>HALT</b> Tg · <i>ALLOW</i> MW</strong>
+            <span>LLM investigates; policy alone authorizes control</span>
+          </button>
+          <button
+            className={`cockpit-card recovery-card ${activeStage === 5 ? "stage-current" : ""}`}
+            onClick={(event) =>
+              openEvidence(
+                recoveryEvent?.evidence_ids[0] ?? "stage:verify-recovery",
+                event.currentTarget,
+                recoveryEvent?.event_id ?? null,
+              )
+            }
+            type="button"
+          >
+            <small>RECOVERY GATE</small>
+            <strong>{playbackState === "COMPLETE" ? "RESOLVED · COMPLETE" : "EVIDENCE BEFORE RESUME"}</strong>
+            <span>{controllerRuntime} controller span · 15.0s narrated replay</span>
+          </button>
+          <button
+            aria-label="Open the measured Why DataHub comparison"
+            className="cockpit-datahub"
+            onClick={(event) =>
+              openEvidence(evaluationEvidence.evidence_id, event.currentTarget)
+            }
+            type="button"
+          >
+            <strong>WHY DATAHUB</strong>
+            <b>EXACT CONE · 3/3 WITH LINEAGE → 0/3 SEARCH-ONLY</b>
+            <small>NO DATAHUB · NOT YET MEASURED</small>
+          </button>
+        </section>
+      )}
+
+      {!judgeMode && <section className="hero-section" aria-labelledby="incident-title">
         <div className="hero-copy">
           <div className="eyebrow"><span>INCIDENT SIGNAL</span><i /> POLYMER R&amp;D · DECISION REPORT</div>
           <h1 id="incident-title">A model succeeded.<br /><em>The science did not.</em></h1>
@@ -602,7 +808,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
             the morning research meeting.
           </p>
           <div className="hero-meta">
-            <EvidenceLink id={rankEvidence} onSelect={setSelectedEvidence} />
+            <EvidenceLink id={rankEvidence} onSelect={openEvidence} />
             <span aria-live="polite">{notice}</span>
           </div>
         </div>
@@ -623,9 +829,9 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
             <span className="contradiction">SCIENTIFIC CONTRACT FAILED</span>
           </div>
         </div>
-      </section>
+      </section>}
 
-      <section className="eligibility-strip" aria-label="DataHub qualification proof">
+      {!judgeMode && <section className="eligibility-strip" aria-label="DataHub qualification proof">
         <div>
           <span className="kicker datahub-blue">WHY DATAHUB · REQUIRED COMPONENT</span>
           <strong>DataHub MCP Server supplies contract, schema, ownership, and directed lineage context.</strong>
@@ -636,27 +842,30 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
           <b> DATAHUB_SDK</b>; the real MCP read path is opt-in and uses an explicit SDK fallback only
           where today&apos;s MCP tools do not expose fine-grained lineage or writes.
         </p>
-        <EvidenceLink id={dataHubCapabilityEvidence.evidence_id} onSelect={setSelectedEvidence} />
-      </section>
+        <EvidenceLink id={dataHubCapabilityEvidence.evidence_id} onSelect={openEvidence} />
+      </section>}
 
-      <nav className="story-rail" aria-label="Six story beats">
-        {[
-          "Signal",
-          "Hypotheses",
-          "Field proof",
-          "Containment",
-          "Recovery",
-          "Proof",
-        ].map((label, index) => (
-          <div className={beat >= index + 1 ? "beat active" : "beat"} key={label}>
-            <span>{String(index + 1).padStart(2, "0")}</span><strong>{label}</strong>
-          </div>
+      <nav className="story-rail" aria-label="Six event-driven investigation stages">
+        {JUDGE_STAGES.map((stage, index) => (
+          <button
+            aria-current={activeStage === index ? "step" : undefined}
+            aria-label={`${stage.label}: ${stage.purpose}`}
+            className={`beat ${activeStage === index ? "active" : ""} ${displayedFocusedStage === index ? "focused" : ""}`}
+            key={stage.id}
+            onClick={(event) => inspectStage(index, event.currentTarget)}
+            type="button"
+          >
+            <span>{String(index + 1).padStart(2, "0")}</span><strong>{stage.label}</strong>
+          </button>
         ))}
         <div className="playback-actions">
           <span className={`playback-state state-${playbackState.toLowerCase()}`} aria-live="polite">
             {playbackState}
           </span>
         </div>
+        <span className="sr-only" aria-live="polite" aria-atomic="true">
+          Stage {activeStage + 1} of 6: {JUDGE_STAGES[activeStage].label}. Playback {playbackState}.
+        </span>
       </nav>
 
       <section className="operations-grid">
@@ -686,7 +895,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
                   <div className="event-meta"><strong>{actorLabels[event.actor] ?? event.actor}</strong><span className="mono">#{String(event.sequence).padStart(2, "0")}</span></div>
                   <p>{event.summary}</p>
                   <div className="event-evidence">
-                    {event.evidence_ids.slice(0, 2).map((id) => <EvidenceLink id={id} key={id} onSelect={setSelectedEvidence} />)}
+                    {event.evidence_ids.slice(0, 2).map((id) => <EvidenceLink id={id} key={id} onSelect={(evidenceId, trigger) => openEvidence(evidenceId, trigger, event.event_id)} />)}
                   </div>
                 </div>
               </div>
@@ -698,7 +907,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
         <article className="panel graph-panel">
           <div className="panel-heading">
             <div><span className="kicker datahub-blue">DATAHUB IMPACT GRAPH</span><h2>Field-level blast radius</h2></div>
-            <EvidenceLink id={impactEvidence} onSelect={setSelectedEvidence} />
+            <EvidenceLink id={impactEvidence} onSelect={openEvidence} />
           </div>
           <div className="lineage-legend">
             <span><i className="legend-critical" /> affected / halted</span>
@@ -722,7 +931,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
               <div className="branch critical-branch">
                 <div className="branch-title"><span>TAINTED Tg PATH</span><StatusMark status={impactEvent ? "HALT" : "PENDING"} /></div>
                 {["tg_feature_table", "tg_prediction_model", "candidate_ranking_report"].map((name) => (
-                  <button className={`lineage-node compact ${nodeClass(name)}`} onClick={() => setSelectedEvidence(assetReceiptId(name))} key={name} type="button">
+                  <button className={`lineage-node compact ${nodeClass(name)}`} onClick={(event) => openEvidence(assetReceiptId(name), event.currentTarget, impactEvent?.event_id ?? null)} key={name} type="button">
                     <small>{name.includes("model") ? "MODEL" : name.includes("report") ? "DECISION REPORT" : "FEATURE TABLE"}</small>
                     <strong>{formatName(name)}</strong><span>View public DataHub evidence receipt</span>
                   </button>
@@ -731,7 +940,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
               <div className="branch healthy-branch">
                 <div className="branch-title"><span>PRESERVED MW PATH</span><StatusMark status={impactEvent ? "ALLOW" : "PENDING"} /></div>
                 {["molecular_weight_feature_table", "durability_model", "formulation_report"].map((name) => (
-                  <button className={`lineage-node compact ${nodeClass(name)}`} onClick={() => setSelectedEvidence(assetReceiptId(name))} key={name} type="button">
+                  <button className={`lineage-node compact ${nodeClass(name)}`} onClick={(event) => openEvidence(assetReceiptId(name), event.currentTarget, impactEvent?.event_id ?? null)} key={name} type="button">
                     <small>{name.includes("model") ? "MODEL" : name.includes("report") ? "REPORT" : "FEATURE TABLE"}</small>
                     <strong>{formatName(name)}</strong><span>View public DataHub evidence receipt</span>
                   </button>
@@ -753,10 +962,10 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
             <span className="integrity-chip">SHA-256</span>
           </div>
           <div className="evidence-metrics">
-            <button onClick={() => setSelectedEvidence(unitEvidence)} type="button"><small>UNIT VIOLATIONS</small><strong>{evidence.has(unitEvidence) ? "187" : "—"}</strong><span>B042 rows · K vs °C</span></button>
-            <button onClick={() => setSelectedEvidence(unitEvidence)} type="button"><small>FIRMWARE</small><strong>{evidence.has(unitEvidence) ? "v4.2" : "—"}</strong><span>trusted release · v4.1</span></button>
-            <button onClick={() => setSelectedEvidence(modelEvidence)} type="button"><small>MODEL DRIFT</small><strong>{evidence.has(modelEvidence) ? "NONE" : "—"}</strong><span>tg-gbr-v3 unchanged</span></button>
-            <button onClick={() => setSelectedEvidence(experimentEvidence)} type="button"><small>TRUE Tg DELTA</small><strong>{evidence.has(experimentEvidence) ? "0.0°" : "—"}</strong><span>after correct conversion</span></button>
+            <button onClick={(event) => openEvidence(unitEvidence, event.currentTarget)} type="button"><small>UNIT VIOLATIONS</small><strong>{evidence.has(unitEvidence) ? "187" : "—"}</strong><span>B042 rows · K vs °C</span></button>
+            <button onClick={(event) => openEvidence(unitEvidence, event.currentTarget)} type="button"><small>FIRMWARE</small><strong>{evidence.has(unitEvidence) ? "v4.2" : "—"}</strong><span>trusted release · v4.1</span></button>
+            <button onClick={(event) => openEvidence(modelEvidence, event.currentTarget)} type="button"><small>MODEL DRIFT</small><strong>{evidence.has(modelEvidence) ? "NONE" : "—"}</strong><span>tg-gbr-v3 unchanged</span></button>
+            <button onClick={(event) => openEvidence(experimentEvidence, event.currentTarget)} type="button"><small>TRUE Tg DELTA</small><strong>{evidence.has(experimentEvidence) ? "0.0°" : "—"}</strong><span>after correct conversion</span></button>
           </div>
           <div className="selected-evidence" aria-live="polite">
             <div className="evidence-type"><span>OBSERVED FACT</span><i>{selectedRecord?.source ?? "PENDING"}</i></div>
@@ -803,7 +1012,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
             <div className="console-line"><span>$</span> publish formulation_report</div>
             <div className={allowedEvent ? "console-result allowed" : "console-result pending"}><strong>{allowedEvent ? "ALLOWED" : "AWAITING EVENT"}</strong><span>exit {allowedEvent ? numberValue(allowedEvent.payload.exit_code) : "—"}</span><small>{allowedEvent ? "target created" : "waiting for safe branch proof"}</small></div>
           </div>
-          {blockedEvent?.evidence_ids[0] && <EvidenceLink id={blockedEvent.evidence_ids[0]} onSelect={setSelectedEvidence} />}
+          {blockedEvent?.evidence_ids[0] && <EvidenceLink id={blockedEvent.evidence_ids[0]} onSelect={(id, trigger) => openEvidence(id, trigger, blockedEvent.event_id)} />}
         </article>
 
         <article className="panel recovery-panel">
@@ -823,15 +1032,41 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
 
       <section className="evaluation-theatre panel">
         <div className="evaluation-intro">
-          <span className="kicker">EVALUATION THEATRE</span>
-          <h2>DataHub changes the decision boundary.</h2>
-          <p>Same labelled incidents. Different context. Only full lineage recovers every exact downstream cone.</p>
-          <EvidenceLink id={evaluationEvidence.evidence_id} onSelect={setSelectedEvidence} />
+          <span className="kicker">WHY DATAHUB · MEASURED ABLATION</span>
+          <h2>Directed lineage changes the decision boundary.</h2>
+          <p>{DATAHUB_DECISION_EXPLANATION}</p>
+          <small>{DATAHUB_CAPABILITY_BOUNDARY}</small>
+          <EvidenceLink id={evaluationEvidence.evidence_id} onSelect={openEvidence} />
         </div>
         <div className="evaluation-modes">
-          <div className="evaluation-card unavailable"><div className="mode-title"><span>01</span><strong>NO DATAHUB CONTEXT</strong></div><div className="metric-large">NOT YET MEASURED</div><p>WP9 will execute a backend that fails on every DataHub call. No metric is invented here.</p><StatusMark status="PENDING WP9" /></div>
-          <div className="evaluation-card search"><div className="mode-title"><span>02</span><strong>SEARCH-ONLY DATAHUB</strong></div><div className="metric-pair"><div><strong>60%</strong><span>precision</span></div><div><strong>83.3%</strong><span>recall</span></div></div><p>Without lineage direction · exact cone 0/3</p><StatusMark status="INCOMPLETE CONTEXT" /></div>
-          <div className="evaluation-card full"><div className="mode-title"><span>03</span><strong>FULL DATAHUB LINEAGE</strong></div><div className="metric-pair"><div><strong>100%</strong><span>precision</span></div><div><strong>100%</strong><span>recall</span></div></div><p>Field lineage + owners + governance · exact cone 3/3</p><StatusMark status="VERIFIED" /></div>
+          {WHY_DATAHUB_RESULTS.map((result, index) => (
+            <button
+              className={`evaluation-card ${result.id === "full-lineage" ? "full" : result.id === "search-only" ? "search" : "unavailable"}`}
+              key={result.id}
+              onClick={(event) => openEvidence(evaluationEvidence.evidence_id, event.currentTarget)}
+              type="button"
+            >
+              <div className="mode-title"><span>0{index + 1}</span><strong>{result.label}</strong></div>
+              {result.id === "no-datahub" ? (
+                <div className="metric-large">NOT YET MEASURED</div>
+              ) : (
+                <div className="metric-grid">
+                  <div><strong>{result.precision}</strong><span>precision</span></div>
+                  <div><strong>{result.recall}</strong><span>recall</span></div>
+                  <div><strong>{result.f1}</strong><span>F1</span></div>
+                  <div><strong>{result.exactCone}</strong><span>exact cone</span></div>
+                </div>
+              )}
+              <p>
+                {result.id === "no-datahub"
+                  ? "No metric is invented for an unexecuted arm."
+                  : result.id === "search-only"
+                    ? "Name similarity without lineage direction."
+                    : "Field lineage + owners + governance context."}
+              </p>
+              <StatusMark status={result.status} />
+            </button>
+          ))}
         </div>
       </section>
 
@@ -839,6 +1074,97 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
         <div><span className="brand-mini">SG</span><strong>Trust the decision because you can inspect the evidence.</strong></div>
         <div className="footer-meta"><span>{latestEvent ? `Latest · ${latestEvent.event_type}` : "Awaiting events"}</span><span>All demo data is deterministic and synthetic</span><span>DataHub-powered</span></div>
       </footer>
+
+      {drawerOpen && (
+        <div className="evidence-drawer-layer">
+          <button
+            aria-label="Close evidence drawer"
+            className="drawer-backdrop"
+            onClick={closeDrawer}
+            type="button"
+          />
+          <aside
+            aria-labelledby="evidence-drawer-title"
+            aria-modal="true"
+            className="evidence-drawer"
+            ref={drawerRef}
+            role="dialog"
+          >
+            <div className="drawer-header">
+              <div>
+                <span className="kicker">PUBLIC EVIDENCE RECEIPT</span>
+                <h2 id="evidence-drawer-title">
+                  {drawerRecord?.summary ?? drawerEvent?.summary ?? drawerStage.purpose}
+                </h2>
+              </div>
+              <button
+                aria-label="Close evidence drawer and return focus"
+                className="drawer-close"
+                onClick={closeDrawer}
+                ref={drawerCloseRef}
+                type="button"
+              >
+                ×
+              </button>
+            </div>
+            <div className="drawer-stage">
+              <span>STAGE {drawerResolvedStageIndex + 1} / 6</span>
+              <strong>{drawerStage.label}</strong>
+            </div>
+            <dl className="drawer-facts">
+              <div><dt>Evidence type</dt><dd>{drawerRecord?.kind ?? drawerEvent?.event_type ?? "STAGE CONTEXT"}</dd></div>
+              <div><dt>Incident ID</dt><dd>{drawerEvent?.incident_id ?? manifest?.incident_id ?? "Not present in this evidence"}</dd></div>
+              <div>
+                <dt>Immutable event ID / sequence</dt>
+                <dd>{drawerEvent ? `${drawerEvent.event_id} / ${drawerEvent.sequence + 1} of ${manifest?.event_count ?? 38}` : "Not visible at the current replay position"}</dd>
+              </div>
+              <div><dt>DataHub URN</dt><dd className="drawer-urn">{drawerUrn}</dd></div>
+              <div><dt>Affected field</dt><dd>{drawerField}</dd></div>
+              <div><dt>Downstream impact</dt><dd>{downstreamImpact}</dd></div>
+              <div><dt>Policy rule</dt><dd>{policyRule}</dd></div>
+              <div><dt>Enforcement action</dt><dd>{enforcementAction}</dd></div>
+              <div>
+                <dt>Provenance / backend</dt>
+                <dd>{drawerRecord?.source ?? drawerEvent?.actor ?? "Recorded stage context"} · {manifest?.datahub_backend ?? "pending"}</dd>
+              </div>
+            </dl>
+            {localDataHubHref && (
+              <a className="local-datahub-link" href={localDataHubHref} rel="noreferrer" target="_blank">
+                Open local DataHub · local deployment only
+              </a>
+            )}
+            {selectedEvidence === evaluationEvidence.evidence_id && (
+              <div className="drawer-ablation" aria-label="Measured Why DataHub comparison">
+                {WHY_DATAHUB_RESULTS.map((result) => (
+                  <div key={result.id}>
+                    <strong>{result.label}</strong>
+                    {result.id === "no-datahub" ? (
+                      <span>NOT YET MEASURED</span>
+                    ) : (
+                      <span>
+                        P {result.precision} · R {result.recall} · F1 {result.f1} · exact cone {result.exactCone}
+                      </span>
+                    )}
+                  </div>
+                ))}
+                <p>{DATAHUB_CAPABILITY_BOUNDARY}</p>
+              </div>
+            )}
+            <div className="drawer-integrity">
+              <span>INTEGRITY VERIFICATION · {integrity.toUpperCase()}</span>
+              <code>{manifest?.events_sha256 ?? "pending"}</code>
+              <p>
+                SHA-256 verifies internal consistency of the packaged replay. It is not a
+                digital signature and not proof of origin.
+              </p>
+            </div>
+            <details className="drawer-payload">
+              <summary>Raw recorded payload</summary>
+              <pre>{JSON.stringify(drawerPayload, null, 2)}</pre>
+            </details>
+          </aside>
+        </div>
+      )}
     </main>
   );
 }
