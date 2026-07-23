@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "incident_id": "inc-wp6-flagship",
+  "mode": "RECORDED_REPLAY",
+  "status": "COMPLETED",
+  "incident_state": "RESOLVED",
+  "datahub_backend": "DATAHUB_SDK",
+  "source_commit": "a8270a94773db71c8667d589e3c737d5d8b18f6a",
+  "source_worktree_dirty": true,
+  "generated_at": "2026-07-22T12:02:57.774603Z",
+  "updated_at": "2026-07-22T12:03:01.804150Z",
+  "completed_at": "2026-07-22T12:03:00.678338Z",
+  "event_count": 38,
+  "events_sha256": "7ddafe7b17ecf16c68b32d4ad310a3385d537e46b9cc18de9eced2e99b1cc9cd",
+  "validation": {
+    "event_schema": "core.events.Event@1",
+    "single_incident": true,
+    "contiguous_sequence": true,
+    "unique_event_ids": true
+  },
+  "source_run_id": "inc-wp6-flagship",
+  "error": null
+}
