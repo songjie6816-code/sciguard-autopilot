@@ -99,7 +99,11 @@ export function stageIndexForEvent(event) {
  */
 export function stageIndexFromEvents(events) {
   if (!events.length) return 0;
-  return stageIndexForEvent(events.at(-1) ?? {});
+  return events.reduce(
+    (highestStage, event) =>
+      Math.max(highestStage, stageIndexForEvent(event)),
+    0,
+  );
 }
 
 export const DATAHUB_DECISION_EXPLANATION =

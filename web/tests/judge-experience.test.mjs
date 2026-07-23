@@ -44,6 +44,42 @@ test("six Judge stages are driven by the existing immutable event sequence", asy
   assert.equal(stageIndexFromEvents(events), 5);
   assert.equal(events.length, 38);
   assert.equal(events.at(-1).event_type, "INCIDENT_RESOLVED");
+  assert.deepEqual(
+    events.map((_, index) => stageIndexFromEvents(events.slice(0, index + 1))),
+    [
+      ...Array(5).fill(0),
+      ...Array(8).fill(1),
+      2,
+      ...Array(11).fill(3),
+      ...Array(10).fill(4),
+      ...Array(3).fill(5),
+    ],
+  );
+});
+
+test("unknown later events cannot make an achieved stage regress", async () => {
+  const events = await replayEvents();
+  const throughImpact = events.slice(0, 14);
+  const afterUnknown = [
+    ...throughImpact,
+    {
+      event_type: "FUTURE_PRESENTATION_EVENT",
+      sequence: 999,
+      payload: {},
+    },
+  ];
+  const afterRecoveryUnknown = [
+    ...events,
+    {
+      event_type: "FUTURE_PRESENTATION_EVENT",
+      sequence: 1000,
+      payload: {},
+    },
+  ];
+
+  assert.equal(stageIndexFromEvents(throughImpact), 2);
+  assert.equal(stageIndexFromEvents(afterUnknown), 2);
+  assert.equal(stageIndexFromEvents(afterRecoveryUnknown), 5);
 });
 
 test("Why DataHub labels only the measured evaluation arms", () => {
@@ -85,6 +121,10 @@ test("Evidence Drawer states the public integrity and hosted-link boundaries", a
     new URL("../app/CommandCenter.tsx", import.meta.url),
     "utf8",
   );
+  const styles = await readFile(
+    new URL("../app/globals.css", import.meta.url),
+    "utf8",
+  );
   for (const label of [
     "Evidence type",
     "Incident ID",
@@ -101,4 +141,11 @@ test("Evidence Drawer states the public integrity and hosted-link boundaries", a
   assert.match(source, /internal consistency of the packaged replay/);
   assert.match(source, /not a\s+digital signature and not proof of origin/);
   assert.match(source, /event\.key === "Escape"/);
+  assert.match(source, /button:not\(\[disabled\]\), summary/);
+  assert.match(source, /EXACT CONE · 3\/3 WITH LINEAGE → 0\/3 SEARCH-ONLY/);
+  assert.match(source, /NO DATAHUB · NOT YET MEASURED/);
+  assert.match(styles, /\.drawer-facts dt[^}]*11px/);
+  assert.match(styles, /\.drawer-facts dd[^}]*13px/);
+  assert.match(styles, /\.drawer-integrity p[^}]*11px/);
+  assert.match(styles, /\.drawer-payload summary[^}]*11px/);
 });

@@ -40,6 +40,7 @@ test("judge bundle contains the P1 cockpit, measured comparison, and Evidence Dr
     "Search can find similar names; directed lineage proves the exact downstream decision cone.",
     "SEARCH-ONLY DATAHUB",
     "69.8%",
+    "EXACT CONE · 3/3 WITH LINEAGE → 0/3 SEARCH-ONLY",
     "NO DATAHUB",
     "NOT YET MEASURED",
     "PUBLIC EVIDENCE RECEIPT",

@@ -359,7 +359,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
       if (event.key !== "Tab" || !drawerRef.current) return;
       const focusable = Array.from(
         drawerRef.current.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          'a[href], button:not([disabled]), summary, [tabindex]:not([tabindex="-1"])',
         ),
       );
       if (!focusable.length) return;
@@ -783,11 +783,18 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
             <strong>{playbackState === "COMPLETE" ? "RESOLVED · COMPLETE" : "EVIDENCE BEFORE RESUME"}</strong>
             <span>{controllerRuntime} controller span · 15.0s narrated replay</span>
           </button>
-          <div className="cockpit-datahub">
+          <button
+            aria-label="Open the measured Why DataHub comparison"
+            className="cockpit-datahub"
+            onClick={(event) =>
+              openEvidence(evaluationEvidence.evidence_id, event.currentTarget)
+            }
+            type="button"
+          >
             <strong>WHY DATAHUB</strong>
-            <span>{DATAHUB_DECISION_EXPLANATION}</span>
-            <small>{DATAHUB_CAPABILITY_BOUNDARY}</small>
-          </div>
+            <b>EXACT CONE · 3/3 WITH LINEAGE → 0/3 SEARCH-ONLY</b>
+            <small>NO DATAHUB · NOT YET MEASURED</small>
+          </button>
         </section>
       )}
 
@@ -1125,6 +1132,23 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
               <a className="local-datahub-link" href={localDataHubHref} rel="noreferrer" target="_blank">
                 Open local DataHub · local deployment only
               </a>
+            )}
+            {selectedEvidence === evaluationEvidence.evidence_id && (
+              <div className="drawer-ablation" aria-label="Measured Why DataHub comparison">
+                {WHY_DATAHUB_RESULTS.map((result) => (
+                  <div key={result.id}>
+                    <strong>{result.label}</strong>
+                    {result.id === "no-datahub" ? (
+                      <span>NOT YET MEASURED</span>
+                    ) : (
+                      <span>
+                        P {result.precision} · R {result.recall} · F1 {result.f1} · exact cone {result.exactCone}
+                      </span>
+                    )}
+                  </div>
+                ))}
+                <p>{DATAHUB_CAPABILITY_BOUNDARY}</p>
+              </div>
             )}
             <div className="drawer-integrity">
               <span>INTEGRITY VERIFICATION · {integrity.toUpperCase()}</span>
