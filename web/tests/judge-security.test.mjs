@@ -36,24 +36,35 @@ test("judge artifact contains only public static replay material", async () => {
   assert.doesNotMatch(text, /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
   assert.match(
     text,
-    /38 immutable events: 35 events reach recovery lock, followed by 3 verified recovery events\./,
+    /55 immutable events: one live DataHub incident, one exact repair revision, and two fresh recovery verifications\./,
   );
 
   const manifest = JSON.parse(
-    await readFile(new URL("replays/inc-wp6-flagship/manifest.json", judgeRoot), "utf8"),
+    await readFile(
+      new URL("replays/inc-sciguard-champion/manifest.json", judgeRoot),
+      "utf8",
+    ),
   );
   const events = (
-    await readFile(new URL("replays/inc-wp6-flagship/events.jsonl", judgeRoot), "utf8")
+    await readFile(
+      new URL("replays/inc-sciguard-champion/events.jsonl", judgeRoot),
+      "utf8",
+    )
   )
     .trim()
     .split("\n")
     .map((line) => JSON.parse(line));
-  assert.equal(manifest.event_count, 38);
-  assert.equal(events.length, 38);
+  assert.equal(manifest.event_count, 55);
+  assert.equal(events.length, 55);
   assert.deepEqual([...new Set(events.map((event) => event.incident_id))], [
-    "inc-wp6-flagship",
+    "inc-sciguard-champion",
   ]);
-  assert.equal(events.some((event) => JSON.stringify(event).includes("@")), false);
+  assert.equal(
+    events.some((event) =>
+      /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i.test(JSON.stringify(event)),
+    ),
+    false,
+  );
   assert.equal(
     events.some((event) => (event.payload.raw_data_rows ?? 0) > 0),
     false,

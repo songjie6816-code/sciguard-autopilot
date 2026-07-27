@@ -47,19 +47,19 @@ export const WHY_DATAHUB_RESULTS = [
     id: "search-only",
     label: "SEARCH-ONLY DATAHUB",
     precision: "60%",
-    recall: "83.3%",
-    f1: "69.8%",
+    recall: "100%",
+    f1: "75%",
     exactCone: "0/3",
     status: "INCOMPLETE CONTEXT",
   },
   {
     id: "no-datahub",
     label: "NO DATAHUB",
-    precision: "NOT YET MEASURED",
-    recall: "NOT YET MEASURED",
-    f1: "NOT YET MEASURED",
-    exactCone: "NOT YET MEASURED",
-    status: "NOT YET MEASURED",
+    precision: "N/A",
+    recall: "0%",
+    f1: "0%",
+    exactCone: "0/3",
+    status: "MEASURED ABSTENTION",
   },
 ];
 
@@ -72,8 +72,17 @@ const EVENT_STAGE = new Map([
   ["HYPOTHESIS_RESOLVED", 1],
   ["IMPACT_MAPPED", 2],
   ["POLICY_DECIDED", 3],
+  ["DATAHUB_INCIDENT_WRITTEN", 3],
   ["NOTIFICATION_RECORDED", 3],
+  ["REPAIR_BUNDLE_CREATED", 4],
+  ["APPROVAL_REQUESTED", 4],
+  ["REPAIR_PUBLISHED", 4],
+  ["REPAIR_VERIFIED", 5],
+  ["REPAIR_APPLIED", 5],
+  ["APPROVAL_RECORDED", 5],
+  ["DECISION_LOG_WRITTEN", 5],
   ["ENFORCEMENT_APPLIED", 4],
+  ["RECOVERY_EVIDENCE_REFRESHED", 5],
   ["RECOVERY_CHECKED", 5],
   ["INCIDENT_RESOLVED", 5],
 ]);
@@ -81,7 +90,7 @@ const EVENT_STAGE = new Map([
 /**
  * Resolve a single immutable event into a presentation stage.
  * STATE_TRANSITIONED is disambiguated by the event sequence recorded in the
- * canonical 38-event incident; no new event or state is generated here.
+ * canonical incident event stream; no new event or state is generated here.
  *
  * @param {{event_type?: string, sequence?: number, payload?: Record<string, unknown>}} event
  * @returns {number}

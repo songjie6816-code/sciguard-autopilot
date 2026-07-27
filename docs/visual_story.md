@@ -93,7 +93,7 @@ check is missing or failing. Animation cannot change check or incident state.
 
 Compare `NO_DATAHUB_CONTEXT`, `SEARCH_ONLY_DATAHUB`, and `FULL_DATAHUB`. The first mode must
 make no DataHub calls. Search-only must be labelled as without lineage, not without DataHub.
-All displayed metrics come from the evaluation artifact.
+All displayed metrics come from `web/public/evidence/evaluation_report.json`.
 
 ## Visual semantics
 
@@ -111,7 +111,8 @@ fake terminal typing, fabricated token/cost counters, and unexplained charts.
 
 Required:
 
-- Minimal FastAPI run, health, event-stream, recovery, reset, and replay endpoints.
+- Minimal FastAPI run, health, event-stream, proof-carrying repair lifecycle, recovery,
+  reset, and replay endpoints.
 - SSE as the only live transport.
 - JSONL run store with source commit, generated time, mode, and integrity information.
 - One Next.js incident command-center route.

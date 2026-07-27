@@ -1,0 +1,4 @@
+interface:
+  display_name: "DataHub Scientific Impact"
+  short_description: "Prove affected and preserved decision paths"
+  default_prompt: "Use $datahub-scientific-impact to map the exact scientific decision impact of this metadata change."

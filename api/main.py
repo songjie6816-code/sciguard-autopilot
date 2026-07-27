@@ -26,8 +26,10 @@ from api.run_store import (
     current_worktree_dirty,
 )
 from api.runtime import DEFAULT_SYMPTOM, SciGuardRuntime
-from core.events import Event
-from core.recovery import RecoveryCheck, RecoveryResult
+from core.approval import ApprovalDecision
+from core.events import Event, EventType
+from core.recovery import RecoveryResult
+from core.repair import RepairBundle
 from core.reset import ResetReceipt
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -59,8 +61,15 @@ class EventFrame(BaseModel):
 class RecoveryRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    checks: list[RecoveryCheck] = Field(min_length=1, max_length=20)
-    human_approved: bool = False
+    approval_receipt_id: str | None = Field(default=None, min_length=5, max_length=200)
+
+
+class ApprovalRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    reviewer_urn: str = Field(min_length=5, max_length=300)
+    decision: ApprovalDecision
+    note: str = Field(min_length=8, max_length=1000)
 
 
 class ResetRequest(BaseModel):
@@ -190,6 +199,83 @@ def create_app(
         except (FileNotFoundError, ValueError) as exc:
             raise _not_found(FileNotFoundError(str(exc))) from exc
 
+    @app.get("/api/runs/{incident_id}/repair", response_model=RepairBundle)
+    def get_repair_bundle(incident_id: str) -> RepairBundle:
+        """Return the latest evidence-bound lifecycle state without invented claims."""
+
+        try:
+            events = run_store.get_events(incident_id)
+        except (FileNotFoundError, ValueError) as exc:
+            raise _not_found(FileNotFoundError(str(exc))) from exc
+        lifecycle_types = {
+            EventType.REPAIR_BUNDLE_CREATED,
+            EventType.REPAIR_PUBLISHED,
+            EventType.REPAIR_VERIFIED,
+            EventType.APPROVAL_RECORDED,
+            EventType.REPAIR_APPLIED,
+        }
+        for event in reversed(events):
+            if event.event_type in lifecycle_types:
+                return RepairBundle.model_validate(event.payload)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"no repair bundle recorded for {incident_id}",
+        )
+
+    def require_completed_live_run(incident_id: str) -> None:
+        manifest = run_store.get_manifest(incident_id)
+        if manifest.mode is not RunMode.LIVE or manifest.status is not RunStatus.COMPLETED:
+            raise ActiveRunError("repair action requires a completed live run")
+
+    @app.post("/api/runs/{incident_id}/repair/publish", response_model=RepairBundle)
+    def publish_repair(incident_id: str) -> RepairBundle:
+        try:
+            require_completed_live_run(incident_id)
+            return runtime.publish_repair(run_store, incident_id)
+        except FileNotFoundError as exc:
+            raise _not_found(exc) from exc
+        except (ActiveRunError, LookupError, RuntimeError, ValueError) as exc:
+            raise _conflict(exc) from exc
+
+    @app.post("/api/runs/{incident_id}/repair/verify", response_model=RepairBundle)
+    def verify_repair(incident_id: str) -> RepairBundle:
+        try:
+            require_completed_live_run(incident_id)
+            return runtime.verify_repair(run_store, incident_id)
+        except FileNotFoundError as exc:
+            raise _not_found(exc) from exc
+        except (ActiveRunError, LookupError, RuntimeError, ValueError) as exc:
+            raise _conflict(exc) from exc
+
+    @app.post("/api/runs/{incident_id}/repair/approval", response_model=RepairBundle)
+    def approve_repair(
+        incident_id: str,
+        request: ApprovalRequest,
+    ) -> RepairBundle:
+        try:
+            require_completed_live_run(incident_id)
+            return runtime.approve_repair(
+                run_store,
+                incident_id,
+                reviewer_urn=request.reviewer_urn,
+                decision=request.decision,
+                note=request.note,
+            )
+        except FileNotFoundError as exc:
+            raise _not_found(exc) from exc
+        except (ActiveRunError, LookupError, RuntimeError, ValueError) as exc:
+            raise _conflict(exc) from exc
+
+    @app.post("/api/runs/{incident_id}/repair/apply", response_model=RepairBundle)
+    def apply_repair(incident_id: str) -> RepairBundle:
+        try:
+            require_completed_live_run(incident_id)
+            return runtime.apply_repair(run_store, incident_id)
+        except FileNotFoundError as exc:
+            raise _not_found(exc) from exc
+        except (ActiveRunError, LookupError, RuntimeError, ValueError) as exc:
+            raise _conflict(exc) from exc
+
     async def event_stream(
         request: Request,
         store: RunStore,
@@ -263,12 +349,17 @@ def create_app(
             return runtime.recover(
                 run_store,
                 incident_id,
-                request.checks,
-                human_approved=request.human_approved,
+                approval_receipt_id=request.approval_receipt_id,
             )
         except FileNotFoundError as exc:
             raise _not_found(exc) from exc
-        except (ActiveRunError, LookupError, ValueError, RunStoreIntegrityError) as exc:
+        except (
+            ActiveRunError,
+            LookupError,
+            RuntimeError,
+            ValueError,
+            RunStoreIntegrityError,
+        ) as exc:
             raise _conflict(exc) from exc
 
     @app.post("/api/reset", response_model=ResetResponse)

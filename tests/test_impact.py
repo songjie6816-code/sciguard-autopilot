@@ -51,9 +51,23 @@ class FieldGraph:
     }
 
     def get_all_downstream(self, urn):
-        return [
-            SimpleNamespace(urn=_urn(name), name=name, degree=index)
+        dataset_hits = [
+            SimpleNamespace(
+                urn=_urn(name),
+                name=name,
+                degree=index,
+                entity_type="DATASET",
+            )
             for index, name in enumerate(self.names, 1)
+        ]
+        return [
+            *dataset_hits,
+            SimpleNamespace(
+                urn="urn:li:mlModel:(urn:li:dataPlatform:polymer_rnd,tg_prediction_model,PROD)",
+                name="tg_prediction_model",
+                degree=8,
+                entity_type="MLMODEL",
+            ),
         ]
 
     def get_fine_grained_lineage(self, urn):

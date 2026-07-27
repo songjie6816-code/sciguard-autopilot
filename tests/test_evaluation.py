@@ -5,6 +5,8 @@ a broken system (over-broad impact, missed detection, false alarm) fails. The
 live test runs the whole harness against DataHub and is skipped when it is down.
 """
 
+import json
+
 import pytest
 
 from evaluation import harness
@@ -36,9 +38,19 @@ def _perfect_result() -> dict:
             },
         ],
         "impact": [
-            {"dataset": "d", "expected": {"a", "b"}, "lineage": PRF(tp=2, fp=0, fn=0),
-             "lineage_exact": True, "search": PRF(tp=2, fp=3, fn=0),
-             "search_exact": False, "search_false_positives": ["x", "y", "z"]},
+            {
+                "dataset": "d",
+                "expected": {"a", "b"},
+                "lineage": PRF(tp=2, fp=0, fn=0),
+                "lineage_exact": True,
+                "search": PRF(tp=2, fp=3, fn=0),
+                "search_exact": False,
+                "search_false_positives": ["x", "y", "z"],
+                "no_datahub": PRF(tp=0, fp=0, fn=2),
+                "no_datahub_exact": False,
+                "no_datahub_predictions": 0,
+                "no_datahub_call_count": 0,
+            },
         ],
     }
 
@@ -96,6 +108,29 @@ def test_deterministic_summary_excludes_latency() -> None:
     assert "mean per-scenario" not in report
 
 
+def test_machine_report_is_deterministic_and_exposes_all_three_arms() -> None:
+    report = harness.machine_report(_perfect_result())
+    assert report["capture_type"] == "CONTROLLED_DATAHUB_ABLATION"
+    assert report["gate"] == {"status": "PASS", "failures": []}
+    assert [arm["id"] for arm in report["impact_arms"]] == [
+        "full-lineage",
+        "search-only",
+        "no-datahub",
+    ]
+    assert report["impact_arms"][0]["precision"] == 1.0
+    assert report["impact_arms"][1]["precision"] == 0.4
+    assert report["impact_arms"][2]["datahub_call_count"] == 0
+    assert "latency_ms" not in report["scenario_results"][0]
+
+
+def test_no_datahub_arm_has_no_backend_and_abstains() -> None:
+    assert harness.impact_without_datahub() == set()
+    report = harness.summarize(_perfect_result())
+    assert "NO DataHub (zero-context abstention)" in report
+    assert "0 predictions" in report
+    assert "0.0%" in report
+
+
 def test_performance_summary_is_explicitly_non_deterministic() -> None:
     report = harness.summarize_performance(_perfect_result())
     assert "NON-DETERMINISTIC" in report
@@ -108,6 +143,7 @@ def test_default_main_does_not_update_golden(tmp_path, monkeypatch) -> None:
     output = tmp_path / "runtime" / "evaluation.md"
     performance = tmp_path / "runtime" / "performance.md"
     monkeypatch.setattr(harness, "GOLDEN_REPORT", golden)
+    monkeypatch.setattr(harness, "DEFAULT_JSON_REPORT", tmp_path / "runtime/report.json")
     monkeypatch.setattr(harness, "DEFAULT_REPORT", output)
     monkeypatch.setattr(harness, "DEFAULT_PERFORMANCE_REPORT", performance)
     monkeypatch.setattr(harness, "run", _perfect_result)
@@ -124,6 +160,11 @@ def test_update_golden_requires_explicit_flag(tmp_path, monkeypatch) -> None:
     output = tmp_path / "runtime" / "evaluation.md"
     performance = tmp_path / "runtime" / "performance.md"
     monkeypatch.setattr(harness, "GOLDEN_REPORT", golden)
+    golden_json = tmp_path / "golden.json"
+    public_json = tmp_path / "public.json"
+    monkeypatch.setattr(harness, "GOLDEN_JSON_REPORT", golden_json)
+    monkeypatch.setattr(harness, "PUBLIC_JSON_REPORT", public_json)
+    monkeypatch.setattr(harness, "DEFAULT_JSON_REPORT", tmp_path / "runtime/report.json")
     monkeypatch.setattr(harness, "DEFAULT_REPORT", output)
     monkeypatch.setattr(harness, "DEFAULT_PERFORMANCE_REPORT", performance)
     monkeypatch.setattr(harness, "run", _perfect_result)
@@ -131,6 +172,8 @@ def test_update_golden_requires_explicit_flag(tmp_path, monkeypatch) -> None:
     harness.main(["--update-golden"])
 
     assert golden.read_text(encoding="utf-8") == harness.summarize(_perfect_result())
+    assert json.loads(golden_json.read_text()) == harness.machine_report(_perfect_result())
+    assert public_json.read_bytes() == golden_json.read_bytes()
 
 
 def test_golden_output_path_is_rejected_without_update_flag(
@@ -140,6 +183,7 @@ def test_golden_output_path_is_rejected_without_update_flag(
     golden = tmp_path / "golden.md"
     performance = tmp_path / "performance.md"
     monkeypatch.setattr(harness, "GOLDEN_REPORT", golden)
+    monkeypatch.setattr(harness, "DEFAULT_JSON_REPORT", tmp_path / "runtime/report.json")
     monkeypatch.setattr(harness, "DEFAULT_PERFORMANCE_REPORT", performance)
     monkeypatch.setattr(harness, "run", _perfect_result)
 

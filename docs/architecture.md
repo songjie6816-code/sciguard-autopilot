@@ -4,10 +4,11 @@ The public implementation map is `docs/code_map.md`. This document describes the
 WP0 protocol and the current architecture; later work packages must extend it without
 weakening its deterministic decision path.
 
-SciGuard Autopilot has one production story and one composition root. A lightweight
+SciGuard Autopilot has one operational story and one composition root. A lightweight
 Sentinel turns metadata drift into a typed signal and escalates only when the configured
 severity and decision-path gates are met. The same incident then flows through bounded
-investigation, field-level impact proof, deterministic policy, enforcement, and recovery.
+investigation, field-level impact proof, deterministic policy, enforcement,
+exact-revision application, and recovery.
 DataHub remains the context, evidence, coordination, and action-state layer. Safety
 decisions remain deterministic and fully testable without an LLM.
 
@@ -66,7 +67,7 @@ strict legal transitions, atomic JSONL persistence, and replay validation.
 - `LIVE` means the current execution produced the shown evidence and action against the
   current dependencies.
 - `RECORDED_REPLAY` means immutable events captured from a prior real execution.
-- Only the future `LocalPipelineController` may be claimed as controlled. SciGuard does
+- Only the bounded `LocalPipelineController` may be claimed as controlled. SciGuard does
   not claim Airflow, dbt, or production-scheduler control.
 - All demo rows are deterministic synthetic data.
 - An LLM may narrate validated evidence but cannot choose `HALT`, `ALLOW`, or `RESUME`.
@@ -94,10 +95,15 @@ branch proof. `tg_degC` maps into `tg_feature_table`; no Tg field maps into
 `molecular_weight_feature_table`. Every node also has owner, criticality, role, schema,
 synthetic/role tags, and relevant version properties.
 
-DataHub SDK 1.6 includes native MLModel classes, but the competition MCP/SDK parity path
-currently exposes schema, units, and lineage most consistently for dataset URNs. Model
-nodes therefore use a disclosed `dataset_entity_fallback` with explicit `entity_role`,
-`model_version`, and `ml_metadata_mode`. Native projection remains a post-parity extension.
+SciGuard now uses a deliberate dual projection. Dataset URNs retain MCP-readable schema,
+unit contracts, output fields, and fine-grained lineage. In parallel,
+`data/synthetic_polymer/native_ml.py` emits native MLFeature, MLFeatureTable,
+MLModelGroup, MLModel, MLModelDeployment, training-run, and inference-run entities. Stable
+cross-projection URNs connect Production ML lifecycle semantics to the field-level
+decision graph. The canonical `inc-sciguard-champion` Quickstart capture proves 19 native
+entities, the exact repair lifecycle, two fresh recovery executions, one native Incident,
+and one published Decision Log inside the same incident closure. It is not evidence of a
+hosted DataHub deployment.
 
 ### Required DataHub component and decision effect
 
@@ -112,14 +118,14 @@ The current MCP tools do not expose the `fineGrainedLineages` aspect or metadata
 The MCP runtime therefore uses a named SDK fallback for the field cone and write-back. The
 field cone is the direct input to `build_policy_contexts`: assets inside it receive the
 role-based HALT/WARN rules, while assets outside it receive ALLOW. Runtime events include a
-`datahub_context_provenance` receipt naming the MCP inputs and SDK fallbacks. The curated
-replay contains **38 immutable events: 35 events reach recovery lock, followed by 3 verified
-recovery events.** It predates that receipt and honestly declares `DATAHUB_SDK` in its manifest;
-it is not relabelled as an MCP capture.
+`datahub_context_provenance` receipt naming the MCP inputs and SDK fallbacks. The canonical
+55-event Judge replay honestly declares `DATAHUB_SDK` in its manifest; it is not relabelled
+as an MCP capture.
 
 ## Components
 
-- `api/main.py` — exposes the bounded health/run/state/SSE/recovery/reset/replay surface.
+- `api/main.py` — exposes the bounded health/run/state/SSE, repair lifecycle,
+  recovery/reset, and replay surface.
 - `api/runtime.py` — the **only composition root**. It wires Sentinel to the deep incident
   workflow and owns the live run, recovery, health, and reset use cases.
 - `api/run_store.py` — isolates each incident in an integrity-checked JSON manifest and
@@ -145,6 +151,21 @@ it is not relabelled as an MCP capture.
   resolutions, and root-cause reports shared by the workers.
 - `core/policy_engine.py` — maps proven field impact and asset role through YAML policy to
   deterministic `HALT`, `WARN`, or `ALLOW` decisions and concrete actions.
+- `core/repair.py` — freezes the evidence-bound patch, contract/scientific/safe-branch
+  tests, rollback, native ML context, and accountable-owner approval gate.
+- `core/change_provider.py` — applies only safe relative artifacts to an explicit clean Git
+  repository, creates a real branch/commit, and never labels it as a remote PR.
+- `core/verification.py` — executes only the locked pytest targets without a shell and
+  binds exit code, output hash, duration, repository state, and commit to one receipt.
+- `core/github_provider.py` — materializes a context-checked unified diff against the exact
+  GitHub base commit, then creates blobs, tree, commit, branch, and a bundle-marked PR.
+- `core/github_verification.py` — accepts only the latest three required GitHub Check Runs
+  whose `head_sha` matches the published repair commit exactly.
+- `core/approval.py` — signs a reviewer decision bound to owner, bundle, verification
+  receipt, and commit while explicitly separating demo signature from production identity.
+- `core/application.py` — materializes only the exact approved Git tree in an isolated
+  synthetic-staging release, rejects unsafe archive entries, and records a canonical tree
+  digest with `production_authorized: false`.
 - `core/enforcement.py` — idempotently persists incident state, evidence references,
   actions, controlled URNs, and status tags to DataHub.
 - `core/pipeline_controller.py` — actually blocks local model execution/report publication;
@@ -179,8 +200,11 @@ scientific-data change
   → Investigator (DataHub) + Reality-Checker (local trusted artifacts) cross-check facts
   → field lineage narrows the broad scope into affected and preserved branches
   → deterministic policy freezes HALT/WARN/ALLOW
-  → bounded narration explains that frozen plan; Enforcer applies real controls
-  → Recovery re-reads evidence and resumes only when the gate passes
+  → Repair Planner freezes code, tests, rollback, and native Production ML context
+  → local action adapter creates a real commit and executes commit-bound verification
+  → accountable owner records a signed review; Enforcer applies real controls
+  → Applicator materializes the exact approved tree in isolated synthetic staging
+  → Recovery re-runs exact-commit evidence after APPLIED
 
 Every stage appends to one validated Event stream. The same stream drives FastAPI, CLI,
 Streamlit, the command center, and integrity-checked replay; there is no second workflow.
@@ -233,8 +257,16 @@ writes.
 
 Policy state is stored in DataHub rather than trusted from process memory. A newly created
 Recovery Controller reads the incident ID, controlled URNs, evidence references, and the
-full recovery history again. Missing/failed checks stay locked. Resume requires either two
-consecutive complete clean runs, or one complete clean run plus explicit human approval.
+full recovery history again. Recovery is rejected unless the Repair Bundle is `APPLIED`.
+The checked local applicator is intentionally limited to isolated
+`SCIGUARD_SYNTHETIC_STAGING`; its receipt is not production authorization. The API caller
+cannot submit check status: the runtime
+re-executes the locked local verifier or re-reads hosted Check Runs at the exact published
+commit, then requires an exact match with the profile's declared check IDs. Missing/failed
+checks and cross-incident state stay locked. Resume requires either two
+consecutive complete clean runs, or one complete clean run plus an explicitly
+`production_authorized` human approval. A demo-signed, non-SSO receipt remains auditable
+but cannot shorten the recovery gate.
 An LLM string such as `resume` is recorded as ignored and has no authority. Successful
 recovery marks every controlled asset `RESOLVED`, clears blocking actions/risk tags, and
 adds the resolved tag.
@@ -278,10 +310,28 @@ dirty-worktree disclosure, UTC timestamps, backend, terminal state, and the stre
 validation invariants. Replay validates this metadata plus contiguous sequence, unique IDs,
 and single-incident ownership before rendering. Because the expected digest and JSONL ship
 together, this is an integrity and internal-consistency check, not a digital signature or
-independent source authentication. The curated `inc-wp6-flagship` bundle is an
-export of a real 38-event DataHub SDK run from Sentinel detection through local enforcement and
-evidence-gated recovery,
-not a hand-authored animation script.
+independent source authentication. The primary `inc-sciguard-champion` bundle is an export
+of one real 55-event DataHub SDK execution. One incident ID binds Sentinel detection,
+investigation, selective enforcement, one local Git revision, locked verification,
+demo-signed review, exact-tree synthetic-staging application, two fresh recovery
+executions, DataHub Incident resolution, and the final Decision Log. It is not a
+hand-authored animation script and does not splice receipts from different runs.
+
+`scripts/capture_champion_run.py` projects only machine-local repository and Python paths
+to stable public labels; receipt IDs, decision fields, and SHA-256 bindings are preserved.
+Its replay manifest, repair manifest, Repair Bundle, and live DataHub closure receipt are
+written in one capture transaction: replay assets go to both
+`examples/replays/inc-sciguard-champion/` and
+`web/public/replays/inc-sciguard-champion/`, while the closure receipt goes to
+`examples/outputs/` and `web/public/evidence/`.
+The checked canonical capture was regenerated from a clean, frozen implementation commit
+with `--require-clean` and records `source_worktree_dirty: false` in every
+provenance-bearing artifact. The generated evidence is reviewed and committed as the
+release wrapper without recursively recapturing it.
+
+The older `inc-wp6-flagship` 38-event replay and its separate local-action capture are
+retained only as legacy development evidence. They are not the Judge default and are not
+part of the canonical causal proof.
 
 Reset is similarly bounded. It verifies the persisted incident ID, removes only matching
 `sciguard:*` properties and known SciGuard status tags from the controlled URNs, preserves
@@ -289,11 +339,13 @@ all other DataHub metadata, and deletes only that incident's known manifest/even
 
 ## Cinematic command center (WP7)
 
-`web/` contains two builds of the same command center. The full vinext/Next.js product can
+`web/` contains two builds of the same command center and three progressive views:
+Brief for the scientific decision, Operate for graph/action work, and Audit for receipts.
+The full vinext/Next.js product can
 connect to the FastAPI SSE endpoint and remains compatible with the hosting platform's
 identity layer. `pnpm build:judge` creates an independent static `judge-dist/` build that
 requires no login, secret, backend, local DataHub, or paid API. Both consume the frozen
-Event schema directly. Recorded mode verifies the 38-event public bundle's SHA-256, count,
+Event schema directly. Recorded mode verifies the 55-event public bundle's SHA-256, count,
 single incident, contiguous sequence, and unique IDs in the browser before rendering.
 Playback changes only how many events are visible, so incident state, policy counts,
 enforcement outcomes, and recovery never come from a parallel UI state machine.
@@ -303,8 +355,9 @@ containment, recovery, and measured proof. Evidence IDs open a shared evidence b
 Hosted lineage nodes open read-only evidence receipts; a localhost DataHub link is rendered
 only in a local full-product session. The enforcement console renders the real exit 42 /
 exit 0 process results, and the recovery panel is deliberately read-only. The three-mode
-evaluation theatre labels `NO_DATAHUB_CONTEXT` as not yet measured until WP9 rather than
-inventing an ablation number.
+evaluation theatre reads the measured lineage, search-only, and zero-context abstention
+results from `web/public/evidence/evaluation_report.json`; the zero-context arm makes no
+DataHub calls and is not confused with search-only DataHub.
 
 ## Design choices
 

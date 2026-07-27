@@ -1,6 +1,6 @@
 # SciGuard evaluation report
 
-> Controlled synthetic benchmark on hand-labelled scenarios. Both ablation arms are executed against DataHub (no number is hardcoded). Purpose: regression safety, false-alarm control, and a measured DataHub ablation.
+> Controlled synthetic benchmark on hand-labelled scenarios. Lineage and search-only arms execute against DataHub; the no-DataHub arm receives no backend and explicitly abstains. No number is hardcoded.
 
 - scenarios: 13 (9 actionable, 4 negative controls)
 - change detection accuracy: 100.0% (13/13)
@@ -13,11 +13,13 @@
 | approach | precision | recall | F1 | exact cone |
 |---|---|---|---|---|
 | WITH DataHub lineage | 100.0% | 100.0% | 100.0% | 3/3 |
-| SEARCH-ONLY DataHub (without lineage) | 60.0% | 83.3% | 69.8% | 0/3 |
+| SEARCH-ONLY DataHub (without lineage) | 60.0% | 100.0% | 75.0% | 0/3 |
+| NO DataHub (zero-context abstention) | N/A (0 predictions) | 0.0% | 0.0% | 0/3 |
 
 The no-lineage search baseline cannot tell dependency direction, so it
-flags upstream/sibling datasets as affected (false positives: ['candidate_report', 'durability_model', 'instrument_batch_B042', 'molecular_weight_feature_table', 'polymer_feature_table', 'raw_polymer_experiments']).
+flags upstream/sibling datasets as affected (false positives: ['candidate_report', 'cleaned_polymer_dataset', 'instrument_batch_B042', 'molecular_weight_feature_table', 'polymer_feature_table', 'raw_polymer_experiments']).
 Only lineage recovers the exact downstream cone with correct direction.
+With DataHub access prohibited, SciGuard has no defensible dependency or owner context and abstains rather than inventing an impact cone.
 
 ## Per-scenario
 | scenario | detect | severity | note |

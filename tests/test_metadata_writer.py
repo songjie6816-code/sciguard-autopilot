@@ -3,7 +3,9 @@
 from datahub.metadata.schema_classes import (
     DatasetPropertiesClass,
     GlobalTagsClass,
+    MLModelPropertiesClass,
     TagAssociationClass,
+    VersionTagClass,
 )
 
 from datahub_client import metadata_writer as W
@@ -69,3 +71,43 @@ def test_add_tags_idempotent_no_emit() -> None:
     g = FakeGraph({"GlobalTagsClass": seed})
     W.add_tags(g, URN, ["urn:li:tag:keep"])
     assert g.emitted == []
+
+
+def test_native_aspect_custom_properties_preserve_model_lifecycle_fields() -> None:
+    seed = MLModelPropertiesClass(
+        name="Tg Model",
+        version=VersionTagClass(versionTag="tg-gbr-v3"),
+        mlFeatures=["urn:feature:tg"],
+        deployments=["urn:deployment:prod"],
+        customProperties={"existing": "keep"},
+    )
+    graph = FakeGraph({"MLModelPropertiesClass": seed})
+
+    merged = W.add_aspect_custom_properties(
+        graph,
+        "urn:li:mlModel:(urn:li:dataPlatform:polymer_rnd,tg_prediction_model,PROD)",
+        MLModelPropertiesClass,
+        {"sciguard:incident_state": "AT_RISK"},
+    )
+
+    written = graph.emitted[0]
+    assert merged == {"existing": "keep", "sciguard:incident_state": "AT_RISK"}
+    assert written.name == "Tg Model"
+    assert written.version.versionTag == "tg-gbr-v3"
+    assert written.mlFeatures == ["urn:feature:tg"]
+    assert written.deployments == ["urn:deployment:prod"]
+
+
+def test_native_aspect_write_fails_closed_when_projection_is_missing() -> None:
+    graph = FakeGraph({})
+    try:
+        W.add_aspect_custom_properties(
+            graph,
+            "urn:missing",
+            MLModelPropertiesClass,
+            {"sciguard:incident_state": "AT_RISK"},
+        )
+    except LookupError as exc:
+        assert "aspect is missing" in str(exc)
+    else:
+        raise AssertionError("missing native projection must not be silently ignored")

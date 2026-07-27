@@ -1,0 +1,603 @@
+{
+  "all_verified": true,
+  "capture_location": "LOCAL_DATAHUB_GMS",
+  "capture_type": "LIVE_DATAHUB_END_TO_END_CLOSURE",
+  "captured_at": "2026-07-26T21:22:28.514657Z",
+  "cli_version": "1.6.0.15",
+  "decision_log_lifecycle": {
+    "aspect_sha256": "42ab0fc587cb03b1f5aa23fd6058024e96c940d61235dda0c87d7a439455f016",
+    "content_sha256": "313de8315b25ed2d0e3dbc97645012c06de681f4668d5a05e97c3a1135a4e908",
+    "custom_properties": {
+      "sciguard:application_environment": "SCIGUARD_SYNTHETIC_STAGING",
+      "sciguard:application_receipt_id": "application-receipt:1aba310999194dea",
+      "sciguard:approval_receipt_id": "approval-receipt:89a70936544ff867",
+      "sciguard:change_commit_sha": "f3b009c91b712ecf7c93e901de770ea950cd1963",
+      "sciguard:evidence_ids": "field-impact:6d7265f6ecc4d6e1,model-release-context:4a4561dbb638527d,trusted-release-baseline:10394eeb17c20877,upstream-lineage:94ee77e7deccd454,unit-firmware-contract:711d085fe8869ed0,rank-baseline-comparison:55a5b1ad73eb48b1,experimental-value-check:916960df3b3c41fa",
+      "sciguard:incident_id": "inc-sciguard-champion",
+      "sciguard:incident_state": "RESOLVED",
+      "sciguard:native_deployment_urns": "urn:li:mlModelDeployment:(urn:li:dataPlatform:polymer_rnd,tg-prediction-production,PROD),urn:li:mlModelDeployment:(urn:li:dataPlatform:polymer_rnd,durability-production,PROD)",
+      "sciguard:recovery_resume_allowed": "true",
+      "sciguard:recovery_verification_receipt_id": "verification-receipt:78804a1ed8cda421",
+      "sciguard:repair_bundle_id": "repair-bundle:8f481c5a7d457821",
+      "sciguard:repair_status": "APPLIED",
+      "sciguard:server_unsupported_related_asset_urns": "",
+      "sciguard:verification_receipt_id": "verification-receipt:78804a1ed8cda421"
+    },
+    "final": {
+      "content_sha256": "313de8315b25ed2d0e3dbc97645012c06de681f4668d5a05e97c3a1135a4e908",
+      "document_urn": "urn:li:document:sciguard-decision-log-inc-sciguard-champion",
+      "related_asset_count": 11,
+      "status": "PUBLISHED"
+    },
+    "initial": {
+      "content_sha256": "87b7664702dcf4ccfce2f24a4bdc9d251c974abcebb6d5dfb1bef956de0ff1f2",
+      "document_urn": "urn:li:document:sciguard-decision-log-inc-sciguard-champion",
+      "related_asset_count": 11,
+      "status": "PUBLISHED"
+    },
+    "readback_state": "PUBLISHED",
+    "related_asset_count": 11,
+    "required_receipts_present": {
+      "application_receipt_id": "application-receipt:1aba310999194dea",
+      "approval_receipt_id": "approval-receipt:89a70936544ff867",
+      "commit_sha": "f3b009c91b712ecf7c93e901de770ea950cd1963",
+      "recovery_verification_receipt_id": "verification-receipt:78804a1ed8cda421",
+      "verification_receipt_id": "verification-receipt:78804a1ed8cda421"
+    }
+  },
+  "entities": [
+    {
+      "entity_type": "MLFeatureTable",
+      "observed_aspects": [
+        {
+          "aspect": "MLFeatureTablePropertiesClass",
+          "sha256": "a286209f8bcda5bd408d382439933f7404f6f45dc01d530359df088414c9f4ac"
+        }
+      ],
+      "required_aspects": [
+        "MLFeatureTablePropertiesClass"
+      ],
+      "urn": "urn:li:mlFeatureTable:(urn:li:dataPlatform:polymer_rnd,tg_feature_table)",
+      "verified": true
+    },
+    {
+      "entity_type": "MLFeature",
+      "observed_aspects": [
+        {
+          "aspect": "MLFeaturePropertiesClass",
+          "sha256": "1f37a633485065dc1dd9f17ac3718721982ae3a9a488cca52a398bf069ce5d37"
+        }
+      ],
+      "required_aspects": [
+        "MLFeaturePropertiesClass"
+      ],
+      "urn": "urn:li:mlFeature:(tg_feature_table,log10_mn)",
+      "verified": true
+    },
+    {
+      "entity_type": "MLFeature",
+      "observed_aspects": [
+        {
+          "aspect": "MLFeaturePropertiesClass",
+          "sha256": "14a7e451eee046c0f0175f2e6db57144f4e43b0c31418deb0948398b2b3bbb52"
+        }
+      ],
+      "required_aspects": [
+        "MLFeaturePropertiesClass"
+      ],
+      "urn": "urn:li:mlFeature:(tg_feature_table,pdi)",
+      "verified": true
+    },
+    {
+      "entity_type": "MLFeature",
+      "observed_aspects": [
+        {
+          "aspect": "MLFeaturePropertiesClass",
+          "sha256": "ea5a96eefd52a2de0350ecc4d74b4eebe202943e8cd834d78f925ba7c59c83df"
+        }
+      ],
+      "required_aspects": [
+        "MLFeaturePropertiesClass"
+      ],
+      "urn": "urn:li:mlFeature:(tg_feature_table,class_code)",
+      "verified": true
+    },
+    {
+      "entity_type": "MLFeature",
+      "observed_aspects": [
+        {
+          "aspect": "MLFeaturePropertiesClass",
+          "sha256": "4bad9cad7ec476e854dd9e2a926cf6a352cab9d5c00096840b3af1dae65f8d69"
+        }
+      ],
+      "required_aspects": [
+        "MLFeaturePropertiesClass"
+      ],
+      "urn": "urn:li:mlFeature:(tg_feature_table,tg_degC)",
+      "verified": true
+    },
+    {
+      "entity_type": "MLFeatureTable",
+      "observed_aspects": [
+        {
+          "aspect": "MLFeatureTablePropertiesClass",
+          "sha256": "f22dff91417845cf1fa7ffaa4204e70f126f7bff7c5b376147f242d3fc57b4aa"
+        }
+      ],
+      "required_aspects": [
+        "MLFeatureTablePropertiesClass"
+      ],
+      "urn": "urn:li:mlFeatureTable:(urn:li:dataPlatform:polymer_rnd,molecular_weight_feature_table)",
+      "verified": true
+    },
+    {
+      "entity_type": "MLFeature",
+      "observed_aspects": [
+        {
+          "aspect": "MLFeaturePropertiesClass",
+          "sha256": "4adaa4b6be95096a032e865a7b4528e22e992d6c214a2910aca2337b4fb3a742"
+        }
+      ],
+      "required_aspects": [
+        "MLFeaturePropertiesClass"
+      ],
+      "urn": "urn:li:mlFeature:(molecular_weight_feature_table,mn_g_mol)",
+      "verified": true
+    },
+    {
+      "entity_type": "MLFeature",
+      "observed_aspects": [
+        {
+          "aspect": "MLFeaturePropertiesClass",
+          "sha256": "6963b19ef8e35e9a90307a7087dc727896b9f9fb0e3c3fcbabdcc6ba45ca900e"
+        }
+      ],
+      "required_aspects": [
+        "MLFeaturePropertiesClass"
+      ],
+      "urn": "urn:li:mlFeature:(molecular_weight_feature_table,mw_g_mol)",
+      "verified": true
+    },
+    {
+      "entity_type": "MLFeature",
+      "observed_aspects": [
+        {
+          "aspect": "MLFeaturePropertiesClass",
+          "sha256": "3333ce9146c839ab88cf2f3a8f94abdcc8435b7c9a89933ff7fadb1d23a3d3ae"
+        }
+      ],
+      "required_aspects": [
+        "MLFeaturePropertiesClass"
+      ],
+      "urn": "urn:li:mlFeature:(molecular_weight_feature_table,pdi)",
+      "verified": true
+    },
+    {
+      "entity_type": "MLModelGroup",
+      "observed_aspects": [
+        {
+          "aspect": "MLModelGroupPropertiesClass",
+          "sha256": "feb26cd13f3a4f3cbf8e6e83bbf0f0a70ebb621261370a811bb9e5dc1014adbb"
+        }
+      ],
+      "required_aspects": [
+        "MLModelGroupPropertiesClass"
+      ],
+      "urn": "urn:li:mlModelGroup:(urn:li:dataPlatform:polymer_rnd,tg_prediction_models,PROD)",
+      "verified": true
+    },
+    {
+      "entity_type": "MLModel",
+      "observed_aspects": [
+        {
+          "aspect": "MLModelPropertiesClass",
+          "sha256": "dd3dfdd15b92df61a4c6bbe0342c3ddf8991e51ce92e2ff4299ff32fcbd73e21"
+        }
+      ],
+      "required_aspects": [
+        "MLModelPropertiesClass"
+      ],
+      "urn": "urn:li:mlModel:(urn:li:dataPlatform:polymer_rnd,tg_prediction_model,PROD)",
+      "verified": true
+    },
+    {
+      "entity_type": "MLModelDeployment",
+      "observed_aspects": [
+        {
+          "aspect": "MLModelDeploymentPropertiesClass",
+          "sha256": "368085fbb360561ea07e19481ae89e4b3ac7d731154c1697b5436fc5cb1b9743"
+        }
+      ],
+      "required_aspects": [
+        "MLModelDeploymentPropertiesClass"
+      ],
+      "urn": "urn:li:mlModelDeployment:(urn:li:dataPlatform:polymer_rnd,tg-prediction-production,PROD)",
+      "verified": true
+    },
+    {
+      "entity_type": "DataProcessInstance",
+      "observed_aspects": [
+        {
+          "aspect": "DataProcessInstancePropertiesClass",
+          "sha256": "efc6795e5eebe99b0acdb429dbb62e6e9a8f1c8dbb7d093fec227bd6e0bc427b"
+        },
+        {
+          "aspect": "DataProcessInstanceInputClass",
+          "sha256": "10a453f09387d839bad2f641b1d87fdb179bdb3066e26b301ae8fc69a0270cca"
+        },
+        {
+          "aspect": "DataProcessInstanceOutputClass",
+          "sha256": "28a2d058f160fadc9740c3dcff4742aa8d21315b03066bf0a3b73dd1b428b8ae"
+        },
+        {
+          "aspect": "DataProcessInstanceRunEventClass",
+          "sha256": "1f734673bdf291653c4779db7b1e4881fe1b72761806abba3c8c3791792318d0"
+        },
+        {
+          "aspect": "MLTrainingRunPropertiesClass",
+          "sha256": "d027abe12c636896765e7a5454763ccdb9beacb8bea967d071233fee0ab389d5"
+        }
+      ],
+      "required_aspects": [
+        "DataProcessInstancePropertiesClass",
+        "DataProcessInstanceInputClass",
+        "DataProcessInstanceOutputClass",
+        "DataProcessInstanceRunEventClass",
+        "MLTrainingRunPropertiesClass"
+      ],
+      "urn": "urn:li:dataProcessInstance:sciguard-train-tg-gbr-v3",
+      "verified": true
+    },
+    {
+      "entity_type": "DataProcessInstance",
+      "observed_aspects": [
+        {
+          "aspect": "DataProcessInstancePropertiesClass",
+          "sha256": "2d20f6fc1f9019dcd3e40c3048ad63ecc5bdd9f35720477e7fc9ba89d647b470"
+        },
+        {
+          "aspect": "DataProcessInstanceInputClass",
+          "sha256": "34e1d6101eb6666c107da7c3826a55b55588040038e6148ca5a3e0695e8173ab"
+        },
+        {
+          "aspect": "DataProcessInstanceOutputClass",
+          "sha256": "f3037455944953e0879a79f87ac33bc8d4b9ba5317a2cc55b0e3ad426dca3c7f"
+        },
+        {
+          "aspect": "DataProcessInstanceRunEventClass",
+          "sha256": "1f734673bdf291653c4779db7b1e4881fe1b72761806abba3c8c3791792318d0"
+        }
+      ],
+      "required_aspects": [
+        "DataProcessInstancePropertiesClass",
+        "DataProcessInstanceInputClass",
+        "DataProcessInstanceOutputClass",
+        "DataProcessInstanceRunEventClass"
+      ],
+      "urn": "urn:li:dataProcessInstance:sciguard-rank-candidates-production",
+      "verified": true
+    },
+    {
+      "entity_type": "MLModelGroup",
+      "observed_aspects": [
+        {
+          "aspect": "MLModelGroupPropertiesClass",
+          "sha256": "284fb1734b5583d9c6b33837568e2597972f850b690162bd760dfced0ad41daf"
+        }
+      ],
+      "required_aspects": [
+        "MLModelGroupPropertiesClass"
+      ],
+      "urn": "urn:li:mlModelGroup:(urn:li:dataPlatform:polymer_rnd,durability_models,PROD)",
+      "verified": true
+    },
+    {
+      "entity_type": "MLModel",
+      "observed_aspects": [
+        {
+          "aspect": "MLModelPropertiesClass",
+          "sha256": "e4849f7b69e9223da919699278c6f02bb3321b9f014d862e943519ae2f4e1e4d"
+        }
+      ],
+      "required_aspects": [
+        "MLModelPropertiesClass"
+      ],
+      "urn": "urn:li:mlModel:(urn:li:dataPlatform:polymer_rnd,durability_model,PROD)",
+      "verified": true
+    },
+    {
+      "entity_type": "MLModelDeployment",
+      "observed_aspects": [
+        {
+          "aspect": "MLModelDeploymentPropertiesClass",
+          "sha256": "7fd2af131ce77f9184154891b2918fe7e37fd460f5a9a853ebe22698ffc62724"
+        }
+      ],
+      "required_aspects": [
+        "MLModelDeploymentPropertiesClass"
+      ],
+      "urn": "urn:li:mlModelDeployment:(urn:li:dataPlatform:polymer_rnd,durability-production,PROD)",
+      "verified": true
+    },
+    {
+      "entity_type": "DataProcessInstance",
+      "observed_aspects": [
+        {
+          "aspect": "DataProcessInstancePropertiesClass",
+          "sha256": "0002f00ea4e5276131deba13c48a969e34fd936def0053f62f0a7e6c56d1e952"
+        },
+        {
+          "aspect": "DataProcessInstanceInputClass",
+          "sha256": "7efe0441128b6313d630ee3202ece26d2972c8d3da6689949f353b03ed37db6b"
+        },
+        {
+          "aspect": "DataProcessInstanceOutputClass",
+          "sha256": "854554504eba5f72d2127c59082d572ce4353628c30a4983bede818c0373153b"
+        },
+        {
+          "aspect": "DataProcessInstanceRunEventClass",
+          "sha256": "1f734673bdf291653c4779db7b1e4881fe1b72761806abba3c8c3791792318d0"
+        },
+        {
+          "aspect": "MLTrainingRunPropertiesClass",
+          "sha256": "90a51aa1265a727cab8cc2bdaa96262715ab34857939cab6818e6db4fef9741e"
+        }
+      ],
+      "required_aspects": [
+        "DataProcessInstancePropertiesClass",
+        "DataProcessInstanceInputClass",
+        "DataProcessInstanceOutputClass",
+        "DataProcessInstanceRunEventClass",
+        "MLTrainingRunPropertiesClass"
+      ],
+      "urn": "urn:li:dataProcessInstance:sciguard-train-durability-rf-v2",
+      "verified": true
+    },
+    {
+      "entity_type": "DataProcessInstance",
+      "observed_aspects": [
+        {
+          "aspect": "DataProcessInstancePropertiesClass",
+          "sha256": "ef2b7c373e39005bfd75e3da8a9c9c8ccc6bff03e96a78d7c41bf27b341f579a"
+        },
+        {
+          "aspect": "DataProcessInstanceInputClass",
+          "sha256": "904b11cc04958dfca2f6c07d6afae8c465fa6261a3b2a2a36a3022b08add8f29"
+        },
+        {
+          "aspect": "DataProcessInstanceOutputClass",
+          "sha256": "05822c173be499f1f079726cd6b2cd7499ff05ee052bca97f81f354a362bcbb2"
+        },
+        {
+          "aspect": "DataProcessInstanceRunEventClass",
+          "sha256": "1f734673bdf291653c4779db7b1e4881fe1b72761806abba3c8c3791792318d0"
+        }
+      ],
+      "required_aspects": [
+        "DataProcessInstancePropertiesClass",
+        "DataProcessInstanceInputClass",
+        "DataProcessInstanceOutputClass",
+        "DataProcessInstanceRunEventClass"
+      ],
+      "urn": "urn:li:dataProcessInstance:sciguard-formulation-production",
+      "verified": true
+    }
+  ],
+  "entity_count": 19,
+  "entity_counts": {
+    "DataProcessInstance": 4,
+    "MLFeature": 7,
+    "MLFeatureTable": 2,
+    "MLModel": 2,
+    "MLModelDeployment": 2,
+    "MLModelGroup": 2
+  },
+  "evaluation_report_sha256": "fabae311f308036499a64d7a6da7013da9a80472a0dfec47dcff406fefa2901e",
+  "incident_id": "inc-sciguard-champion",
+  "incident_lifecycle": {
+    "aspect_sha256": "5f9c6e67053b606ee5592fde11cce6c81f1aee34135519c6b7691ae7a1c0594a",
+    "opened": {
+      "entity_count": 9,
+      "incident_urn": "urn:li:incident:sciguard-inc-sciguard-champion",
+      "notes_capability": "STATUS_MESSAGE_FALLBACK_SERVER_SCHEMA",
+      "notes_written": false,
+      "stage": "WORK_IN_PROGRESS",
+      "state": "ACTIVE"
+    },
+    "readback_stage": "FIXED",
+    "readback_state": "RESOLVED",
+    "resolved": {
+      "entity_count": 9,
+      "incident_urn": "urn:li:incident:sciguard-inc-sciguard-champion",
+      "notes_capability": "STATUS_MESSAGE_FALLBACK_SERVER_SCHEMA",
+      "notes_written": false,
+      "stage": "FIXED",
+      "state": "RESOLVED"
+    }
+  },
+  "native_model_context": [
+    {
+      "affected": true,
+      "criticality": "CRITICAL",
+      "dataset_projection_urn": "urn:li:dataset:(urn:li:dataPlatform:polymer_rnd,tg_prediction_model,PROD)",
+      "deployment_context": [
+        {
+          "custom_properties": {
+            "sciguard:approval_policy": "SCIENTIFIC_DECISION_CRITICAL",
+            "sciguard:decision_output_urn": "urn:li:dataset:(urn:li:dataPlatform:polymer_rnd,candidate_ranking_report,PROD)",
+            "sciguard:inference_run_urn": "urn:li:dataProcessInstance:sciguard-rank-candidates-production",
+            "sciguard:model_urn": "urn:li:mlModel:(urn:li:dataPlatform:polymer_rnd,tg_prediction_model,PROD)"
+          },
+          "status": "IN_SERVICE",
+          "urn": "urn:li:mlModelDeployment:(urn:li:dataPlatform:polymer_rnd,tg-prediction-production,PROD)"
+        }
+      ],
+      "expected_target_unit": "degC",
+      "feature_urns": [
+        "urn:li:mlFeature:(tg_feature_table,log10_mn)",
+        "urn:li:mlFeature:(tg_feature_table,pdi)",
+        "urn:li:mlFeature:(tg_feature_table,class_code)",
+        "urn:li:mlFeature:(tg_feature_table,tg_degC)"
+      ],
+      "inference_job_urns": [
+        "urn:li:dataProcessInstance:sciguard-rank-candidates-production"
+      ],
+      "model_name": "Tg Prediction Model v3",
+      "model_type": "gradient_boosting_regressor",
+      "model_version": "tg-gbr-v3",
+      "native_model_urn": "urn:li:mlModel:(urn:li:dataPlatform:polymer_rnd,tg_prediction_model,PROD)",
+      "owner_urns": [
+        "urn:li:corpuser:ml_engineer"
+      ],
+      "training_job_urns": [
+        "urn:li:dataProcessInstance:sciguard-train-tg-gbr-v3"
+      ]
+    },
+    {
+      "affected": false,
+      "criticality": "HIGH",
+      "dataset_projection_urn": "urn:li:dataset:(urn:li:dataPlatform:polymer_rnd,durability_model,PROD)",
+      "deployment_context": [
+        {
+          "custom_properties": {
+            "sciguard:approval_policy": "SCIENTIFIC_MODEL_STANDARD",
+            "sciguard:decision_output_urn": "urn:li:dataset:(urn:li:dataPlatform:polymer_rnd,formulation_report,PROD)",
+            "sciguard:inference_run_urn": "urn:li:dataProcessInstance:sciguard-formulation-production",
+            "sciguard:model_urn": "urn:li:mlModel:(urn:li:dataPlatform:polymer_rnd,durability_model,PROD)"
+          },
+          "status": "IN_SERVICE",
+          "urn": "urn:li:mlModelDeployment:(urn:li:dataPlatform:polymer_rnd,durability-production,PROD)"
+        }
+      ],
+      "expected_target_unit": null,
+      "feature_urns": [
+        "urn:li:mlFeature:(molecular_weight_feature_table,mn_g_mol)",
+        "urn:li:mlFeature:(molecular_weight_feature_table,mw_g_mol)",
+        "urn:li:mlFeature:(molecular_weight_feature_table,pdi)"
+      ],
+      "inference_job_urns": [
+        "urn:li:dataProcessInstance:sciguard-formulation-production"
+      ],
+      "model_name": "Durability Model v2",
+      "model_type": "random_forest_regressor",
+      "model_version": "durability-rf-v2",
+      "native_model_urn": "urn:li:mlModel:(urn:li:dataPlatform:polymer_rnd,durability_model,PROD)",
+      "owner_urns": [
+        "urn:li:corpuser:ml_engineer"
+      ],
+      "training_job_urns": [
+        "urn:li:dataProcessInstance:sciguard-train-durability-rf-v2"
+      ]
+    }
+  ],
+  "public_event_stream_sha256": "b243fe006a3e0a937d81528907e61a7eb8042a6901ac802022ec6165c7091411",
+  "public_projection": {
+    "canonical_single_run": true,
+    "decision_fields_redacted": false,
+    "receipt_ids_preserved": true,
+    "redactions": [
+      {
+        "field_class": "machine_local_repository_path",
+        "replacement": "EPHEMERAL_REPRODUCIBLE_GIT_SANDBOX"
+      },
+      {
+        "field_class": "machine_local_python_executable",
+        "replacement": "python"
+      }
+    ]
+  },
+  "repair_lifecycle": {
+    "application_environment": "SCIGUARD_SYNTHETIC_STAGING",
+    "application_production_authorized": false,
+    "application_receipt_id": "application-receipt:1aba310999194dea",
+    "approval_production_authorized": false,
+    "approval_receipt_id": "approval-receipt:89a70936544ff867",
+    "bundle_id": "repair-bundle:8f481c5a7d457821",
+    "change_provider": "LOCAL_GIT",
+    "commit_sha": "f3b009c91b712ecf7c93e901de770ea950cd1963",
+    "identity_assurance": "DEMO_SIGNED_NOT_SSO",
+    "recovery_results": [
+      {
+        "approval_identity_assurance": null,
+        "approval_production_authorized": false,
+        "approval_receipt_id": null,
+        "clean_run_count": 1,
+        "failed_checks": [],
+        "human_approval_used": false,
+        "incident_id": "inc-sciguard-champion",
+        "incident_state": "RECOVERY_PENDING",
+        "llm_instruction_ignored": false,
+        "missing_checks": [],
+        "resume_allowed": false
+      },
+      {
+        "approval_identity_assurance": null,
+        "approval_production_authorized": false,
+        "approval_receipt_id": null,
+        "clean_run_count": 2,
+        "failed_checks": [],
+        "human_approval_used": false,
+        "incident_id": "inc-sciguard-champion",
+        "incident_state": "RESOLVED",
+        "llm_instruction_ignored": false,
+        "missing_checks": [],
+        "resume_allowed": true
+      }
+    ],
+    "recovery_verification_receipts": [
+      {
+        "checks": [
+          {
+            "check_id": "unit_contract",
+            "result_sha256": "6c44851674e9a81e15edee5f7ba6c03e6c39fb664e6638ef9304874d596843a5",
+            "status": "PASS"
+          },
+          {
+            "check_id": "candidate_ranking_stability",
+            "result_sha256": "b7748ea79f74856d34573ce2184362e2ef978b6bc16b98fe7068991ee2c8d528",
+            "status": "PASS"
+          },
+          {
+            "check_id": "safe_branch_preservation",
+            "result_sha256": "a8de43bb58be9e9cd3037e2034baf38fbc1c6fc13e08257d1f2c9949654f58be",
+            "status": "PASS"
+          }
+        ],
+        "commit_sha": "f3b009c91b712ecf7c93e901de770ea950cd1963",
+        "receipt_id": "verification-receipt:78804a1ed8cda421",
+        "status": "PASS"
+      },
+      {
+        "checks": [
+          {
+            "check_id": "unit_contract",
+            "result_sha256": "6c44851674e9a81e15edee5f7ba6c03e6c39fb664e6638ef9304874d596843a5",
+            "status": "PASS"
+          },
+          {
+            "check_id": "candidate_ranking_stability",
+            "result_sha256": "b7748ea79f74856d34573ce2184362e2ef978b6bc16b98fe7068991ee2c8d528",
+            "status": "PASS"
+          },
+          {
+            "check_id": "safe_branch_preservation",
+            "result_sha256": "a8de43bb58be9e9cd3037e2034baf38fbc1c6fc13e08257d1f2c9949654f58be",
+            "status": "PASS"
+          }
+        ],
+        "commit_sha": "f3b009c91b712ecf7c93e901de770ea950cd1963",
+        "receipt_id": "verification-receipt:78804a1ed8cda421",
+        "status": "PASS"
+      }
+    ],
+    "remote_pull_request_claimed": false,
+    "status": "APPLIED",
+    "verification_receipt_id": "verification-receipt:78804a1ed8cda421",
+    "verification_status": "PASS"
+  },
+  "schema_version": 2,
+  "server_type": "quickstart",
+  "server_version": "v1.5.0.6",
+  "source_commit": "3246a325682e74166384509bff8e5c0a5eaef680",
+  "source_worktree_dirty": true
+}

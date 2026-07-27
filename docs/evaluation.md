@@ -16,6 +16,12 @@ changes a tracked file. Refresh the curated golden only after review:
 PYTHONPATH=. python evaluation/harness.py --update-golden
 ```
 
+The reviewed golden consists of the human-readable
+`examples/outputs/evaluation_report.md` and machine-readable
+`examples/outputs/evaluation_report.json`. The same JSON is copied to
+`web/public/evidence/evaluation_report.json`, which is the Judge UI's measured source of
+truth; the UI must not duplicate these numbers as constants.
+
 Each scenario reads a dataset's live "before" state from DataHub, applies a
 labelled mutation (unit change, field removal, ...), runs the deterministic loop
 and compares the result to ground truth. Metrics:
@@ -27,14 +33,25 @@ and compares the result to ground truth. Metrics:
 - owner-notification recall
 - model control targeting
 - non-deterministic mean latency in the separate performance sample
-- **ablation**: exact lineage traversal vs search-only DataHub without lineage
+- **ablation**: exact lineage traversal vs search-only DataHub vs zero-context abstention
 
-The current regression ablation runs two real impact analyses per change site: DataHub
-lineage traversal and search-only DataHub without lineage. Both execute against DataHub—no
-number is hardcoded. Lineage recovers every exact downstream cone; search cannot reliably
-infer dependency direction or find differently named consumers. It is therefore labelled
-`SEARCH_ONLY_DATAHUB`, never “without DataHub”. WP9 will add a third
-`NO_DATAHUB_CONTEXT` mode whose backend fails on any attempted DataHub call.
+The current regression ablation runs three measured arms per change site; no displayed
+number is hardcoded:
+
+- `FULL_DATAHUB` traverses directed DataHub lineage and recovers every exact downstream
+  cone.
+- `SEARCH_ONLY_DATAHUB` queries DataHub catalog search but has no lineage direction. It
+  cannot reliably distinguish upstream, sibling, and downstream assets, so it is never
+  labelled “without DataHub”.
+- `NO_DATAHUB_CONTEXT` receives no backend object, makes zero catalog calls, and abstains
+  rather than inventing dependencies or owners. Its precision is reported as N/A because
+  it makes zero predictions; recall and exact-cone recovery are both zero.
+
+The curated report currently records 3/3 exact cones for lineage and 0/3 for each
+baseline. Lineage scores 100% precision / 100% recall / 100% F1; search-only scores
+60% / 100% / 75%; no-DataHub makes zero predictions and records 0% recall. The no-DataHub
+result demonstrates the value of catalog context; it is not a claim that abstention is an
+operationally useful incident response.
 
 The harness GATES: `python evaluation/harness.py` exits non-zero if detection,
 severity, false-alarm control, or lineage impact regress. `tests/test_evaluation.py`

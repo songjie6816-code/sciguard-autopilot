@@ -21,12 +21,13 @@ import {
 const CONFIGURED_API_BASE = process.env.NEXT_PUBLIC_SCIGUARD_API_URL ?? "";
 const STATIC_JUDGE_BUILD =
   process.env.NEXT_PUBLIC_SCIGUARD_JUDGE_BUILD === "true";
-const REPLAY_ID = "inc-wp6-flagship";
+const REPLAY_ID = "inc-sciguard-champion";
 const REPLAY_DURATION_MS = 15_000;
 const REPLAY_EVENT_DISCLOSURE =
-  "38 immutable events: 35 events reach recovery lock, followed by 3 verified recovery events.";
+  "55 immutable events: one live DataHub incident, one exact repair revision, and two fresh recovery verifications.";
 const LOCAL_API_BASE = STATIC_JUDGE_BUILD ? "" : "http://127.0.0.1:8000";
 const LOCAL_DATAHUB_BASE = STATIC_JUDGE_BUILD ? "" : "http://localhost:9002";
+type ExperienceView = "BRIEF" | "OPERATE" | "AUDIT";
 
 const RECOVERY_CHECKS = [
   "verified_k_to_degc_conversion",
@@ -47,8 +48,13 @@ const evaluationEvidence: EvidenceRecord = {
     full_datahub_recall: 100,
     full_datahub_exact_cones: "3/3",
     search_only_precision: 60,
-    search_only_recall: 83.3,
+    search_only_recall: 100,
+    search_only_f1: 75,
     search_only_exact_cones: "0/3",
+    no_datahub_predictions: 0,
+    no_datahub_recall: 0,
+    no_datahub_exact_cones: "0/3",
+    no_datahub_call_count: 0,
     false_alarm_rate: 0,
   },
 };
@@ -75,6 +81,9 @@ const actorLabels: Record<string, string> = {
   REALITY_CHECKER: "Reality Checker",
   POLICY_GUARDIAN: "Policy Guardian",
   ENFORCER: "Enforcer",
+  REMEDIATION_AGENT: "Remediation Agent",
+  VERIFICATION_ENGINE: "Verification Engine",
+  HUMAN_APPROVER: "Human Approver",
   RECOVERY_CONTROLLER: "Recovery Controller",
 };
 
@@ -86,6 +95,9 @@ const actorGlyphs: Record<string, string> = {
   REALITY_CHECKER: "◉",
   POLICY_GUARDIAN: "⬡",
   ENFORCER: "■",
+  REMEDIATION_AGENT: "⌘",
+  VERIFICATION_ENGINE: "✓",
+  HUMAN_APPROVER: "◆",
   RECOVERY_CONTROLLER: "↻",
 };
 
@@ -191,6 +203,114 @@ async function verifyReplayBundle(
   return replayEvents;
 }
 
+async function verifyRepairCapture(
+  replayManifest: RunManifest,
+  rawRepairManifest: string,
+  rawRepairBundle: string,
+  rawDataHubReceipt: string,
+  rawEvaluationReport: string,
+): Promise<{
+  bundle: Record<string, JsonValue>;
+  dataHubReceipt: Record<string, JsonValue>;
+}> {
+  const capture = JSON.parse(rawRepairManifest) as Record<string, JsonValue>;
+  const bundleDigest = await sha256Hex(rawRepairBundle);
+  const dataHubReceiptDigest = await sha256Hex(rawDataHubReceipt);
+  const evaluationReportDigest = await sha256Hex(rawEvaluationReport);
+  if (
+    stringValue(capture.capture_type) !== "RECORDED_DATAHUB_END_TO_END" ||
+    stringValue(capture.source_events_sha256) !== replayManifest.events_sha256 ||
+    stringValue(capture.repair_bundle_sha256) !== bundleDigest ||
+    stringValue(capture.datahub_native_receipt_sha256) !== dataHubReceiptDigest ||
+    stringValue(capture.evaluation_report_sha256) !== evaluationReportDigest
+  ) {
+    throw new Error("Linked repair capture integrity verification failed");
+  }
+  const bundle = JSON.parse(rawRepairBundle) as Record<string, JsonValue>;
+  const dataHubReceipt = JSON.parse(rawDataHubReceipt) as Record<string, JsonValue>;
+  const change = objectValue(bundle.external_action_receipt);
+  const verification = objectValue(bundle.verification_receipt);
+  const approval = objectValue(bundle.approval_receipt);
+  const application = objectValue(bundle.application_receipt);
+  const boundaries = objectValue(bundle.linked_capture);
+  const captureBoundaries = objectValue(capture.boundaries);
+  const repairLifecycle = objectValue(dataHubReceipt.repair_lifecycle);
+  const incidentLifecycle = objectValue(dataHubReceipt.incident_lifecycle);
+  const resolvedIncident = objectValue(incidentLifecycle.resolved);
+  const decisionLogLifecycle = objectValue(dataHubReceipt.decision_log_lifecycle);
+  const finalDecisionLog = objectValue(decisionLogLifecycle.final);
+  const receiptModels = Array.isArray(dataHubReceipt.native_model_context)
+    ? dataHubReceipt.native_model_context.map(objectValue)
+    : [];
+  const bundleModels = Array.isArray(bundle.native_ml_context)
+    ? bundle.native_ml_context.map(objectValue)
+    : [];
+  const receiptModelUrns = new Set(
+    receiptModels.map((context) => stringValue(context.native_model_urn)),
+  );
+  const checks = Array.isArray(verification.checks)
+    ? verification.checks.map(objectValue)
+    : [];
+  if (
+    stringValue(capture.capture_type) !== "RECORDED_DATAHUB_END_TO_END" ||
+    !booleanValue(capture.canonical_single_run) ||
+    stringValue(capture.source_incident_id) !== replayManifest.incident_id ||
+    stringValue(bundle.bundle_id) !== stringValue(capture.bundle_id) ||
+    stringValue(bundle.status) !== "APPLIED" ||
+    stringValue(change.commit_sha) !== stringValue(capture.commit_sha) ||
+    stringValue(verification.commit_sha) !== stringValue(change.commit_sha) ||
+    stringValue(approval.commit_sha) !== stringValue(change.commit_sha) ||
+    stringValue(application.commit_sha) !== stringValue(change.commit_sha) ||
+    stringValue(verification.receipt_id) !==
+      stringValue(capture.verification_receipt_id) ||
+    stringValue(approval.receipt_id) !== stringValue(capture.approval_receipt_id) ||
+    stringValue(application.receipt_id) !==
+      stringValue(capture.application_receipt_id) ||
+    stringValue(application.status) !== "APPLIED" ||
+    stringValue(application.target_environment) !==
+      "SCIGUARD_SYNTHETIC_STAGING" ||
+    booleanValue(application.production_authorized) ||
+    checks.length !== 3 ||
+    checks.some((check) => stringValue(check.status) !== "PASS") ||
+    !booleanValue(boundaries.canonical_single_run) ||
+    booleanValue(boundaries.remote_pull_request_claimed) ||
+    booleanValue(boundaries.production_authorized) ||
+    stringValue(boundaries.source_incident_id) !== replayManifest.incident_id ||
+    stringValue(boundaries.public_event_stream_sha256) !==
+      replayManifest.events_sha256 ||
+    stringValue(boundaries.datahub_native_receipt_sha256) !== dataHubReceiptDigest ||
+    stringValue(boundaries.evaluation_report_sha256) !== evaluationReportDigest ||
+    stringValue(captureBoundaries.datahub_native_receipt_sha256) !== dataHubReceiptDigest ||
+    stringValue(dataHubReceipt.capture_type) !==
+      "LIVE_DATAHUB_END_TO_END_CLOSURE" ||
+    stringValue(dataHubReceipt.incident_id) !== replayManifest.incident_id ||
+    stringValue(dataHubReceipt.public_event_stream_sha256) !==
+      replayManifest.events_sha256 ||
+    stringValue(dataHubReceipt.evaluation_report_sha256) !==
+      evaluationReportDigest ||
+    !booleanValue(dataHubReceipt.all_verified) ||
+    numberValue(dataHubReceipt.entity_count) !== 19 ||
+    stringValue(repairLifecycle.bundle_id) !== stringValue(bundle.bundle_id) ||
+    stringValue(repairLifecycle.commit_sha) !== stringValue(change.commit_sha) ||
+    stringValue(repairLifecycle.application_receipt_id) !==
+      stringValue(application.receipt_id) ||
+    stringValue(repairLifecycle.status) !== "APPLIED" ||
+    stringValue(boundaries.datahub_server_version) !==
+      stringValue(dataHubReceipt.server_version) ||
+    bundleModels.length !== receiptModels.length ||
+    bundleModels.some(
+      (context) => !receiptModelUrns.has(stringValue(context.native_model_urn)),
+    ) ||
+    stringValue(bundle.datahub_incident_urn) !==
+      stringValue(resolvedIncident.incident_urn) ||
+    stringValue(bundle.datahub_decision_log_urn) !==
+      stringValue(finalDecisionLog.document_urn)
+  ) {
+    throw new Error("Linked repair receipts do not satisfy the public honesty boundary");
+  }
+  return { bundle, dataHubReceipt };
+}
+
 function EvidenceLink({
   id,
   onSelect,
@@ -230,6 +350,9 @@ function StatusMark({ status }: { status: string }) {
 }
 
 export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
+  const [experienceView, setExperienceView] = useState<ExperienceView>(
+    judgeMode ? "BRIEF" : "OPERATE",
+  );
   const [manifest, setManifest] = useState<RunManifest | null>(null);
   const [events, setEvents] = useState<SciGuardEvent[]>([]);
   const [visibleCount, setVisibleCount] = useState(0);
@@ -244,6 +367,15 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
     "pending",
   );
   const [mode, setMode] = useState<RunMode>("RECORDED_REPLAY");
+  const [repairOverride, setRepairOverride] = useState<Record<string, JsonValue> | null>(
+    null,
+  );
+  const [dataHubLiveReceipt, setDataHubLiveReceipt] = useState<
+    Record<string, JsonValue> | null
+  >(null);
+  const [repairAction, setRepairAction] = useState<
+    "idle" | "publish" | "verify" | "approval" | "apply" | "recover"
+  >("idle");
   const [localDataHubEnabled, setLocalDataHubEnabled] = useState(false);
   const [focusedStage, setFocusedStage] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -266,18 +398,45 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
     setPlaying(false);
     setIntegrity("pending");
     eventSource.current?.close();
-    const [manifestResponse, eventsResponse] = await Promise.all([
+    const [
+      manifestResponse,
+      eventsResponse,
+      repairManifestResponse,
+      repairBundleResponse,
+      dataHubReceiptResponse,
+      evaluationReportResponse,
+    ] = await Promise.all([
       fetch(`/replays/${REPLAY_ID}/manifest.json`, { cache: "no-store" }),
       fetch(`/replays/${REPLAY_ID}/events.jsonl`, { cache: "no-store" }),
+      fetch(`/replays/${REPLAY_ID}/repair-manifest.json`, { cache: "no-store" }),
+      fetch(`/replays/${REPLAY_ID}/repair-bundle.json`, { cache: "no-store" }),
+      fetch("/evidence/datahub_live_receipt.json", { cache: "no-store" }),
+      fetch("/evidence/evaluation_report.json", { cache: "no-store" }),
     ]);
-    if (!manifestResponse.ok || !eventsResponse.ok) {
+    if (
+      !manifestResponse.ok ||
+      !eventsResponse.ok ||
+      !repairManifestResponse.ok ||
+      !repairBundleResponse.ok ||
+      !dataHubReceiptResponse.ok ||
+      !evaluationReportResponse.ok
+    ) {
       throw new Error("Recorded replay bundle is unavailable");
     }
     const replayManifest = (await manifestResponse.json()) as RunManifest;
     const rawEvents = await eventsResponse.text();
     const replayEvents = await verifyReplayBundle(replayManifest, rawEvents);
+    const verifiedRepair = await verifyRepairCapture(
+      replayManifest,
+      await repairManifestResponse.text(),
+      await repairBundleResponse.text(),
+      await dataHubReceiptResponse.text(),
+      await evaluationReportResponse.text(),
+    );
     setManifest(replayManifest);
     setEvents(replayEvents);
+    setRepairOverride(verifiedRepair.bundle);
+    setDataHubLiveReceipt(verifiedRepair.dataHubReceipt);
     setVisibleCount(showFinal ? replayEvents.length : 0);
     setMode("RECORDED_REPLAY");
     setIntegrity("verified");
@@ -416,6 +575,8 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
     const view = (await response.json()) as { manifest: RunManifest };
     setManifest(view.manifest);
     setEvents([]);
+    setRepairOverride(null);
+    setDataHubLiveReceipt(null);
     setVisibleCount(0);
     setMode("LIVE");
     setPlaying(false);
@@ -558,6 +719,135 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
   const failedChecks = new Set(stringArray(recoveryPayload.failed_checks));
   const cleanRunCount = numberValue(recoveryPayload.clean_run_count);
   const resumeAllowed = booleanValue(recoveryPayload.resume_allowed);
+  const recoveryVerificationEvent = [...visibleEvents]
+    .reverse()
+    .find((event) => event.event_type === "RECOVERY_EVIDENCE_REFRESHED");
+  const recoveryVerificationChecks = Array.isArray(
+    recoveryVerificationEvent?.payload.checks,
+  )
+    ? recoveryVerificationEvent.payload.checks.map(objectValue)
+    : [];
+  const recoveryCheckIds = recoveryVerificationChecks.length
+    ? recoveryVerificationChecks.map((check) => stringValue(check.check_id))
+    : RECOVERY_CHECKS;
+  const repairEvent = [...visibleEvents].reverse().find((event) =>
+    [
+      "REPAIR_BUNDLE_CREATED",
+      "REPAIR_PUBLISHED",
+      "REPAIR_VERIFIED",
+      "APPROVAL_RECORDED",
+      "REPAIR_APPLIED",
+    ].includes(event.event_type),
+  );
+  const repairPayload = repairOverride ?? repairEvent?.payload ?? {};
+  const repairArtifacts = Array.isArray(repairPayload.artifacts)
+    ? repairPayload.artifacts.map(objectValue)
+    : [];
+  const nativeMLContext = Array.isArray(repairPayload.native_ml_context)
+    ? repairPayload.native_ml_context.map(objectValue)
+    : [];
+  const hasNativeMLReceipt = nativeMLContext.length > 0;
+  const affectedNativeContext =
+    nativeMLContext.find((context) => booleanValue(context.affected)) ?? {};
+  const preservedNativeContext =
+    nativeMLContext.find((context) => !booleanValue(context.affected)) ?? {};
+  const dataHubEntityCount = numberValue(dataHubLiveReceipt?.entity_count);
+  const dataHubServerVersion = stringValue(dataHubLiveReceipt?.server_version);
+  const dataHubIncidentLifecycle = objectValue(
+    dataHubLiveReceipt?.incident_lifecycle,
+  );
+  const dataHubDecisionLogLifecycle = objectValue(
+    dataHubLiveReceipt?.decision_log_lifecycle,
+  );
+  const repairChecks = Array.isArray(repairPayload.verification_checks)
+    ? repairPayload.verification_checks.map(objectValue)
+    : [];
+  const repairApproval = objectValue(repairPayload.approval);
+  const changeReceipt = objectValue(repairPayload.external_action_receipt);
+  const verificationReceipt = objectValue(repairPayload.verification_receipt);
+  const verificationReceipts = Array.isArray(verificationReceipt.checks)
+    ? verificationReceipt.checks.map(objectValue)
+    : [];
+  const verificationById = new Map(
+    verificationReceipts.map((receipt) => [stringValue(receipt.check_id), receipt]),
+  );
+  const approvalReceipt = objectValue(repairPayload.approval_receipt);
+  const applicationReceipt = objectValue(repairPayload.application_receipt);
+  const linkedCapture = objectValue(repairPayload.linked_capture);
+  const repairStatus = stringValue(repairPayload.status, "PROPOSED");
+  const repairPatch = repairArtifacts.find(
+    (artifact) => artifact.kind === "CODE_PATCH",
+  );
+  const canOperateRepair = Boolean(
+    mode === "LIVE" && apiBase && manifest?.incident_id && apiHealth === "ok",
+  );
+
+  const runRepairAction = async (
+    action: "publish" | "verify" | "approval" | "apply" | "recover",
+  ) => {
+    if (!canOperateRepair || !manifest) {
+      throw new Error("Repair actions require a healthy local live sandbox.");
+    }
+    setRepairAction(action);
+    setNotice(`${action.toUpperCase()} · executing against the bounded backend…`);
+    try {
+      const actionUrl =
+        action === "recover"
+          ? `${apiBase}/api/runs/${manifest.incident_id}/recovery`
+          : `${apiBase}/api/runs/${manifest.incident_id}/repair/${action}`;
+      const response = await fetch(
+        actionUrl,
+        {
+          method: "POST",
+          headers:
+            action === "approval" || action === "recover"
+              ? { "Content-Type": "application/json" }
+              : {},
+          body:
+            action === "approval"
+              ? JSON.stringify({
+                  reviewer_urn: stringValue(repairApproval.approver_urn),
+                  decision: "APPROVE",
+                  note:
+                    "Reviewed the commit-bound unit contract, scientific decision, and safe-branch evidence.",
+                })
+              : action === "recover"
+                ? JSON.stringify({})
+              : undefined,
+        },
+      );
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+      const actionReceipt = (await response.json()) as Record<string, JsonValue>;
+      if (action !== "recover") {
+        setRepairOverride(actionReceipt);
+      }
+
+      const lastSequence = events.at(-1)?.sequence ?? -1;
+      const eventResponse = await fetch(
+        `${apiBase}/api/runs/${manifest.incident_id}/events?after_sequence=${lastSequence}`,
+      );
+      if (eventResponse.ok) {
+        const newEvents = (await eventResponse.text())
+          .split("\n")
+          .filter((line) => line.startsWith("data: "))
+          .map((line) => JSON.parse(line.slice(6)) as EventFrame)
+          .map((frame) => frame.event);
+        if (newEvents.length) {
+          setEvents((current) => [...current, ...newEvents]);
+          setVisibleCount((current) => current + newEvents.length);
+        }
+      }
+      setNotice(
+        action === "recover"
+          ? `RECOVERY · clean run ${numberValue(actionReceipt.clean_run_count)} of 2 recorded`
+          : `${action.toUpperCase()} · receipt recorded in the immutable event stream`,
+      );
+    } finally {
+      setRepairAction("idle");
+    }
+  };
 
   const nodeClass = (name: string) => {
     if (!impactEvent) return "node-datahub";
@@ -651,9 +941,11 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
   const drawerResolvedStageIndex =
     drawerStageIndex >= 0 ? drawerStageIndex : displayedFocusedStage;
   const drawerStage = JUDGE_STAGES[drawerResolvedStageIndex];
+  const drawerIsCrossRunEvaluation =
+    selectedEvidence === evaluationEvidence.evidence_id;
 
   return (
-    <main className={`command-center ${judgeMode ? "judge-mode" : "product-mode"} stage-focus-${activeStage + 1}`}>
+    <main className={`command-center ${judgeMode ? "judge-mode" : "product-mode"} experience-${experienceView.toLowerCase()} stage-focus-${activeStage + 1}`}>
       <header className="global-header">
         <div className="brand-lockup">
           <div className="brand-mark" aria-hidden="true"><span>SG</span></div>
@@ -694,7 +986,254 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
         </div>
       </header>
 
-      <section className="runtime-strip" aria-label="Runtime and replay status">
+      <nav className="experience-switcher" aria-label="Experience detail level">
+        {(["BRIEF", "OPERATE", "AUDIT"] as ExperienceView[]).map((view) => (
+          <button
+            aria-pressed={experienceView === view}
+            className={experienceView === view ? "active" : ""}
+            key={view}
+            onClick={() => setExperienceView(view)}
+            type="button"
+          >
+            <span>{view}</span>
+            <small>
+              {view === "BRIEF"
+                ? "Understand the decision"
+                : view === "OPERATE"
+                  ? "Inspect impact and action"
+                  : "Verify every receipt"}
+            </small>
+          </button>
+        ))}
+      </nav>
+
+      {judgeMode && experienceView === "BRIEF" && (
+        <section className="champion-brief" aria-labelledby="champion-brief-title">
+          <div className="brief-signal">
+            <div className="brief-eyebrow">
+              <span>SCIENTIFIC DECISION INCIDENT</span>
+              <i />
+              <strong>POLYMER R&amp;D</strong>
+            </div>
+            <h1 id="champion-brief-title">
+              The pipeline passed.
+              <em>The decision became unsafe.</em>
+            </h1>
+            <p>
+              An instrument changed temperature units without breaking the pipeline.
+              SciGuard used DataHub to prove which scientific path was contaminated,
+              blocked only the unsafe recommendation, and kept independent work running.
+            </p>
+            <div className="brief-actions">
+              <button
+                className="button primary"
+                disabled={integrity === "failed"}
+                onClick={() =>
+                  void playStory().catch((error: unknown) => {
+                    setIntegrity("failed");
+                    setNotice(error instanceof Error ? error.message : "Replay failed");
+                  })
+                }
+                type="button"
+              >
+                {playing ? "RUNNING VERIFIED STORY" : "RUN VERIFIED STORY"}
+              </button>
+              <button
+                className="button ghost"
+                onClick={() => setExperienceView("OPERATE")}
+                type="button"
+              >
+                EXPLORE DECISION GRAPH
+              </button>
+            </div>
+            <div className="brief-trust">
+              <span className={`live-${apiHealth}`}>
+                <i />
+                {apiHealth === "ok" ? "LIVE SANDBOX READY" : "VERIFIED REPLAY READY"}
+              </span>
+              <span>
+                {integrity === "verified"
+                  ? `55 events + ${dataHubEntityCount} native entities verified`
+                  : "Verifying evidence"}
+              </span>
+              <span>Deterministic safety policy</span>
+            </div>
+          </div>
+
+          <div className="brief-rank" aria-label="Candidate P-204 moved from trusted rank 18 to unsafe rank 1">
+            <div className="brief-rank-top">
+              <span>CANDIDATE POLYMER · P-204</span>
+              <StatusMark status={resumeAllowed ? "RESOLVED" : blockedEvent ? "BLOCKED" : "AT RISK"} />
+            </div>
+            <div className="brief-rank-change">
+              <div>
+                <small>TRUSTED DECISION</small>
+                <strong>#18</strong>
+              </div>
+              <div className="brief-causal-arrow">
+                <span>→</span>
+                <small>187 mixed-unit rows</small>
+              </div>
+              <div>
+                <small>UNSAFE OUTPUT</small>
+                <strong>#1</strong>
+              </div>
+            </div>
+            <div className="brief-contradiction">
+              <span><i /> PIPELINE SUCCESS</span>
+              <strong>SCIENTIFIC CONTRACT FAILED</strong>
+            </div>
+          </div>
+
+          <div className="brief-outcomes">
+            <article>
+              <span className="outcome-icon critical">!</span>
+              <div>
+                <small>UNSAFE DECISION</small>
+                <strong>{blockedEvent ? "Publication blocked" : "Candidate ranking at risk"}</strong>
+                <p>Heat-resistance recommendation cannot reach the research meeting.</p>
+              </div>
+            </article>
+            <article>
+              <span className="outcome-icon healthy">✓</span>
+              <div>
+                <small>SAFE WORK PRESERVED</small>
+                <strong>{allowedEvent ? "Formulation continued" : "Independent branch proven"}</strong>
+                <p>Molecular-weight analysis remains available throughout the incident.</p>
+              </div>
+            </article>
+            <article>
+              <span className="outcome-icon evidence">⌁</span>
+              <div>
+                <small>WHY DATAHUB</small>
+                <strong>Exact cone: 3 / 3</strong>
+                <p>Search-only recovered 0 / 3 exact decision cones.</p>
+              </div>
+            </article>
+          </div>
+
+          <div className="brief-graph-shell">
+            <div className="brief-section-heading">
+              <div>
+                <span>DATAHUB DECISION GRAPH</span>
+                <h2>One changed field. Two very different outcomes.</h2>
+              </div>
+              <button
+                className="button text"
+                onClick={() => setExperienceView("AUDIT")}
+                type="button"
+              >
+                AUDIT THE EVIDENCE →
+              </button>
+            </div>
+            <div className="brief-graph" aria-label="DataHub decision graph with affected and preserved branches">
+              <div className="brief-node source">
+                <small>INSTRUMENT</small>
+                <strong>B042 · DSC-07</strong>
+                <span>firmware v4.2</span>
+              </div>
+              <span className="brief-edge critical">tg_value</span>
+              <div className="brief-node context">
+                <small>DATASET</small>
+                <strong>Experimental data</strong>
+                <span>unit contract · owner</span>
+              </div>
+              <span className="brief-edge split">field lineage</span>
+              <div className="brief-branches">
+                <div className="brief-branch affected">
+                  <div className="brief-node">
+                    <small>{hasNativeMLReceipt ? "NATIVE ML FEATURE" : "FEATURE PROJECTION"}</small>
+                    <strong>Heat resistance · Tg</strong>
+                  </div>
+                  <div className="brief-node">
+                    <small>{hasNativeMLReceipt ? "NATIVE ML MODEL" : "MODEL VERSION"}</small>
+                    <strong>Tg Model · v3</strong>
+                    {hasNativeMLReceipt && (
+                      <span>
+                        {Array.isArray(affectedNativeContext.training_job_urns)
+                          ? affectedNativeContext.training_job_urns.length
+                          : 0}{" "}
+                        train ·{" "}
+                        {stringValue(
+                          objectValue(
+                            Array.isArray(affectedNativeContext.deployment_context)
+                              ? affectedNativeContext.deployment_context[0]
+                              : undefined,
+                          ).status,
+                          "deployment",
+                        )}{" "}
+                        ·{" "}
+                        {Array.isArray(affectedNativeContext.inference_job_urns)
+                          ? affectedNativeContext.inference_job_urns.length
+                          : 0}{" "}
+                        infer
+                      </span>
+                    )}
+                  </div>
+                  <div className="brief-node decision">
+                    <small>SCIENTIFIC DECISION</small>
+                    <strong>Candidate ranking</strong>
+                    <StatusMark status={impactEvent ? "HALT" : "PENDING"} />
+                  </div>
+                </div>
+                <div className="brief-branch preserved">
+                  <div className="brief-node">
+                    <small>{hasNativeMLReceipt ? "NATIVE ML FEATURE" : "FEATURE PROJECTION"}</small>
+                    <strong>Molecular weight · MW</strong>
+                  </div>
+                  <div className="brief-node">
+                    <small>{hasNativeMLReceipt ? "NATIVE ML MODEL" : "MODEL VERSION"}</small>
+                    <strong>Durability Model · v2</strong>
+                    {hasNativeMLReceipt && (
+                      <span>
+                        {Array.isArray(preservedNativeContext.training_job_urns)
+                          ? preservedNativeContext.training_job_urns.length
+                          : 0}{" "}
+                        train ·{" "}
+                        {stringValue(
+                          objectValue(
+                            Array.isArray(preservedNativeContext.deployment_context)
+                              ? preservedNativeContext.deployment_context[0]
+                              : undefined,
+                          ).status,
+                          "deployment",
+                        )}{" "}
+                        ·{" "}
+                        {Array.isArray(preservedNativeContext.inference_job_urns)
+                          ? preservedNativeContext.inference_job_urns.length
+                          : 0}{" "}
+                        infer
+                      </span>
+                    )}
+                  </div>
+                  <div className="brief-node decision">
+                    <small>SCIENTIFIC DECISION</small>
+                    <strong>Formulation report</strong>
+                    <StatusMark status={impactEvent ? "ALLOW" : "PENDING"} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="brief-progress" aria-label="Verified incident progress">
+            {[
+              ["01", "CHANGE", activeStage >= 0],
+              ["02", "PROVE", activeStage >= 2],
+              ["03", "PROTECT", activeStage >= 4],
+              ["04", "RECOVER", activeStage >= 5 && resumeAllowed],
+            ].map(([number, label, achieved]) => (
+              <div className={achieved ? "achieved" : ""} key={String(label)}>
+                <span>{String(number)}</span>
+                <strong>{String(label)}</strong>
+                <small>{achieved ? "VERIFIED" : "WAITING"}</small>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {experienceView !== "BRIEF" && <section className="runtime-strip" aria-label="Runtime and replay status">
         <div className={`live-backend live-${apiHealth}`}>
           <span><i /> LIVE BACKEND · {apiHealth === "ok" ? "ONLINE" : apiHealth === "offline" ? "OFFLINE" : "CHECKING"}</span>
           <small>{apiReason}</small>
@@ -715,9 +1254,9 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
           <span><small>NARRATED REPLAY DURATION</small><strong>15.0s</strong></span>
           <span aria-live="polite"><small>PLAYBACK</small><strong>{playbackState}</strong></span>
         </div>
-      </section>
+      </section>}
 
-      {judgeMode && (
+      {judgeMode && experienceView === "AUDIT" && (
         <section className="judge-cockpit" aria-labelledby="judge-cockpit-title">
           <div className="cockpit-lead">
             <span className="kicker">PUBLIC JUDGE MODE · DETERMINISTIC SYNTHETIC DATA</span>
@@ -793,7 +1332,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
           >
             <strong>WHY DATAHUB</strong>
             <b>EXACT CONE · 3/3 WITH LINEAGE → 0/3 SEARCH-ONLY</b>
-            <small>NO DATAHUB · NOT YET MEASURED</small>
+            <small>NO DATAHUB · MEASURED ABSTENTION · 0/3</small>
           </button>
         </section>
       )}
@@ -845,7 +1384,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
         <EvidenceLink id={dataHubCapabilityEvidence.evidence_id} onSelect={openEvidence} />
       </section>}
 
-      <nav className="story-rail" aria-label="Six event-driven investigation stages">
+      {experienceView !== "BRIEF" && <nav className="story-rail" aria-label="Six event-driven investigation stages">
         {JUDGE_STAGES.map((stage, index) => (
           <button
             aria-current={activeStage === index ? "step" : undefined}
@@ -866,9 +1405,9 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
         <span className="sr-only" aria-live="polite" aria-atomic="true">
           Stage {activeStage + 1} of 6: {JUDGE_STAGES[activeStage].label}. Playback {playbackState}.
         </span>
-      </nav>
+      </nav>}
 
-      <section className="operations-grid">
+      {experienceView !== "BRIEF" && <section className="operations-grid">
         <article className="panel timeline-panel">
           <div className="panel-heading">
             <div><span className="kicker">AGENT TIMELINE</span><h2>Verified actions</h2></div>
@@ -990,9 +1529,323 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
             </small>
           </div>
         </aside>
-      </section>
+      </section>}
 
-      <section className="control-deck">
+      {experienceView !== "BRIEF" && (repairEvent || repairOverride) && (
+        <section className="repair-studio panel" aria-labelledby="repair-studio-title">
+          <div className="repair-heading">
+            <div>
+              <span className="kicker">PROOF-CARRYING REPAIR</span>
+              <h2 id="repair-studio-title">{stringValue(repairPayload.title, "Reviewable repair bundle")}</h2>
+              <p>
+                Every proposed change, test, rollback step, and approval gate is linked to
+                validated incident evidence. Local commits and remote pull requests are reported
+                as different action types, so a local receipt is never presented as a GitHub PR.
+              </p>
+              {stringValue(linkedCapture.capture_type) && (
+                <small className="linked-capture-note">
+                  CANONICAL SINGLE RUN · {stringValue(linkedCapture.capture_type)} · Dataset
+                  lineage, native ML context, exact repair revision, application, and recovery
+                  all share this incident ID and are bound to the live DataHub read-back.
+                </small>
+              )}
+            </div>
+            <div className="repair-heading-state">
+              <StatusMark status={repairStatus} />
+              {stringValue(changeReceipt.commit_sha) && (
+                <code>{stringValue(changeReceipt.commit_sha).slice(0, 12)}</code>
+              )}
+              {stringValue(changeReceipt.remote_url) && (
+                <a
+                  className="remote-action-link"
+                  href={stringValue(changeReceipt.remote_url)}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  OPEN PULL REQUEST ↗
+                </a>
+              )}
+            </div>
+          </div>
+          <div className="repair-receipt-strip">
+            <div className={stringValue(changeReceipt.commit_sha) ? "complete" : ""}>
+              <span>01</span><small>CHANGE</small>
+              <strong>{stringValue(changeReceipt.commit_sha) ? "COMMITTED" : "READY"}</strong>
+            </div>
+            <i />
+            <div className={stringValue(verificationReceipt.receipt_id) ? "complete" : ""}>
+              <span>02</span><small>VERIFY</small>
+              <strong>{stringValue(verificationReceipt.status, "LOCKED")}</strong>
+            </div>
+            <i />
+            <div className={stringValue(approvalReceipt.receipt_id) ? "complete" : ""}>
+              <span>03</span><small>APPROVE</small>
+              <strong>{stringValue(repairApproval.status, "REQUIRED")}</strong>
+            </div>
+            <i />
+            <div className={stringValue(applicationReceipt.receipt_id) ? "complete" : ""}>
+              <span>04</span><small>APPLY</small>
+              <strong>{stringValue(applicationReceipt.status, "LOCKED")}</strong>
+            </div>
+            <i />
+            <div className={resumeAllowed ? "complete" : ""}>
+              <span>05</span><small>RECOVER</small>
+              <strong>{resumeAllowed ? "AUTHORIZED" : "LOCKED"}</strong>
+            </div>
+          </div>
+          {nativeMLContext.length > 0 && (
+            <div className="native-context-strip">
+              <span className="repair-label">DATAHUB NATIVE PRODUCTION ML CONTEXT</span>
+              {nativeMLContext.map((context) => (
+                <div key={stringValue(context.native_model_urn)}>
+                  <span className={booleanValue(context.affected) ? "native-risk" : "native-safe"}>
+                    {booleanValue(context.affected) ? "AFFECTED" : "PRESERVED"}
+                  </span>
+                  <strong>
+                    {stringValue(context.model_name)} · {stringValue(context.model_version)}
+                  </strong>
+                  <small>
+                    {Array.isArray(context.feature_urns) ? context.feature_urns.length : 0} features ·{" "}
+                    {Array.isArray(context.training_job_urns)
+                      ? context.training_job_urns.length
+                      : 0}{" "}
+                    training ·{" "}
+                    {Array.isArray(context.deployment_context)
+                      ? context.deployment_context.length
+                      : 0}{" "}
+                    deployment ·{" "}
+                    {Array.isArray(context.inference_job_urns)
+                      ? context.inference_job_urns.length
+                      : 0}{" "}
+                    inference · {stringValue(context.criticality)}
+                  </small>
+                  <code>{stringValue(context.native_model_urn)}</code>
+                </div>
+              ))}
+            </div>
+          )}
+          {(stringValue(repairPayload.datahub_incident_urn) ||
+            stringValue(repairPayload.datahub_decision_log_urn)) && (
+            <div className="catalog-lifecycle-strip">
+              <span className="repair-label">
+                DATAHUB WRITE-BACK LIFECYCLE
+                {dataHubEntityCount > 0 &&
+                  ` · ${dataHubEntityCount} NATIVE ENTITIES READ BACK ON ${dataHubServerVersion}`}
+              </span>
+              <div>
+                <small>NATIVE INCIDENT</small>
+                <strong>
+                  {dataHubLiveReceipt
+                    ? `${stringValue(dataHubIncidentLifecycle.readback_state)} · ${stringValue(dataHubIncidentLifecycle.readback_stage)}`
+                    : repairStatus === "APPROVED"
+                      ? "ACTIVE · REVIEWED"
+                      : "ACTIVE"}
+                </strong>
+                <code>{stringValue(repairPayload.datahub_incident_urn)}</code>
+              </div>
+              <div>
+                <small>NATIVE DECISION LOG</small>
+                <strong>
+                  {stringValue(dataHubDecisionLogLifecycle.readback_state, "PUBLISHED")} ·{" "}
+                  {dataHubLiveReceipt
+                    ? `${numberValue(dataHubDecisionLogLifecycle.related_asset_count)} ASSETS READ BACK`
+                    : "LINKED TO DECISION CONE"}
+                </strong>
+                <code>{stringValue(repairPayload.datahub_decision_log_urn)}</code>
+              </div>
+            </div>
+          )}
+          {verificationReceipts.length > 0 && (
+            <div className="counterfactual-lab">
+              <div className="counterfactual-intro">
+                <span className="repair-label">COUNTERFACTUAL VERIFICATION LAB</span>
+                <strong>Did the repair restore the decision without disturbing safe work?</strong>
+                <small>Executed test receipts · not an animated prediction</small>
+              </div>
+              <div className="counterfactual-ranks" aria-label="P-204 rank before contamination, after contamination, and after the verified repair">
+                <div>
+                  <small>TRUSTED BASELINE</small>
+                  <strong>#18</strong>
+                  <span>scientifically plausible</span>
+                </div>
+                <i>→</i>
+                <div className="unsafe">
+                  <small>MIXED-UNIT OUTPUT</small>
+                  <strong>#1</strong>
+                  <span>publication blocked</span>
+                </div>
+                <i>→</i>
+                <div className="restored">
+                  <small>VERIFIED REPAIR</small>
+                  <strong>#18</strong>
+                  <span>trusted rank restored</span>
+                </div>
+              </div>
+              <div className="counterfactual-proofs">
+                {[
+                  ["unit_contract", "K = °C after normalization"],
+                  ["candidate_ranking_stability", "P-204 rank #1 → #18"],
+                  ["safe_branch_preservation", "MW output digest unchanged"],
+                ].map(([checkId, label]) => {
+                  const receipt = verificationById.get(checkId);
+                  return (
+                    <div key={checkId}>
+                      <span>{stringValue(receipt?.status) === "PASS" ? "✓" : "○"}</span>
+                      <strong>{label}</strong>
+                      <code>
+                        {stringValue(
+                          receipt?.result_sha256,
+                          stringValue(receipt?.output_sha256),
+                        ).slice(0, 12)}
+                        …
+                      </code>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          <div className="repair-layout">
+            <div className="repair-artifacts">
+              <span className="repair-label">BUNDLE ARTIFACTS</span>
+              {repairArtifacts.map((artifact) => (
+                <div key={stringValue(artifact.artifact_id)}>
+                  <span>{stringValue(artifact.kind)}</span>
+                  <strong>{stringValue(artifact.path)}</strong>
+                  <small>{stringValue(artifact.description)}</small>
+                </div>
+              ))}
+            </div>
+            <div className="repair-diff">
+              <div>
+                <span className="repair-label">PROPOSED PATCH</span>
+                <code>{stringValue(repairPatch?.content_sha256).slice(0, 14)}…</code>
+              </div>
+              <pre>{stringValue(repairPatch?.content, "Patch evidence is not visible at this replay position.")}</pre>
+            </div>
+            <div className="repair-verification">
+              <span className="repair-label">VERIFICATION &amp; AUTHORITY</span>
+              {repairChecks.map((check) => {
+                const observed = verificationById.get(stringValue(check.check_id));
+                const status = stringValue(observed?.status, "WAITING");
+                return (
+                <div
+                  className={`repair-check ${status === "PASS" ? "passed" : ""}`}
+                  key={stringValue(check.check_id)}
+                >
+                  <span>{status === "PASS" ? "✓" : "○"}</span>
+                  <div>
+                    <strong>{stringValue(check.name)} · {status}</strong>
+                    <small>
+                      {status === "PASS"
+                        ? `exit ${numberValue(observed?.exit_code, -1)} · ${numberValue(observed?.duration_ms)}ms · receipt ${stringValue(observed?.result_sha256, stringValue(observed?.output_sha256)).slice(0, 10)}…`
+                        : stringValue(check.expected_result)}
+                    </small>
+                    {stringValue(observed?.details_url) && (
+                      <a
+                        className="remote-check-link"
+                        href={stringValue(observed?.details_url)}
+                        rel="noreferrer"
+                        target="_blank"
+                      >
+                        OPEN HOSTED CHECK ↗
+                      </a>
+                    )}
+                  </div>
+                </div>
+                );
+              })}
+              <div className="repair-approval">
+                <small>HUMAN APPROVAL</small>
+                <strong>{formatName(stringValue(repairApproval.status, "REQUIRED"))}</strong>
+                <span>{stringValue(repairApproval.approver_urn, "DataHub owner pending")}</span>
+                {stringValue(approvalReceipt.identity_assurance) && (
+                  <span>
+                    {stringValue(approvalReceipt.identity_assurance)} · production authorization{" "}
+                    {booleanValue(approvalReceipt.production_authorized) ? "YES" : "NO"}
+                  </span>
+                )}
+              </div>
+              <div className="repair-application">
+                <small>EXACT-REVISION APPLICATION</small>
+                <strong>{stringValue(applicationReceipt.status, "NOT APPLIED")}</strong>
+                <span>
+                  {stringValue(
+                    applicationReceipt.target_environment,
+                    "Synthetic staging is locked until approval",
+                  )}
+                </span>
+                {stringValue(applicationReceipt.deployment_id) && (
+                  <code>
+                    {stringValue(applicationReceipt.deployment_id)} · tree{" "}
+                    {stringValue(applicationReceipt.source_tree_sha256).slice(0, 12)}…
+                  </code>
+                )}
+                {stringValue(applicationReceipt.receipt_id) && (
+                  <span>
+                    production authorization{" "}
+                    {booleanValue(applicationReceipt.production_authorized) ? "YES" : "NO"}
+                  </span>
+                )}
+              </div>
+              {canOperateRepair && (
+                <div className="repair-actions">
+                  <button
+                    className="button primary"
+                    disabled={repairStatus !== "PROPOSED" || repairAction !== "idle"}
+                    onClick={() => void runRepairAction("publish").catch((error: unknown) => {
+                      setNotice(error instanceof Error ? error.message : "Repair publication failed");
+                    })}
+                    type="button"
+                  >
+                    {repairAction === "publish"
+                      ? "PUBLISHING…"
+                      : stringValue(repairPayload.target_repository).startsWith(
+                            "https://github.com/",
+                          )
+                        ? "CREATE GITHUB PR"
+                        : "CREATE REAL COMMIT"}
+                  </button>
+                  <button
+                    className="button ghost"
+                    disabled={repairStatus !== "PUBLISHED" || repairAction !== "idle"}
+                    onClick={() => void runRepairAction("verify").catch((error: unknown) => {
+                      setNotice(error instanceof Error ? error.message : "Repair verification failed");
+                    })}
+                    type="button"
+                  >
+                    {repairAction === "verify" ? "RUNNING TESTS…" : "VERIFY COMMIT"}
+                  </button>
+                  <button
+                    className="button ghost"
+                    disabled={repairStatus !== "VERIFIED" || repairAction !== "idle"}
+                    onClick={() => void runRepairAction("approval").catch((error: unknown) => {
+                      setNotice(error instanceof Error ? error.message : "Approval failed");
+                    })}
+                    type="button"
+                  >
+                    {repairAction === "approval" ? "SIGNING…" : "APPROVE AS OWNER"}
+                  </button>
+                  <button
+                    className="button ghost"
+                    disabled={repairStatus !== "APPROVED" || repairAction !== "idle"}
+                    onClick={() => void runRepairAction("apply").catch((error: unknown) => {
+                      setNotice(error instanceof Error ? error.message : "Repair application failed");
+                    })}
+                    type="button"
+                  >
+                    {repairAction === "apply"
+                      ? "APPLYING…"
+                      : "APPLY TO SYNTHETIC STAGING"}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {experienceView !== "BRIEF" && <section className="control-deck">
         <article className="panel policy-panel">
           <div className="panel-heading"><div><span className="kicker">DETERMINISTIC POLICY</span><h2>Selective containment</h2></div><span className="rule-chip">YAML RULES</span></div>
           <div className="policy-strip">
@@ -1018,7 +1871,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
         <article className="panel recovery-panel">
           <div className="panel-heading"><div><span className="kicker">RECOVERY GATE</span><h2>Evidence before resume</h2></div><StatusMark status={resumeAllowed ? "RESOLVED" : recoveryEvent ? "LOCKED" : "PENDING"} /></div>
           <div className="recovery-list">
-            {RECOVERY_CHECKS.map((check) => {
+            {recoveryCheckIds.map((check) => {
               const known = Boolean(recoveryEvent);
               const failed = failedChecks.has(check);
               const passed = known && !failed;
@@ -1026,11 +1879,25 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
             })}
           </div>
           <div className="recovery-footer"><div><small>CLEAN RUNS</small><strong>{cleanRunCount} / 2</strong></div><div><small>RESUME</small><strong>{resumeAllowed ? "AUTHORIZED" : "LOCKED"}</strong></div></div>
+          {canOperateRepair && repairStatus === "APPLIED" && !resumeAllowed && (
+            <button
+              className="button primary recovery-action"
+              disabled={repairAction !== "idle"}
+              onClick={() => void runRepairAction("recover").catch((error: unknown) => {
+                setNotice(error instanceof Error ? error.message : "Recovery verification failed");
+              })}
+              type="button"
+            >
+              {repairAction === "recover"
+                ? "RE-RUNNING COMMIT-BOUND CHECKS…"
+                : `RUN CLEAN RECOVERY CHECK ${Math.min(cleanRunCount + 1, 2)} / 2`}
+            </button>
+          )}
           <p>Frontend state cannot unlock recovery. This surface only renders integrity-checked event results from the deterministic controller.</p>
         </article>
-      </section>
+      </section>}
 
-      <section className="evaluation-theatre panel">
+      {experienceView === "AUDIT" && <section className="evaluation-theatre panel">
         <div className="evaluation-intro">
           <span className="kicker">WHY DATAHUB · MEASURED ABLATION</span>
           <h2>Directed lineage changes the decision boundary.</h2>
@@ -1047,19 +1914,15 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
               type="button"
             >
               <div className="mode-title"><span>0{index + 1}</span><strong>{result.label}</strong></div>
-              {result.id === "no-datahub" ? (
-                <div className="metric-large">NOT YET MEASURED</div>
-              ) : (
-                <div className="metric-grid">
-                  <div><strong>{result.precision}</strong><span>precision</span></div>
-                  <div><strong>{result.recall}</strong><span>recall</span></div>
-                  <div><strong>{result.f1}</strong><span>F1</span></div>
-                  <div><strong>{result.exactCone}</strong><span>exact cone</span></div>
-                </div>
-              )}
+              <div className="metric-grid">
+                <div><strong>{result.precision}</strong><span>precision</span></div>
+                <div><strong>{result.recall}</strong><span>recall</span></div>
+                <div><strong>{result.f1}</strong><span>F1</span></div>
+                <div><strong>{result.exactCone}</strong><span>exact cone</span></div>
+              </div>
               <p>
                 {result.id === "no-datahub"
-                  ? "No metric is invented for an unexecuted arm."
+                  ? "Zero catalog calls. The agent abstains instead of inventing dependencies."
                   : result.id === "search-only"
                     ? "Name similarity without lineage direction."
                     : "Field lineage + owners + governance context."}
@@ -1068,7 +1931,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
             </button>
           ))}
         </div>
-      </section>
+      </section>}
 
       <footer className="site-footer">
         <div><span className="brand-mini">SG</span><strong>Trust the decision because you can inspect the evidence.</strong></div>
@@ -1108,15 +1971,36 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
               </button>
             </div>
             <div className="drawer-stage">
-              <span>STAGE {drawerResolvedStageIndex + 1} / 6</span>
-              <strong>{drawerStage.label}</strong>
+              <span>
+                {drawerIsCrossRunEvaluation
+                  ? "CONTROLLED BENCHMARK"
+                  : `STAGE ${drawerResolvedStageIndex + 1} / 6`}
+              </span>
+              <strong>
+                {drawerIsCrossRunEvaluation ? "WHY DATAHUB" : drawerStage.label}
+              </strong>
             </div>
             <dl className="drawer-facts">
               <div><dt>Evidence type</dt><dd>{drawerRecord?.kind ?? drawerEvent?.event_type ?? "STAGE CONTEXT"}</dd></div>
-              <div><dt>Incident ID</dt><dd>{drawerEvent?.incident_id ?? manifest?.incident_id ?? "Not present in this evidence"}</dd></div>
+              <div>
+                <dt>{drawerIsCrossRunEvaluation ? "Evaluation scope" : "Incident ID"}</dt>
+                <dd>
+                  {drawerIsCrossRunEvaluation
+                    ? "13 labelled scenarios / 3 lineage cones"
+                    : drawerEvent?.incident_id ??
+                      manifest?.incident_id ??
+                      "Not present in this evidence"}
+                </dd>
+              </div>
               <div>
                 <dt>Immutable event ID / sequence</dt>
-                <dd>{drawerEvent ? `${drawerEvent.event_id} / ${drawerEvent.sequence + 1} of ${manifest?.event_count ?? 38}` : "Not visible at the current replay position"}</dd>
+                <dd>
+                  {drawerIsCrossRunEvaluation
+                    ? "Not applicable · gated evaluation artifact"
+                    : drawerEvent
+                      ? `${drawerEvent.event_id} / ${drawerEvent.sequence + 1} of ${manifest?.event_count ?? 38}`
+                      : "Not visible at the current replay position"}
+                </dd>
               </div>
               <div><dt>DataHub URN</dt><dd className="drawer-urn">{drawerUrn}</dd></div>
               <div><dt>Affected field</dt><dd>{drawerField}</dd></div>
@@ -1138,13 +2022,9 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
                 {WHY_DATAHUB_RESULTS.map((result) => (
                   <div key={result.id}>
                     <strong>{result.label}</strong>
-                    {result.id === "no-datahub" ? (
-                      <span>NOT YET MEASURED</span>
-                    ) : (
-                      <span>
-                        P {result.precision} · R {result.recall} · F1 {result.f1} · exact cone {result.exactCone}
-                      </span>
-                    )}
+                    <span>
+                      P {result.precision} · R {result.recall} · F1 {result.f1} · exact cone {result.exactCone}
+                    </span>
                   </div>
                 ))}
                 <p>{DATAHUB_CAPABILITY_BOUNDARY}</p>

@@ -1,0 +1,288 @@
+{
+  "benchmark": {
+    "actionable_count": 9,
+    "distinct_lineage_cones": 3,
+    "negative_control_count": 4,
+    "scenario_count": 13,
+    "scenario_spec_sha256": "3aeb8621284c2554e2037953517da16ab17b1b11233aa655b6e2b3cf02405576"
+  },
+  "capture_type": "CONTROLLED_DATAHUB_ABLATION",
+  "gate": {
+    "failures": [],
+    "status": "PASS"
+  },
+  "headline": {
+    "change_detection_accuracy": 1.0,
+    "false_alarm_rate": 0.0,
+    "model_control_accuracy": 1.0,
+    "owner_notification": {
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "tp": 33
+    },
+    "risk_severity_accuracy": 1.0
+  },
+  "impact_arms": [
+    {
+      "datahub_calls_permitted": true,
+      "exact_cones": 3,
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "id": "full-lineage",
+      "label": "WITH DATAHUB LINEAGE",
+      "lineage_permitted": true,
+      "precision": 1.0,
+      "recall": 1.0,
+      "status": "VERIFIED",
+      "total_cones": 3,
+      "tp": 18
+    },
+    {
+      "datahub_calls_permitted": true,
+      "exact_cones": 0,
+      "f1": 0.75,
+      "fn": 0,
+      "fp": 12,
+      "id": "search-only",
+      "label": "SEARCH-ONLY DATAHUB",
+      "lineage_permitted": false,
+      "precision": 0.6,
+      "recall": 1.0,
+      "status": "INCOMPLETE CONTEXT",
+      "total_cones": 3,
+      "tp": 18
+    },
+    {
+      "datahub_call_count": 0,
+      "datahub_calls_permitted": false,
+      "exact_cones": 0,
+      "f1": 0.0,
+      "fn": 18,
+      "fp": 0,
+      "id": "no-datahub",
+      "label": "NO DATAHUB",
+      "lineage_permitted": false,
+      "precision": null,
+      "predictions": 0,
+      "recall": 0.0,
+      "status": "MEASURED ABSTENTION",
+      "total_cones": 3,
+      "tp": 0
+    }
+  ],
+  "scenario_results": [
+    {
+      "actionable": true,
+      "control_ok": true,
+      "detect_ok": true,
+      "id": "tg-unit-raw",
+      "is_positive": true,
+      "owner": {
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 4
+      },
+      "severity_ok": true
+    },
+    {
+      "actionable": true,
+      "control_ok": true,
+      "detect_ok": true,
+      "id": "mn-unit-raw",
+      "is_positive": true,
+      "owner": {
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 4
+      },
+      "severity_ok": true
+    },
+    {
+      "actionable": true,
+      "control_ok": true,
+      "detect_ok": true,
+      "id": "mw-unit-raw",
+      "is_positive": true,
+      "owner": {
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 4
+      },
+      "severity_ok": true
+    },
+    {
+      "actionable": true,
+      "control_ok": true,
+      "detect_ok": true,
+      "id": "remove-sampleid-raw",
+      "is_positive": true,
+      "owner": {
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 4
+      },
+      "severity_ok": true
+    },
+    {
+      "actionable": true,
+      "control_ok": true,
+      "detect_ok": true,
+      "id": "remove-smiles-raw",
+      "is_positive": true,
+      "owner": {
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 4
+      },
+      "severity_ok": true
+    },
+    {
+      "actionable": true,
+      "control_ok": true,
+      "detect_ok": true,
+      "id": "tg-unit-cleaned",
+      "is_positive": true,
+      "owner": {
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 3
+      },
+      "severity_ok": true
+    },
+    {
+      "actionable": true,
+      "control_ok": true,
+      "detect_ok": true,
+      "id": "tg-unit-features",
+      "is_positive": true,
+      "owner": {
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 3
+      },
+      "severity_ok": true
+    },
+    {
+      "actionable": true,
+      "control_ok": true,
+      "detect_ok": true,
+      "id": "multi-tg-and-mn-raw",
+      "is_positive": true,
+      "owner": {
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 4
+      },
+      "severity_ok": true
+    },
+    {
+      "actionable": true,
+      "control_ok": true,
+      "detect_ok": true,
+      "id": "remove-sampleid-cleaned",
+      "is_positive": true,
+      "owner": {
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 3
+      },
+      "severity_ok": true
+    },
+    {
+      "actionable": false,
+      "control_ok": true,
+      "detect_ok": true,
+      "id": "neg-pdi-unit-raw",
+      "is_positive": false,
+      "owner": {
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 4
+      },
+      "severity_ok": true
+    },
+    {
+      "actionable": false,
+      "control_ok": true,
+      "detect_ok": true,
+      "id": "neg-remove-protocol-raw",
+      "is_positive": false,
+      "owner": {
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 4
+      },
+      "severity_ok": true
+    },
+    {
+      "actionable": false,
+      "control_ok": true,
+      "detect_ok": true,
+      "id": "neg-remove-measuredon-raw",
+      "is_positive": false,
+      "owner": {
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 4
+      },
+      "severity_ok": true
+    },
+    {
+      "actionable": false,
+      "control_ok": true,
+      "detect_ok": true,
+      "id": "neg-add-notes-raw",
+      "is_positive": false,
+      "owner": {
+        "f1": 1.0,
+        "fn": 0,
+        "fp": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 4
+      },
+      "severity_ok": true
+    }
+  ],
+  "schema_version": 1
+}

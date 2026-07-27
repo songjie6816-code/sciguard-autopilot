@@ -1,0 +1,4 @@
+interface:
+  display_name: "DataHub Repair Review"
+  short_description: "Review evidence-bound scientific repairs"
+  default_prompt: "Use $datahub-repair-review to review this repair bundle, its tests, and approval boundary."

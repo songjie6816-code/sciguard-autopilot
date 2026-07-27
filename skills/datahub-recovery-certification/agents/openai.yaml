@@ -1,0 +1,4 @@
+interface:
+  display_name: "DataHub Recovery Certification"
+  short_description: "Certify evidence-gated incident recovery"
+  default_prompt: "Use $datahub-recovery-certification to decide whether this DataHub incident can safely recover."

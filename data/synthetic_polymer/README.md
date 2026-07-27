@@ -51,13 +51,23 @@ instrument_batch_B042 -> raw_polymer_experiments -> cleaned_polymer_dataset
                                                            `-> formulation_report
 ```
 
-Every asset receives schema, owner, criticality, synthetic/role tags, custom governance
-properties, dataset lineage, and field lineage. Field lineage is the evidence that
-`tg_degC` enters only the Tg branch.
+Every dataset projection receives schema, owner, criticality, synthetic/role tags, custom
+governance properties, dataset lineage, and field lineage. Field lineage is the evidence
+that `tg_degC` enters only the Tg branch.
 
-The installed DataHub SDK contains native ML model classes, but the competition version of
-the MCP Server and SciGuard's SDK parity contract expose schema, units, and lineage most
-reliably through dataset URNs. The two models therefore use an explicit
-`dataset_entity_fallback` with queryable `entity_role`, `model_version`, and
-`ml_metadata_mode` properties. This is a disclosed compatibility decision, not a claim that
-the assets are native DataHub MLModel entities.
+The ingest now also emits a linked native Production ML projection:
+
+```text
+cleaned dataset
+  -> MLFeature / MLFeatureTable
+  -> training DataProcessInstance
+  -> versioned MLModel in an MLModelGroup
+  -> MLModelDeployment
+  -> inference DataProcessInstance
+  -> decision-report dataset
+```
+
+This is an explicit `dual_native_projection`: dataset URNs remain the schema/field-lineage
+contract, while native entities represent model versions, features, deployments, training
+runs, and model-to-decision execution. Cross-projection URNs are queryable metadata, and
+tests prove that the native durability model has no Tg feature.

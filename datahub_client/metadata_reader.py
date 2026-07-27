@@ -11,7 +11,13 @@ import os
 from dataclasses import dataclass
 
 from datahub.ingestion.graph.client import DataHubGraph, DatahubClientConfig
-from datahub.metadata.schema_classes import OwnershipClass, UpstreamLineageClass
+from datahub.metadata.schema_classes import (
+    DatasetPropertiesClass,
+    MLModelDeploymentPropertiesClass,
+    MLModelPropertiesClass,
+    OwnershipClass,
+    UpstreamLineageClass,
+)
 
 DEFAULT_GMS_URL = "http://localhost:8080"
 
@@ -96,6 +102,56 @@ def get_owners(graph: DataHubGraph, urn: str) -> list[str]:
     if not aspect or not aspect.owners:
         return []
     return [owner.owner.split(":")[-1] for owner in aspect.owners]
+
+
+def get_native_ml_model_context(
+    graph: DataHubGraph,
+    dataset_projection_urn: str,
+) -> dict:
+    """Resolve the native model/deployment behind a field-lineage dataset projection."""
+
+    dataset = graph.get_aspect(dataset_projection_urn, DatasetPropertiesClass)
+    if dataset is None:
+        raise LookupError(f"dataset projection is missing: {dataset_projection_urn}")
+    properties = dict(dataset.customProperties or {})
+    model_urn = properties.get("sciguard:native_projection_urn")
+    if not model_urn:
+        raise LookupError(
+            f"dataset projection has no native ML model: {dataset_projection_urn}"
+        )
+    model = graph.get_aspect(model_urn, MLModelPropertiesClass)
+    if model is None:
+        raise LookupError(f"native ML model is missing: {model_urn}")
+    deployment_urns = list(model.deployments or [])
+    configured_deployment = properties.get("sciguard:native_deployment_urn")
+    if configured_deployment and configured_deployment not in deployment_urns:
+        deployment_urns.append(configured_deployment)
+    deployments = []
+    for urn in deployment_urns:
+        deployment = graph.get_aspect(urn, MLModelDeploymentPropertiesClass)
+        if deployment is None:
+            raise LookupError(f"native ML deployment is missing: {urn}")
+        deployments.append(
+            {
+                "urn": urn,
+                "status": deployment.status,
+                "custom_properties": dict(deployment.customProperties or {}),
+            }
+        )
+    ownership = graph.get_aspect(model_urn, OwnershipClass)
+    return {
+        "dataset_projection_urn": dataset_projection_urn,
+        "native_model_urn": model_urn,
+        "model_name": model.name,
+        "model_version": model.version.versionTag if model.version else None,
+        "model_type": model.type,
+        "feature_urns": list(model.mlFeatures or []),
+        "training_job_urns": list(model.trainingJobs or []),
+        "inference_job_urns": list(model.downstreamJobs or []),
+        "deployment_context": deployments,
+        "owner_urns": [item.owner for item in ownership.owners] if ownership else [],
+        "custom_properties": dict(model.customProperties or {}),
+    }
 
 
 def get_dataset_properties(graph: DataHubGraph, urn: str) -> dict:

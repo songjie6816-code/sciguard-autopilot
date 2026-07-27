@@ -1,0 +1,475 @@
+{
+  "affected_urns": [
+    "urn:li:dataset:(urn:li:dataPlatform:polymer_rnd,raw_polymer_experiments,PROD)",
+    "urn:li:dataset:(urn:li:dataPlatform:polymer_rnd,cleaned_polymer_dataset,PROD)",
+    "urn:li:dataset:(urn:li:dataPlatform:polymer_rnd,tg_feature_table,PROD)",
+    "urn:li:dataset:(urn:li:dataPlatform:polymer_rnd,exploratory_dashboard,PROD)",
+    "urn:li:dataset:(urn:li:dataPlatform:polymer_rnd,tg_prediction_model,PROD)",
+    "urn:li:dataset:(urn:li:dataPlatform:polymer_rnd,candidate_ranking_report,PROD)"
+  ],
+  "application_receipt": {
+    "applied_at": "2026-07-26T21:22:19.510187Z",
+    "bundle_id": "repair-bundle:8f481c5a7d457821",
+    "commit_sha": "f3b009c91b712ecf7c93e901de770ea950cd1963",
+    "deployment_id": "staging-deployment:e6e58766e6c70f8e",
+    "production_authorized": false,
+    "provider": "LOCAL_STAGING",
+    "receipt_id": "application-receipt:1aba310999194dea",
+    "source_tree_sha256": "d1a002f8053d82b38736fa2ab821901f643eb6db3deea756cfe8279d831ad223",
+    "status": "APPLIED",
+    "target_environment": "SCIGUARD_SYNTHETIC_STAGING"
+  },
+  "approval": {
+    "approver_urn": "urn:li:corpuser:research_lead",
+    "evidence_ids": [
+      "field-impact:6d7265f6ecc4d6e1",
+      "model-release-context:4a4561dbb638527d",
+      "trusted-release-baseline:10394eeb17c20877",
+      "upstream-lineage:94ee77e7deccd454",
+      "unit-firmware-contract:711d085fe8869ed0",
+      "rank-baseline-comparison:55a5b1ad73eb48b1",
+      "experimental-value-check:916960df3b3c41fa"
+    ],
+    "policy_id": "SCIENTIFIC_DECISION_CRITICAL",
+    "reason": "The patch changes a CRITICAL model input contract and a candidate-selection decision; accountable scientific-owner approval is mandatory.",
+    "required": true,
+    "status": "APPROVED"
+  },
+  "approval_receipt": {
+    "approver_urn": "urn:li:corpuser:research_lead",
+    "bundle_id": "repair-bundle:8f481c5a7d457821",
+    "commit_sha": "f3b009c91b712ecf7c93e901de770ea950cd1963",
+    "created_at": "2026-07-26T21:22:19.401806Z",
+    "decision": "APPROVE",
+    "evidence_ids": [
+      "field-impact:6d7265f6ecc4d6e1",
+      "model-release-context:4a4561dbb638527d",
+      "trusted-release-baseline:10394eeb17c20877",
+      "upstream-lineage:94ee77e7deccd454",
+      "unit-firmware-contract:711d085fe8869ed0",
+      "rank-baseline-comparison:55a5b1ad73eb48b1",
+      "experimental-value-check:916960df3b3c41fa",
+      "verification-receipt:78804a1ed8cda421",
+      "approval-receipt:89a70936544ff867"
+    ],
+    "expected_approver_urn": "urn:li:corpuser:research_lead",
+    "identity_assurance": "DEMO_SIGNED_NOT_SSO",
+    "identity_provider": "SCIGUARD_LOCAL_REVIEW_SESSION",
+    "note": "Reviewed the commit-bound unit contract, P-204 rank restoration, safe-branch digest, rollback plan, and exact target revision.",
+    "production_authorized": false,
+    "receipt_id": "approval-receipt:89a70936544ff867",
+    "signature_sha256": "89d9d3cbd967f9bae891fe3fca797f1596d3e964c2f9c1a475112e25aa17158f",
+    "signing_key_id": "sciguard-champion-demo-v1",
+    "verification_receipt_id": "verification-receipt:78804a1ed8cda421"
+  },
+  "artifacts": [
+    {
+      "artifact_id": "repair-artifact:dfaf76ef618ecdd9",
+      "content": "--- a/pipeline/normalize.py\n+++ b/pipeline/normalize.py\n@@ -1,3 +1,15 @@\n+class UnitContractError(ValueError):\n+    \"\"\"Raised when an experimental value violates the declared unit contract.\"\"\"\n+\n+\n def normalize_tg(value: float, unit: str) -> float:\n-    # v1 trusted the destination column label and silently copied mixed units.\n-    return float(value)\n+    \"\"\"Normalize Tg into degC or reject an unknown unit.\"\"\"\n+\n+    normalized = unit.strip()\n+    if normalized == \"degC\":\n+        return float(value)\n+    if normalized == \"K\":\n+        return round(float(value) - 273.15, 6)\n+    raise UnitContractError(\n+        f\"unsupported Tg unit {unit!r}; expected 'degC' or 'K'\"\n+    )\n",
+      "content_sha256": "c3918e50fc17eef41c84e823fa9fbb195e8f783a35e18e208705321351137013",
+      "description": "Fail-closed K-to-degC scientific-unit normalization patch.",
+      "evidence_ids": [
+        "field-impact:6d7265f6ecc4d6e1",
+        "model-release-context:4a4561dbb638527d",
+        "trusted-release-baseline:10394eeb17c20877",
+        "upstream-lineage:94ee77e7deccd454",
+        "unit-firmware-contract:711d085fe8869ed0",
+        "rank-baseline-comparison:55a5b1ad73eb48b1",
+        "experimental-value-check:916960df3b3c41fa"
+      ],
+      "kind": "CODE_PATCH",
+      "path": "pipeline/normalize.py.patch"
+    },
+    {
+      "artifact_id": "repair-artifact:a3d58e09c2d7d243",
+      "content": "from pipeline.normalize import UnitContractError, normalize_tg\n\n\ndef test_kelvin_and_celsius_normalize_to_the_same_scientific_value() -> None:\n    assert normalize_tg(373.15, \"K\") == 100.0\n    assert normalize_tg(100.0, \"degC\") == 100.0\n\n\ndef test_unknown_unit_fails_closed() -> None:\n    try:\n        normalize_tg(100.0, \"degF\")\n    except UnitContractError:\n        return\n    raise AssertionError(\"unknown units must not be silently accepted\")\n",
+      "content_sha256": "3da4643a25c830e5400a63816cdef9f7c132ee1c7f130789f7f57412dd7b0d62",
+      "description": "Unit contract and fail-closed unknown-unit tests.",
+      "evidence_ids": [
+        "field-impact:6d7265f6ecc4d6e1",
+        "model-release-context:4a4561dbb638527d",
+        "trusted-release-baseline:10394eeb17c20877",
+        "upstream-lineage:94ee77e7deccd454",
+        "unit-firmware-contract:711d085fe8869ed0",
+        "rank-baseline-comparison:55a5b1ad73eb48b1",
+        "experimental-value-check:916960df3b3c41fa"
+      ],
+      "kind": "CONTRACT_TEST",
+      "path": "tests/test_unit_contract.py"
+    },
+    {
+      "artifact_id": "repair-artifact:eff79adc8a51e69d",
+      "content": "import hashlib\nfrom pathlib import Path\n\nfrom pipeline.decision import load_candidates, rank_candidates\nfrom pipeline.normalize import normalize_tg\n\n\nFIXTURE = Path(__file__).parents[1] / \"data\" / \"b042_decision_fixture.csv\"\nFIXTURE_SHA256 = \"ca676efb3b969a48c7f7ce4f9b5ea3d507a86d40cee161a8bb57b9b06cf550c6\"\n\n\ndef test_candidate_ranking_fails_before_and_matches_trusted_baseline_after_repair() -> None:\n    assert hashlib.sha256(FIXTURE.read_bytes()).hexdigest() == FIXTURE_SHA256\n    candidates = load_candidates(FIXTURE)\n\n    legacy_ranks = rank_candidates(\n        candidates,\n        normalizer=lambda value, unit: float(value),\n    )\n    repaired_ranks = rank_candidates(candidates, normalizer=normalize_tg)\n    trusted_ranks = {\n        candidate.candidate_id: candidate.trusted_rank\n        for candidate in candidates\n    }\n\n    assert legacy_ranks[\"P-204\"] == 1\n    assert legacy_ranks != trusted_ranks\n    assert repaired_ranks[\"P-204\"] == 18\n    assert repaired_ranks == trusted_ranks\n",
+      "content_sha256": "a2ab5cd2eac4416821c55ab51512b5ea386c2c7ee9a6b175cfead6cf95cf77e4",
+      "description": "Counterfactual P-204 ranking restoration check.",
+      "evidence_ids": [
+        "field-impact:6d7265f6ecc4d6e1",
+        "model-release-context:4a4561dbb638527d",
+        "trusted-release-baseline:10394eeb17c20877",
+        "upstream-lineage:94ee77e7deccd454",
+        "unit-firmware-contract:711d085fe8869ed0",
+        "rank-baseline-comparison:55a5b1ad73eb48b1",
+        "experimental-value-check:916960df3b3c41fa"
+      ],
+      "kind": "SCIENTIFIC_REGRESSION_TEST",
+      "path": "tests/test_scientific_decision.py"
+    },
+    {
+      "artifact_id": "repair-artifact:7d4f64194d57536c",
+      "content": "import hashlib\nfrom pathlib import Path\n\nfrom pipeline.decision import (\n    load_candidates,\n    molecular_weight_artifact,\n    publish_molecular_weight_artifact,\n    rank_candidates,\n)\nfrom pipeline.normalize import normalize_tg\n\n\nFIXTURE = Path(__file__).parents[1] / \"data\" / \"b042_decision_fixture.csv\"\nTRUSTED_MW_SHA256 = \"2ff3a5d0b93e3ee65aa8601e391057443edbba42b7f09b02a8cd37d3e16538e6\"\n\n\ndef test_repair_preserves_and_republishes_the_real_molecular_weight_artifact(\n    tmp_path: Path,\n) -> None:\n    candidates = load_candidates(FIXTURE)\n    before = molecular_weight_artifact(candidates)\n\n    # Execute the repaired Tg decision path before rendering the independent MW branch.\n    repaired_ranks = rank_candidates(candidates, normalizer=normalize_tg)\n    assert repaired_ranks[\"P-204\"] == 18\n    after = molecular_weight_artifact(candidates)\n\n    assert hashlib.sha256(before).hexdigest() == TRUSTED_MW_SHA256\n    assert after == before\n    destination = tmp_path / \"molecular_weight_report.json\"\n    receipt_sha256 = publish_molecular_weight_artifact(candidates, destination)\n    assert destination.read_bytes() == before\n    assert receipt_sha256 == TRUSTED_MW_SHA256\n",
+      "content_sha256": "7f8736ad763c6614995b8ea50038071ebd373edaab73da94a597b1163de9966b",
+      "description": "Non-regression proof for the preserved molecular-weight branch.",
+      "evidence_ids": [
+        "field-impact:6d7265f6ecc4d6e1",
+        "model-release-context:4a4561dbb638527d",
+        "trusted-release-baseline:10394eeb17c20877",
+        "upstream-lineage:94ee77e7deccd454",
+        "unit-firmware-contract:711d085fe8869ed0",
+        "rank-baseline-comparison:55a5b1ad73eb48b1",
+        "experimental-value-check:916960df3b3c41fa"
+      ],
+      "kind": "SAFE_BRANCH_TEST",
+      "path": "tests/test_safe_branch.py"
+    },
+    {
+      "artifact_id": "repair-artifact:c9b5c85e79473115",
+      "content": "Revert the repair commit, restore tg-normalizer-v1, keep the candidate ranking publication blocked, and return the incident to QUARANTINED.",
+      "content_sha256": "9927568cba3d641ebe42626edca4299ce46fd9b7592e47816d34a516073aa079",
+      "description": "Fail-safe rollback and re-quarantine procedure.",
+      "evidence_ids": [
+        "field-impact:6d7265f6ecc4d6e1",
+        "model-release-context:4a4561dbb638527d",
+        "trusted-release-baseline:10394eeb17c20877",
+        "upstream-lineage:94ee77e7deccd454",
+        "unit-firmware-contract:711d085fe8869ed0",
+        "rank-baseline-comparison:55a5b1ad73eb48b1",
+        "experimental-value-check:916960df3b3c41fa"
+      ],
+      "kind": "ROLLBACK_PLAN",
+      "path": "SCIGUARD_ROLLBACK.md"
+    }
+  ],
+  "bundle_id": "repair-bundle:8f481c5a7d457821",
+  "datahub_decision_log_urn": "urn:li:document:sciguard-decision-log-inc-sciguard-champion",
+  "datahub_incident_urn": "urn:li:incident:sciguard-inc-sciguard-champion",
+  "evidence_ids": [
+    "field-impact:6d7265f6ecc4d6e1",
+    "model-release-context:4a4561dbb638527d",
+    "trusted-release-baseline:10394eeb17c20877",
+    "upstream-lineage:94ee77e7deccd454",
+    "unit-firmware-contract:711d085fe8869ed0",
+    "rank-baseline-comparison:55a5b1ad73eb48b1",
+    "experimental-value-check:916960df3b3c41fa"
+  ],
+  "external_action_receipt": {
+    "base_commit_sha": "a45b6fe3aff28ad1c1b1f3d7b3077d3e7750928c",
+    "base_revision": "main",
+    "branch": "sciguard/inc-sciguard-champion-8f481c5a",
+    "bundle_id": "repair-bundle:8f481c5a7d457821",
+    "changed_files": [
+      "SCIGUARD_ROLLBACK.md",
+      "pipeline/normalize.py",
+      "tests/test_safe_branch.py",
+      "tests/test_scientific_decision.py",
+      "tests/test_unit_contract.py"
+    ],
+    "commit_sha": "f3b009c91b712ecf7c93e901de770ea950cd1963",
+    "created_at": "2026-07-26T21:22:18Z",
+    "provider": "LOCAL_GIT",
+    "pull_request_number": null,
+    "remote_url": null,
+    "repository": "EPHEMERAL_REPRODUCIBLE_GIT_SANDBOX",
+    "status": "COMMITTED"
+  },
+  "incident_id": "inc-sciguard-champion",
+  "linked_capture": {
+    "application_environment": "SCIGUARD_SYNTHETIC_STAGING",
+    "canonical_single_run": true,
+    "capture_type": "RECORDED_DATAHUB_END_TO_END",
+    "change_provider": "LOCAL_GIT",
+    "datahub_native_context_source": "LIVE_DATAHUB_END_TO_END_CLOSURE",
+    "datahub_native_receipt_sha256": "bac1a7a826f9cf7d12eef592a9be7cf3cd6dd6474951d766235cba6866a81f87",
+    "datahub_server_version": "v1.5.0.6",
+    "evaluation_report_sha256": "fabae311f308036499a64d7a6da7013da9a80472a0dfec47dcff406fefa2901e",
+    "identity_boundary": "DEMO_SIGNED_NOT_SSO",
+    "production_authorized": false,
+    "public_event_stream_sha256": "b243fe006a3e0a937d81528907e61a7eb8042a6901ac802022ec6165c7091411",
+    "public_safe_redactions": [
+      {
+        "field_class": "machine_local_repository_path",
+        "replacement": "EPHEMERAL_REPRODUCIBLE_GIT_SANDBOX"
+      },
+      {
+        "field_class": "machine_local_python_executable",
+        "replacement": "python"
+      }
+    ],
+    "remote_pull_request_claimed": false,
+    "source_incident_id": "inc-sciguard-champion"
+  },
+  "native_ml_context": [
+    {
+      "affected": true,
+      "criticality": "CRITICAL",
+      "dataset_projection_urn": "urn:li:dataset:(urn:li:dataPlatform:polymer_rnd,tg_prediction_model,PROD)",
+      "deployment_context": [
+        {
+          "custom_properties": {
+            "sciguard:approval_policy": "SCIENTIFIC_DECISION_CRITICAL",
+            "sciguard:decision_output_urn": "urn:li:dataset:(urn:li:dataPlatform:polymer_rnd,candidate_ranking_report,PROD)",
+            "sciguard:inference_run_urn": "urn:li:dataProcessInstance:sciguard-rank-candidates-production",
+            "sciguard:model_urn": "urn:li:mlModel:(urn:li:dataPlatform:polymer_rnd,tg_prediction_model,PROD)"
+          },
+          "status": "IN_SERVICE",
+          "urn": "urn:li:mlModelDeployment:(urn:li:dataPlatform:polymer_rnd,tg-prediction-production,PROD)"
+        }
+      ],
+      "expected_target_unit": "degC",
+      "feature_urns": [
+        "urn:li:mlFeature:(tg_feature_table,log10_mn)",
+        "urn:li:mlFeature:(tg_feature_table,pdi)",
+        "urn:li:mlFeature:(tg_feature_table,class_code)",
+        "urn:li:mlFeature:(tg_feature_table,tg_degC)"
+      ],
+      "inference_job_urns": [
+        "urn:li:dataProcessInstance:sciguard-rank-candidates-production"
+      ],
+      "model_name": "Tg Prediction Model v3",
+      "model_type": "gradient_boosting_regressor",
+      "model_version": "tg-gbr-v3",
+      "native_model_urn": "urn:li:mlModel:(urn:li:dataPlatform:polymer_rnd,tg_prediction_model,PROD)",
+      "owner_urns": [
+        "urn:li:corpuser:ml_engineer"
+      ],
+      "training_job_urns": [
+        "urn:li:dataProcessInstance:sciguard-train-tg-gbr-v3"
+      ]
+    },
+    {
+      "affected": false,
+      "criticality": "HIGH",
+      "dataset_projection_urn": "urn:li:dataset:(urn:li:dataPlatform:polymer_rnd,durability_model,PROD)",
+      "deployment_context": [
+        {
+          "custom_properties": {
+            "sciguard:approval_policy": "SCIENTIFIC_MODEL_STANDARD",
+            "sciguard:decision_output_urn": "urn:li:dataset:(urn:li:dataPlatform:polymer_rnd,formulation_report,PROD)",
+            "sciguard:inference_run_urn": "urn:li:dataProcessInstance:sciguard-formulation-production",
+            "sciguard:model_urn": "urn:li:mlModel:(urn:li:dataPlatform:polymer_rnd,durability_model,PROD)"
+          },
+          "status": "IN_SERVICE",
+          "urn": "urn:li:mlModelDeployment:(urn:li:dataPlatform:polymer_rnd,durability-production,PROD)"
+        }
+      ],
+      "expected_target_unit": null,
+      "feature_urns": [
+        "urn:li:mlFeature:(molecular_weight_feature_table,mn_g_mol)",
+        "urn:li:mlFeature:(molecular_weight_feature_table,mw_g_mol)",
+        "urn:li:mlFeature:(molecular_weight_feature_table,pdi)"
+      ],
+      "inference_job_urns": [
+        "urn:li:dataProcessInstance:sciguard-formulation-production"
+      ],
+      "model_name": "Durability Model v2",
+      "model_type": "random_forest_regressor",
+      "model_version": "durability-rf-v2",
+      "native_model_urn": "urn:li:mlModel:(urn:li:dataPlatform:polymer_rnd,durability_model,PROD)",
+      "owner_urns": [
+        "urn:li:corpuser:ml_engineer"
+      ],
+      "training_job_urns": [
+        "urn:li:dataProcessInstance:sciguard-train-durability-rf-v2"
+      ]
+    }
+  ],
+  "preserved_urns": [
+    "urn:li:dataset:(urn:li:dataPlatform:polymer_rnd,molecular_weight_feature_table,PROD)",
+    "urn:li:dataset:(urn:li:dataPlatform:polymer_rnd,durability_model,PROD)",
+    "urn:li:dataset:(urn:li:dataPlatform:polymer_rnd,formulation_report,PROD)"
+  ],
+  "risk": "CRITICAL",
+  "root_cause_summary": "Firmware v4.2 emitted part of batch B042 in Kelvin while tg-normalizer-v1 treated the values as Celsius.",
+  "schema_version": "1.0",
+  "status": "APPLIED",
+  "target_base_revision": "main",
+  "target_repository": "local-git://repair-repository",
+  "title": "Normalize B042 Tg values from K to degC before scientific ranking",
+  "verification_checks": [
+    {
+      "check_id": "unit_contract",
+      "command": "pytest -q tests/test_unit_contract.py",
+      "evidence_ids": [
+        "field-impact:6d7265f6ecc4d6e1",
+        "model-release-context:4a4561dbb638527d",
+        "trusted-release-baseline:10394eeb17c20877",
+        "upstream-lineage:94ee77e7deccd454",
+        "unit-firmware-contract:711d085fe8869ed0",
+        "rank-baseline-comparison:55a5b1ad73eb48b1",
+        "experimental-value-check:916960df3b3c41fa"
+      ],
+      "expected_result": "Kelvin and Celsius normalize identically; unknown units fail closed.",
+      "name": "Scientific unit contract",
+      "protects": [
+        "cleaned_polymer_dataset.tg_degC"
+      ]
+    },
+    {
+      "check_id": "candidate_ranking_stability",
+      "command": "pytest -q tests/test_scientific_decision.py",
+      "evidence_ids": [
+        "field-impact:6d7265f6ecc4d6e1",
+        "model-release-context:4a4561dbb638527d",
+        "trusted-release-baseline:10394eeb17c20877",
+        "upstream-lineage:94ee77e7deccd454",
+        "unit-firmware-contract:711d085fe8869ed0",
+        "rank-baseline-comparison:55a5b1ad73eb48b1",
+        "experimental-value-check:916960df3b3c41fa"
+      ],
+      "expected_result": "The locked B042 fixture fails at P-204 rank #1 under the legacy normalizer and exactly matches all trusted ranks after repair.",
+      "name": "Scientific decision regression",
+      "protects": [
+        "candidate_ranking_report"
+      ]
+    },
+    {
+      "check_id": "safe_branch_preservation",
+      "command": "pytest -q tests/test_safe_branch.py",
+      "evidence_ids": [
+        "field-impact:6d7265f6ecc4d6e1",
+        "model-release-context:4a4561dbb638527d",
+        "trusted-release-baseline:10394eeb17c20877",
+        "upstream-lineage:94ee77e7deccd454",
+        "unit-firmware-contract:711d085fe8869ed0",
+        "rank-baseline-comparison:55a5b1ad73eb48b1",
+        "experimental-value-check:916960df3b3c41fa"
+      ],
+      "expected_result": "The real molecular-weight artifact digest is unchanged after executing the repaired Tg path and the artifact is published byte-for-byte.",
+      "name": "Preserved branch non-regression",
+      "protects": [
+        "formulation_report",
+        "durability_model"
+      ]
+    }
+  ],
+  "verification_receipt": {
+    "branch": "sciguard/inc-sciguard-champion-8f481c5a",
+    "bundle_id": "repair-bundle:8f481c5a7d457821",
+    "checks": [
+      {
+        "check_id": "unit_contract",
+        "check_suite_id": null,
+        "declared_command": "pytest -q tests/test_unit_contract.py",
+        "details_url": null,
+        "duration_ms": 349,
+        "evidence_ids": [
+          "field-impact:6d7265f6ecc4d6e1",
+          "model-release-context:4a4561dbb638527d",
+          "trusted-release-baseline:10394eeb17c20877",
+          "upstream-lineage:94ee77e7deccd454",
+          "unit-firmware-contract:711d085fe8869ed0",
+          "rank-baseline-comparison:55a5b1ad73eb48b1",
+          "experimental-value-check:916960df3b3c41fa"
+        ],
+        "executed_command": [
+          "python",
+          "-m",
+          "pytest",
+          "-q",
+          "tests/test_unit_contract.py"
+        ],
+        "exit_code": 0,
+        "external_app_id": null,
+        "external_app_slug": null,
+        "external_run_id": null,
+        "name": "Scientific unit contract",
+        "output_excerpt": "..                                                                       [100%]\n2 passed in 0.01s",
+        "output_sha256": "2a65b3e70e6bfbb4eb9b9ffb91f4dcd6383e685bd1546efd5b451c200a907c28",
+        "result_sha256": "6c44851674e9a81e15edee5f7ba6c03e6c39fb664e6638ef9304874d596843a5",
+        "status": "PASS",
+        "workflow_id": null,
+        "workflow_path": null,
+        "workflow_run_attempt": null,
+        "workflow_run_id": null
+      },
+      {
+        "check_id": "candidate_ranking_stability",
+        "check_suite_id": null,
+        "declared_command": "pytest -q tests/test_scientific_decision.py",
+        "details_url": null,
+        "duration_ms": 312,
+        "evidence_ids": [
+          "field-impact:6d7265f6ecc4d6e1",
+          "model-release-context:4a4561dbb638527d",
+          "trusted-release-baseline:10394eeb17c20877",
+          "upstream-lineage:94ee77e7deccd454",
+          "unit-firmware-contract:711d085fe8869ed0",
+          "rank-baseline-comparison:55a5b1ad73eb48b1",
+          "experimental-value-check:916960df3b3c41fa"
+        ],
+        "executed_command": [
+          "python",
+          "-m",
+          "pytest",
+          "-q",
+          "tests/test_scientific_decision.py"
+        ],
+        "exit_code": 0,
+        "external_app_id": null,
+        "external_app_slug": null,
+        "external_run_id": null,
+        "name": "Scientific decision regression",
+        "output_excerpt": ".                                                                        [100%]\n1 passed in 0.01s",
+        "output_sha256": "bdf92807d46a2f074abfbdc8fbfd95883c2cd441a53ae518f02cec6264b8f4e2",
+        "result_sha256": "b7748ea79f74856d34573ce2184362e2ef978b6bc16b98fe7068991ee2c8d528",
+        "status": "PASS",
+        "workflow_id": null,
+        "workflow_path": null,
+        "workflow_run_attempt": null,
+        "workflow_run_id": null
+      },
+      {
+        "check_id": "safe_branch_preservation",
+        "check_suite_id": null,
+        "declared_command": "pytest -q tests/test_safe_branch.py",
+        "details_url": null,
+        "duration_ms": 457,
+        "evidence_ids": [
+          "field-impact:6d7265f6ecc4d6e1",
+          "model-release-context:4a4561dbb638527d",
+          "trusted-release-baseline:10394eeb17c20877",
+          "upstream-lineage:94ee77e7deccd454",
+          "unit-firmware-contract:711d085fe8869ed0",
+          "rank-baseline-comparison:55a5b1ad73eb48b1",
+          "experimental-value-check:916960df3b3c41fa"
+        ],
+        "executed_command": [
+          "python",
+          "-m",
+          "pytest",
+          "-q",
+          "tests/test_safe_branch.py"
+        ],
+        "exit_code": 0,
+        "external_app_id": null,
+        "external_app_slug": null,
+        "external_run_id": null,
+        "name": "Preserved branch non-regression",
+        "output_excerpt": ".                                                                        [100%]\n1 passed in 0.01s",
+        "output_sha256": "bdf92807d46a2f074abfbdc8fbfd95883c2cd441a53ae518f02cec6264b8f4e2",
+        "result_sha256": "a8de43bb58be9e9cd3037e2034baf38fbc1c6fc13e08257d1f2c9949654f58be",
+        "status": "PASS",
+        "workflow_id": null,
+        "workflow_path": null,
+        "workflow_run_attempt": null,
+        "workflow_run_id": null
+      }
+    ],
+    "commit_sha": "f3b009c91b712ecf7c93e901de770ea950cd1963",
+    "created_at": "2026-07-26T21:22:19.348912Z",
+    "provider": "LOCAL_PROCESS",
+    "receipt_id": "verification-receipt:78804a1ed8cda421",
+    "repository": "EPHEMERAL_REPRODUCIBLE_GIT_SANDBOX",
+    "source_tree_clean": true,
+    "status": "PASS"
+  }
+}

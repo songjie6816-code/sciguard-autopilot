@@ -65,10 +65,8 @@ action_policy:
     actions: []
 recovery_policy:
   required_checks:
-    - verified_k_to_degc_conversion
-    - unit_contract_assertion
-    - batch_consistency_assertion
-    - tg_model_revalidation
+    - unit_contract
     - candidate_ranking_stability
+    - safe_branch_preservation
   consecutive_clean_runs: 2
   allow_one_clean_with_human_approval: true

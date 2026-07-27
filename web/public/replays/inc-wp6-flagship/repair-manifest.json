@@ -1,0 +1,26 @@
+{
+  "approval_receipt_id": "approval-receipt:4ceb98628b49d60b",
+  "boundaries": {
+    "capture_type": "RECORDED_LOCAL_REPAIR_ACTION",
+    "change_provider": "LOCAL_GIT",
+    "datahub_context_source": "Immutable evidence IDs from the separately verified DATAHUB_SDK replay",
+    "datahub_native_context_source": "LIVE_DATAHUB_NATIVE_READBACK",
+    "datahub_native_receipt_sha256": "fa0b942ca360c2ce687adc3bcabe40c8cb7dc465deaba4c593b3e3ce2b00bbc5",
+    "datahub_server_version": "v1.5.0.6",
+    "identity_boundary": "DEMO_SIGNED_NOT_SSO",
+    "production_authorized": false,
+    "remote_pull_request_claimed": false
+  },
+  "bundle_id": "repair-bundle:e57baa2a5f8a72b7",
+  "capture_type": "RECORDED_LOCAL_REPAIR_ACTION",
+  "commit_sha": "b78e132342086c658326e4c9b7137b748efd68a0",
+  "datahub_native_receipt_sha256": "fa0b942ca360c2ce687adc3bcabe40c8cb7dc465deaba4c593b3e3ce2b00bbc5",
+  "generated_at": "2026-07-26T18:30:20.642554Z",
+  "repair_bundle_sha256": "efcd2b5db37e054a63b3e91d25c41afec5d3dd598e2741eb3e3070a325e8311a",
+  "schema_version": 1,
+  "source_commit": "3246a325682e74166384509bff8e5c0a5eaef680",
+  "source_events_sha256": "7ddafe7b17ecf16c68b32d4ad310a3385d537e46b9cc18de9eced2e99b1cc9cd",
+  "source_incident_id": "inc-wp6-flagship",
+  "source_worktree_dirty": true,
+  "verification_receipt_id": "verification-receipt:c9c86046c0763a6d"
+}

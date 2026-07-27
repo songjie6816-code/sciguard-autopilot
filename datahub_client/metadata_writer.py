@@ -16,6 +16,9 @@ from datahub.metadata.schema_classes import (
     GlobalTagsClass,
     TagAssociationClass,
 )
+from typing import TypeVar
+
+AspectWithCustomProperties = TypeVar("AspectWithCustomProperties")
 
 
 def current_tag_urns(graph: DataHubGraph, urn: str) -> list[str]:
@@ -72,6 +75,61 @@ def remove_custom_properties(graph: DataHubGraph, urn: str, keys: list[str]) -> 
     if existing is None:
         return {}
     current = dict(existing.customProperties or {})
+    drop = set(keys)
+    remaining = {key: value for key, value in current.items() if key not in drop}
+    if remaining == current:
+        return current
+    existing.customProperties = remaining
+    graph.emit(MetadataChangeProposalWrapper(entityUrn=urn, aspect=existing))
+    return remaining
+
+
+def add_aspect_custom_properties(
+    graph: DataHubGraph,
+    urn: str,
+    aspect_type: type[AspectWithCustomProperties],
+    new_props: dict[str, str],
+) -> dict[str, str]:
+    """Merge custom properties on an existing non-dataset aspect.
+
+    Native ML aspects contain many lifecycle fields beyond custom properties.
+    Creating a partial replacement would silently erase model features,
+    deployments, metrics, or version metadata. The aspect must therefore exist
+    and is always emitted as a full read-modify-write object.
+    """
+
+    existing = graph.get_aspect(urn, aspect_type)
+    if existing is None:
+        raise LookupError(
+            f"cannot write {aspect_type.__name__} properties; aspect is missing for {urn}"
+        )
+    current = dict(getattr(existing, "customProperties", None) or {})
+    merged = {**current, **new_props}
+    if merged == current:
+        return current
+    existing.customProperties = merged
+    graph.emit(MetadataChangeProposalWrapper(entityUrn=urn, aspect=existing))
+    return merged
+
+
+def remove_aspect_custom_properties(
+    graph: DataHubGraph,
+    urn: str,
+    aspect_type: type[AspectWithCustomProperties],
+    keys: list[str],
+) -> dict[str, str]:
+    """Remove selected properties from a native aspect without replacing it.
+
+    Native ML properties carry lifecycle fields in addition to
+    ``customProperties``. Reset therefore performs the same full-aspect
+    read-modify-write discipline as enforcement and leaves baseline projection
+    metadata untouched.
+    """
+
+    existing = graph.get_aspect(urn, aspect_type)
+    if existing is None:
+        return {}
+    current = dict(getattr(existing, "customProperties", None) or {})
     drop = set(keys)
     remaining = {key: value for key, value in current.items() if key not in drop}
     if remaining == current:

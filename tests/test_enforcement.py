@@ -1,4 +1,9 @@
-from datahub.metadata.schema_classes import DatasetPropertiesClass, GlobalTagsClass
+from datahub.metadata.schema_classes import (
+    DatasetPropertiesClass,
+    GlobalTagsClass,
+    MLModelDeploymentPropertiesClass,
+    MLModelPropertiesClass,
+)
 from datahub.emitter.mce_builder import make_dataset_urn
 
 from core.enforcement import enforce
@@ -95,3 +100,74 @@ def test_new_incident_clears_old_recovery_history_and_replaces_status_tag() -> N
     tags = {item.tag for item in graph.get_aspect(URN, GlobalTagsClass).tags}
     assert "urn:li:tag:sciguard:at-risk" in tags
     assert "urn:li:tag:sciguard:resolved" not in tags
+
+
+def test_model_control_is_mirrored_to_native_model_and_deployment() -> None:
+    model_dataset_urn = make_dataset_urn("polymer_rnd", "tg_prediction_model", "PROD")
+    native_model_urn = (
+        "urn:li:mlModel:(urn:li:dataPlatform:polymer_rnd,tg_prediction_model,PROD)"
+    )
+    deployment_urn = (
+        "urn:li:mlModelDeployment:"
+        "(urn:li:dataPlatform:polymer_rnd,tg-prediction-production,PROD)"
+    )
+    graph = StatefulGraph()
+    graph.store[model_dataset_urn] = {
+        "DatasetPropertiesClass": DatasetPropertiesClass(
+            name="tg_prediction_model",
+            customProperties={
+                "sciguard:native_projection_urn": native_model_urn,
+                "sciguard:native_projection_aspect": "MLModelPropertiesClass",
+                "sciguard:native_deployment_urn": deployment_urn,
+            },
+        ),
+        "GlobalTagsClass": GlobalTagsClass(tags=[]),
+    }
+    graph.store[native_model_urn] = {
+        "MLModelPropertiesClass": MLModelPropertiesClass(
+            name="Tg Model v3",
+            mlFeatures=["urn:feature:tg"],
+            deployments=[deployment_urn],
+            customProperties={"keep": "model"},
+        ),
+        "GlobalTagsClass": GlobalTagsClass(tags=[]),
+    }
+    graph.store[deployment_urn] = {
+        "MLModelDeploymentPropertiesClass": MLModelDeploymentPropertiesClass(
+            description="Production Tg deployment",
+            status="IN_SERVICE",
+            customProperties={"keep": "deployment"},
+        ),
+        "GlobalTagsClass": GlobalTagsClass(tags=[]),
+    }
+    plan = PolicyPlan(
+        incident_id="inc-native-enforce",
+        decisions=[
+            AssetPolicyDecision(
+                urn=model_dataset_urn,
+                name="tg_prediction_model",
+                role="model",
+                criticality="CRITICAL",
+                affected=True,
+                decision=PolicyDecision.HALT,
+                catalog_status=CatalogStatus.AT_RISK,
+                actions=[EnforcementAction.BLOCK_EXECUTION, EnforcementAction.WRITE_BACK],
+                reason_code="AFFECTED_MODEL",
+                evidence_ids=["e-native-lineage"],
+            )
+        ],
+    )
+
+    receipt = enforce(graph, plan)[0]
+
+    assert receipt.native_projection_urns == [native_model_urn, deployment_urn]
+    native_model = graph.get_aspect(native_model_urn, MLModelPropertiesClass)
+    deployment = graph.get_aspect(
+        deployment_urn, MLModelDeploymentPropertiesClass
+    )
+    assert native_model.customProperties["keep"] == "model"
+    assert native_model.customProperties["sciguard:incident_state"] == "AT_RISK"
+    assert native_model.mlFeatures == ["urn:feature:tg"]
+    assert deployment.customProperties["keep"] == "deployment"
+    assert deployment.customProperties["sciguard:policy_decision"] == "HALT"
+    assert deployment.status == "IN_SERVICE"

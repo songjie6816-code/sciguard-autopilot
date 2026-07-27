@@ -11,7 +11,7 @@ import {
 } from "../app/judge-experience.mjs";
 
 const replayUrl = new URL(
-  "../public/replays/inc-wp6-flagship/events.jsonl",
+  "../public/replays/inc-sciguard-champion/events.jsonl",
   import.meta.url,
 );
 
@@ -22,7 +22,7 @@ async function replayEvents() {
     .map((line) => JSON.parse(line));
 }
 
-test("six Judge stages are driven by the existing immutable event sequence", async () => {
+test("six Judge stages are driven by the canonical immutable event sequence", async () => {
   const events = await replayEvents();
   assert.deepEqual(
     JUDGE_STAGES.map((stage) => stage.label),
@@ -35,26 +35,26 @@ test("six Judge stages are driven by the existing immutable event sequence", asy
       "VERIFY RECOVERY",
     ],
   );
-  assert.equal(stageIndexFromEvents(events.slice(0, 1)), 0);
-  assert.equal(stageIndexFromEvents(events.slice(0, 6)), 1);
-  assert.equal(stageIndexFromEvents(events.slice(0, 14)), 2);
-  assert.equal(stageIndexFromEvents(events.slice(0, 15)), 3);
-  assert.equal(stageIndexFromEvents(events.slice(0, 26)), 4);
-  assert.equal(stageIndexFromEvents(events.slice(0, 36)), 5);
+  const through = (eventType) =>
+    events.slice(0, events.findIndex((event) => event.event_type === eventType) + 1);
+  assert.equal(stageIndexFromEvents(through("SIGNAL_DETECTED")), 0);
+  assert.equal(stageIndexFromEvents(through("HYPOTHESIS_PROPOSED")), 1);
+  assert.equal(stageIndexFromEvents(through("IMPACT_MAPPED")), 2);
+  assert.equal(stageIndexFromEvents(through("POLICY_DECIDED")), 3);
+  assert.equal(stageIndexFromEvents(through("REPAIR_BUNDLE_CREATED")), 4);
+  assert.equal(stageIndexFromEvents(through("REPAIR_VERIFIED")), 5);
   assert.equal(stageIndexFromEvents(events), 5);
-  assert.equal(events.length, 38);
-  assert.equal(events.at(-1).event_type, "INCIDENT_RESOLVED");
-  assert.deepEqual(
-    events.map((_, index) => stageIndexFromEvents(events.slice(0, index + 1))),
-    [
-      ...Array(5).fill(0),
-      ...Array(8).fill(1),
-      2,
-      ...Array(11).fill(3),
-      ...Array(10).fill(4),
-      ...Array(3).fill(5),
-    ],
+  assert.equal(events.length, 55);
+  assert.equal(
+    events.filter((event) => event.event_type === "RECOVERY_EVIDENCE_REFRESHED")
+      .length,
+    2,
   );
+  assert.equal(events.some((event) => event.event_type === "REPAIR_APPLIED"), true);
+  const stages = events.map((_, index) =>
+    stageIndexFromEvents(events.slice(0, index + 1)),
+  );
+  assert.equal(stages.every((stage, index) => index === 0 || stage >= stages[index - 1]), true);
 });
 
 test("unknown later events cannot make an achieved stage regress", async () => {
@@ -103,9 +103,11 @@ test("Why DataHub labels only the measured evaluation arms", () => {
       f1: search.f1,
       exactCone: search.exactCone,
     },
-    { precision: "60%", recall: "83.3%", f1: "69.8%", exactCone: "0/3" },
+    { precision: "60%", recall: "100%", f1: "75%", exactCone: "0/3" },
   );
-  assert.equal(none.status, "NOT YET MEASURED");
+  assert.equal(none.status, "MEASURED ABSTENTION");
+  assert.equal(none.recall, "0%");
+  assert.equal(none.exactCone, "0/3");
   assert.equal(search.label, "SEARCH-ONLY DATAHUB");
   assert.notEqual(search.label, "NO DATAHUB");
   assert.equal(
@@ -114,6 +116,30 @@ test("Why DataHub labels only the measured evaluation arms", () => {
   );
   assert.match(DATAHUB_CAPABILITY_BOUNDARY, /MCP provides schema, unit, ownership/);
   assert.match(DATAHUB_CAPABILITY_BOUNDARY, /SDK fallback/);
+});
+
+test("Why DataHub UI metrics match the gated machine-readable report", async () => {
+  const report = JSON.parse(
+    await readFile(
+      new URL("../public/evidence/evaluation_report.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  assert.equal(report.capture_type, "CONTROLLED_DATAHUB_ABLATION");
+  assert.equal(report.gate.status, "PASS");
+  assert.equal(report.benchmark.scenario_count, 13);
+
+  const displayById = new Map(WHY_DATAHUB_RESULTS.map((arm) => [arm.id, arm]));
+  for (const arm of report.impact_arms) {
+    const display = displayById.get(arm.id);
+    const percent = (value) =>
+      value === null ? "N/A" : `${Number((value * 100).toFixed(1))}%`;
+    assert.equal(display.precision, percent(arm.precision));
+    assert.equal(display.recall, percent(arm.recall));
+    assert.equal(display.f1, percent(arm.f1));
+    assert.equal(display.exactCone, `${arm.exact_cones}/${arm.total_cones}`);
+    assert.equal(display.status, arm.status);
+  }
 });
 
 test("Evidence Drawer states the public integrity and hosted-link boundaries", async () => {
@@ -143,9 +169,42 @@ test("Evidence Drawer states the public integrity and hosted-link boundaries", a
   assert.match(source, /event\.key === "Escape"/);
   assert.match(source, /button:not\(\[disabled\]\), summary/);
   assert.match(source, /EXACT CONE · 3\/3 WITH LINEAGE → 0\/3 SEARCH-ONLY/);
-  assert.match(source, /NO DATAHUB · NOT YET MEASURED/);
+  assert.match(source, /Zero catalog calls/);
   assert.match(styles, /\.drawer-facts dt[^}]*11px/);
   assert.match(styles, /\.drawer-facts dd[^}]*13px/);
   assert.match(styles, /\.drawer-integrity p[^}]*11px/);
   assert.match(styles, /\.drawer-payload summary[^}]*11px/);
+});
+
+test("champion experience exposes brief, operate, audit, and receipt-bound repair", async () => {
+  const source = await readFile(
+    new URL("../app/CommandCenter.tsx", import.meta.url),
+    "utf8",
+  );
+  const styles = await readFile(
+    new URL("../app/globals.css", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(source, /type ExperienceView = "BRIEF" \| "OPERATE" \| "AUDIT"/);
+  assert.match(source, /The pipeline passed\./);
+  assert.match(source, /The decision became unsafe\./);
+  assert.match(source, /CREATE REAL COMMIT/);
+  assert.match(source, /VERIFY COMMIT/);
+  assert.match(source, /APPROVE AS OWNER/);
+  assert.match(source, /APPLY TO SYNTHETIC STAGING/);
+  assert.match(source, /RUN CLEAN RECOVERY CHECK/);
+  assert.match(source, /production authorization/);
+  assert.match(source, /COUNTERFACTUAL VERIFICATION LAB/);
+  assert.match(source, /Executed test receipts · not an animated prediction/);
+  assert.match(source, /training ·/);
+  assert.match(source, /inference ·/);
+  assert.match(source, /external_action_receipt/);
+  assert.match(source, /verification_receipt/);
+  assert.match(source, /approval_receipt/);
+  assert.match(source, /application_receipt/);
+  assert.match(styles, /\.repair-receipt-strip/);
+  assert.match(styles, /\.repair-application/);
+  assert.match(styles, /\.repair-check\.passed/);
+  assert.match(styles, /\.counterfactual-ranks/);
 });

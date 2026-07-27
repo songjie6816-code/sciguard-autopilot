@@ -46,7 +46,15 @@ def _infer_role(entity_type: str | None, name: str | None) -> str:
 
 
 def trace_initial_scope(backend, changed_urn: str) -> list[AffectedEntity]:
-    """Return the conservative downstream review scope used by Sentinel."""
+    """Return the dataset-projection review scope used by Sentinel.
+
+    SciGuard deliberately maintains a dual projection: datasets carry schema,
+    field contracts, and policy roles, while native Production ML entities add
+    model lifecycle context. DataHub lineage can return both projections for
+    the same logical model. Keeping only DATASET here prevents duplicate
+    control targets; native features, models, deployments, and jobs are joined
+    later through ``get_native_ml_model_context``.
+    """
 
     return [
         AffectedEntity(
@@ -57,6 +65,7 @@ def trace_initial_scope(backend, changed_urn: str) -> list[AffectedEntity]:
             owners=backend.get_owners(hit.urn),
         )
         for hit in backend.get_all_downstream(changed_urn)
+        if (hit.entity_type or "").upper() == "DATASET"
     ]
 
 
@@ -92,6 +101,9 @@ def trace_field_impact(
     unaffected_names: list[str] = []
 
     for hit in sorted(downstream, key=lambda item: item.degree):
+        entity_type = (getattr(hit, "entity_type", None) or "").upper()
+        if entity_type and entity_type != "DATASET":
+            continue
         edges = backend.get_fine_grained_lineage(hit.urn)
         propagated = {
             downstream_field

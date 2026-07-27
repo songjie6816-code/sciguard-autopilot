@@ -1,0 +1,41 @@
+name: SciGuard Repair Verification
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-contract:
+    name: scientific-unit-contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install pytest
+      - run: python -m pytest -q tests/test_unit_contract.py
+
+  scientific-decision:
+    name: scientific-decision-regression
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install pytest
+      - run: python -m pytest -q tests/test_scientific_decision.py
+
+  safe-branch:
+    name: preserved-branch-non-regression
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install pytest
+      - run: python -m pytest -q tests/test_safe_branch.py

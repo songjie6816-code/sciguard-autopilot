@@ -35,6 +35,9 @@
         "REALITY_CHECKER",
         "POLICY_GUARDIAN",
         "ENFORCER",
+        "REMEDIATION_AGENT",
+        "VERIFICATION_ENGINE",
+        "HUMAN_APPROVER",
         "RECOVERY_CONTROLLER"
       ],
       "event_types": [
@@ -47,8 +50,17 @@
         "HYPOTHESIS_RESOLVED",
         "IMPACT_MAPPED",
         "POLICY_DECIDED",
+        "DATAHUB_INCIDENT_WRITTEN",
+        "REPAIR_BUNDLE_CREATED",
+        "REPAIR_PUBLISHED",
+        "REPAIR_VERIFIED",
+        "REPAIR_APPLIED",
+        "APPROVAL_REQUESTED",
+        "APPROVAL_RECORDED",
+        "DECISION_LOG_WRITTEN",
         "ENFORCEMENT_APPLIED",
         "NOTIFICATION_RECORDED",
+        "RECOVERY_EVIDENCE_REFRESHED",
         "RECOVERY_CHECKED",
         "INCIDENT_RESOLVED"
       ]

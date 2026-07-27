@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "incident_id": "inc-sciguard-champion",
+  "mode": "RECORDED_REPLAY",
+  "status": "COMPLETED",
+  "incident_state": "RESOLVED",
+  "datahub_backend": "DATAHUB_SDK",
+  "source_commit": "3246a325682e74166384509bff8e5c0a5eaef680",
+  "source_worktree_dirty": true,
+  "generated_at": "2026-07-26T21:22:12.223325Z",
+  "updated_at": "2026-07-26T21:22:22.711226Z",
+  "completed_at": "2026-07-26T21:22:17.860998Z",
+  "event_count": 55,
+  "events_sha256": "b243fe006a3e0a937d81528907e61a7eb8042a6901ac802022ec6165c7091411",
+  "validation": {
+    "event_schema": "core.events.Event@1",
+    "single_incident": true,
+    "contiguous_sequence": true,
+    "unique_event_ids": true
+  },
+  "source_run_id": "inc-sciguard-champion",
+  "error": null
+}

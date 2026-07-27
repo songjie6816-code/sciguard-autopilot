@@ -11,7 +11,13 @@ unpublished research data is used — all data is synthetic and reproducible.
 
 ## Judge Mode (public, no login)
 
-Anonymous Judge Mode: <https://sciguard-autopilot-demo.pages.dev/>
+Pre-release Judge Mode: <https://sciguard-autopilot-demo.pages.dev/>
+
+> **Deployment gate:** the URL is online, but it currently serves the previous public
+> release. The champion build in this worktree now uses the canonical
+> `inc-sciguard-champion` closure; do not use the URL in the final submission until it has
+> been recaptured from a clean source revision, redeployed, and its public artifact digests
+> match `web/public/`.
 
 The current ChatGPT-hosted product URL is workspace-gated by the hosting platform even
 though the application route itself does not require identity. P0 therefore includes an
@@ -20,14 +26,28 @@ independent, static Judge Mode build under `web/judge-dist`:
 - no login, secret, local DataHub, backend, or paid API is required at runtime;
 - the browser verifies the bundled JSONL against its manifest SHA-256, event count,
   contiguous sequence, unique event IDs, and single incident before rendering;
-- one click runs a fixed 15-second narrated replay over the original immutable events;
-- **38 immutable events: 35 events reach recovery lock, followed by 3 verified recovery events.**
+- one click runs a fixed 15-second narrated replay over the immutable canonical events;
+- **55 immutable events bind one live DataHub incident, one exact repair revision, and two
+  fresh recovery-verification executions from detection through `RESOLVED`;**
+- the same `inc-sciguard-champion` execution contains the real local Git commit, three
+  executed pytest checks, demo-signed owner review, `APPLIED` synthetic-staging receipt,
+  two-clean-run recovery gate, native Incident, and published Decision Log;
+- its live DataHub closure receipt reads back 19 native Production ML entities; the repair
+  manifest and bundle cross-bind the event SHA, DataHub receipt digest, lifecycle, and
+  receipt IDs;
+- the Counterfactual Verification Lab renders trusted rank `#18`, contaminated rank `#1`,
+  and verified repaired rank `#18` from executed receipts, alongside the unchanged safe
+  branch digest;
+- the canonical capture explicitly reports `remote PR: false`, `DEMO_SIGNED_NOT_SSO`, and
+  `production authorization: false` instead of presenting local actions as production ones;
 - the logged-in/full product remains intact and can still connect to the bounded live API;
 - hosted asset nodes open public read-only evidence receipts; a local DataHub deep link is
   shown only when the full product itself is running on localhost.
 
 Build it with `cd web && pnpm build:judge`, then publish the contents of `judge-dist/` to
-any anonymous static host. Deployment is intentionally not performed by this repository.
+an anonymous static host. A release is accepted only after the public canonical
+replay/repair package, DataHub closure receipt, and evaluation JSON match the files under
+`web/public/`.
 
 ![P0 Judge Mode at 1280×720](docs/screenshots/p0-judge-final-1280x720.jpg)
 
@@ -62,8 +82,10 @@ scientific-data change
   → Coordinator       : open fixed hypotheses and dispatch two independent evidence paths
   → field proof       : isolate the contaminated branch and prove the preserved branch
   → Policy Guardian   : choose HALT/WARN/ALLOW deterministically from YAML policy
+  → Repair Planner    : produce an evidence-bound patch, tests, rollback and approval gate
   → Enforcer          : block execution/publication and persist incident controls to DataHub
-  → Recovery          : resume only after fresh evidence passes the configured gate
+  → Applicator        : materialize the approved exact Git tree in isolated synthetic staging
+  → Recovery          : re-run exact-commit evidence and resume only after the configured gate
 ```
 
 `api/runtime.py` is the only composition root. Sentinel never writes controls, the UI never
@@ -79,11 +101,16 @@ search-only DataHub baseline that has no dependency direction:
 | approach | precision | recall | F1 | exact cone |
 |---|---|---|---|---|
 | **WITH DataHub lineage** | **100%** | **100%** | **100%** | **3/3** |
-| SEARCH-ONLY DataHub (without lineage) | 60% | 83.3% | 69.8% | 0/3 |
+| SEARCH-ONLY DataHub (without lineage) | 60% | 100% | 75% | 0/3 |
+| NO DataHub (zero-context abstention) | N/A · 0 predictions | 0% | 0% | 0/3 |
 
 Catalog search has no sense of direction and misses assets whose names do not resemble the
-query; only lineage recovers every exact downstream cone. Both numbers are produced by real
-runs. Evaluation 2.0 will add a third mode that performs no DataHub calls at all.
+query; only lineage recovers every exact downstream cone. The third arm receives no backend
+object and makes zero catalog calls; it abstains rather than fabricating dependency or owner
+context. All three outputs are computed by the harness rather than hardcoded. The Judge UI
+reads the reviewed machine artifact at
+[`examples/outputs/evaluation_report.json`](examples/outputs/evaluation_report.json), which
+is mirrored to `web/public/evidence/evaluation_report.json`.
 
 ## Results
 
@@ -106,14 +133,26 @@ control, and the DataHub ablation — not a claim of real-world accuracy.
 - **Multi-hop lineage** — `searchAcrossLineage` recovers the full downstream impact cone.
 - **Field lineage** — proves that `tg_degC` enters the Tg branch but not the molecular-weight
   branch.
+- **Native Production ML graph** — the ingest emits MLFeature, MLFeatureTable,
+  MLModelGroup, versioned MLModel, MLModelDeployment, training-run, and inference-run
+  entities. Linked dataset projections retain field schemas and fine-grained lineage.
 - **Ownership** — every affected entity's owner is resolved, so the right people are notified.
 - **Governance context** — criticality, role, model version and synthetic-data tags make
   policy inputs visible and queryable.
 - **Governance write-back** — incident-scoped `AT_RISK` / `QUARANTINED` / `RESOLVED`
   controls and evidence references are written back, always read-modify-write so existing
   catalog metadata is never clobbered.
+- **Native Incident + Decision Log** — a DataHub Incident spans the server-supported
+  dataset projections of the scientific decision cone, while a published DataHub Document
+  records the full root cause, native model/deployment/process context, repair, approval,
+  and evidence closure; recovery resolves the same Incident and updates the same log.
+  DataHub GMS 1.5 cannot attach process/deployment URNs directly to these aspects, so those
+  links are retained in inspectable document properties rather than silently omitted.
 - **Configurable domain profiles** — rules are YAML (`generic → materials → polymer`), so a
   new scientific domain is a config change, not a code change.
+- **Portable DataHub Skills** — `skills/` contains scientific impact analysis,
+  proof-carrying repair review, and recovery certification skills following the official
+  Agent Skills structure, with concise output contracts and tested authority boundaries.
 - **DataHub MCP Server** — schema, unit contract, directed dataset lineage, ownership, and
   governance reads run through real MCP tools with `SCIGUARD_USE_MCP=1`. These inputs
   determine whether the signal reaches a decision path. The current MCP tools do not expose
@@ -155,7 +194,7 @@ Desktop (or Docker Engine with Compose v2), at least 8 GB memory allocated to Do
 conda create --prefix ./.venv python=3.11 -y
 conda activate "$PWD/.venv"
 python -m pip install --upgrade pip wheel setuptools
-python -m pip install -e '.[dev]'
+python -m pip install -e '.[api,dev,mcp]'
 cp .env.example .env
 datahub docker quickstart
 DATAHUB_GMS_URL=http://localhost:8080 datahub datapack load showcase-ecommerce
@@ -182,6 +221,8 @@ python -m pip install -e '.[api,app,mcp]'               # FastAPI + Streamlit + 
 uv tool install mcp-server-datahub@latest               # the DataHub MCP Server
 PYTHONPATH=. python data/synthetic_polymer/generate.py
 PYTHONPATH=. python data/synthetic_polymer/ingest_to_datahub.py
+PYTHONPATH=. python scripts/bootstrap_repair_sandbox.py
+PYTHONPATH=. python scripts/capture_champion_run.py       # canonical 55-event closure
 PYTHONPATH=. uvicorn api.main:app --host 127.0.0.1 --port 8000  # one runtime + Event API
 PYTHONPATH=. python examples/run_incident.py            # thin CLI client of that runtime
 PYTHONPATH=. python -m examples.publish_candidate_report \
@@ -218,11 +259,67 @@ python -m ruff check .
 (cd web && corepack enable && pnpm install --frozen-lockfile && pnpm lint && pnpm test)
 ```
 
-The bounded API exposes only health, live run/state/events, evidence-gated recovery,
-incident-scoped reset, and recorded replay. Start a live flagship run with
+The bounded API exposes health, live run/state/events, proof-carrying repair actions,
+evidence-gated recovery, incident-scoped reset, and recorded replay. Start a live flagship run with
 `POST /api/runs`; stream `/api/runs/{incident_id}/events` as SSE. The curated real-run
-fallback is available at `/api/replays/inc-wp6-flagship` and is always labelled
+fallback is available at `/api/replays/inc-sciguard-champion` and is always labelled
 `RECORDED_REPLAY`. Its manifest records provenance and an event-file SHA-256.
+
+After root cause and field impact are proven,
+`GET /api/runs/{incident_id}/repair` returns the deterministic Repair Bundle: proposed
+patch, unit-contract test, P-204 decision regression, preserved-branch non-regression,
+rollback, native model/deployment context, evidence closure, and a locked owner approval
+gate. The action sequence is:
+
+```text
+POST /api/runs/{id}/repair/publish   -> real local branch + commit receipt
+POST /api/runs/{id}/repair/verify    -> three B042 integration-test receipts
+POST /api/runs/{id}/repair/approval  -> commit-bound signed review receipt
+POST /api/runs/{id}/repair/apply     -> exact approved tree in isolated synthetic staging
+POST /api/runs/{id}/recovery         -> server re-runs exact-commit checks; caller cannot submit PASS
+```
+
+Application is a separate, fail-closed lifecycle boundary: only an `APPROVED` bundle whose
+change, verification, and approval receipts all name the same commit can reach `APPLIED`.
+The local implementation reads that commit with `git archive`, rejects unsafe archive
+entries, materializes it outside the source repository, and records a canonical tree digest.
+Its receipt is deliberately labelled `LOCAL_STAGING`, target
+`SCIGUARD_SYNTHETIC_STAGING`, and `production_authorized: false`; it is not a production
+deployment claim.
+
+Recovery is unavailable before `APPLIED`. Its request cannot contain check results.
+SciGuard re-executes the locked verifier (or re-reads GitHub Check Runs) on the published
+commit, maps the exact declared check set into fresh recovery evidence, and rejects
+incident-ID mismatches before changing DataHub state. A demo-signed approval remains useful
+audit evidence but cannot shorten the default requirement for two consecutive clean runs.
+
+Run `make repair-sandbox` first and launch the API with the two environment variables it
+prints. `LOCAL_GIT` intentionally returns `remote_url = null` and no PR number. A GitHub
+receipt is not claimed by the checked-in replay. The implemented optional GitHub adapter
+uses the Git Data and Pull Requests APIs to materialize the reviewed patch against an exact
+base commit, then the Check Runs adapter binds the three required hosted results to the
+exact head SHA. SSO/OIDC-backed approval remains a future production integration.
+
+The checked-in canonical receipt was read back from a real local DataHub Quickstart GMS
+`v1.5.0.6` with CLI `1.6.0.15`. In the same `inc-sciguard-champion` execution it verifies
+19 native entities:
+7 MLFeatures, 2 MLFeatureTables, 2 MLModelGroups, 2 MLModels, 2 MLModelDeployments,
+and 4 training/inference DataProcessInstances. It also records the exact repair revision,
+verification, review, synthetic-staging application, two fresh recovery executions, native
+Incident `ACTIVE → RESOLVED` lifecycle, and published Decision Log. The public receipt
+names the capture location without embedding an unusable localhost URL.
+
+To use a dedicated GitHub repair sandbox instead of the local adapter, inject both values
+from a secret manager:
+
+```bash
+SCIGUARD_GITHUB_REPOSITORY=owner/sciguard-repair-sandbox
+SCIGUARD_GITHUB_TOKEN=...  # fine-grained token for that repository only
+```
+
+The repair target must match the configured repository and base branch exactly. The
+included pull-request workflow has read-only contents permission and publishes three stable
+Check Run names. Do not put the token in `.env`, logs, replay artifacts, or the browser.
 
 The command center opens in verified recorded-replay mode and remains fully demonstrable
 without a live API. When the API is healthy, the full product can stream the same immutable
@@ -232,12 +329,29 @@ deep links appear only in a local full-product session. The console shows the re
 exit 0 publication outcomes. See [docs/evaluation.md](docs/evaluation.md) for the metrics and
 [docs/architecture.md](docs/architecture.md) for the design.
 
-Source cleanliness and replay provenance are separate, recorded facts. The current
-immutable replay was generated from clean source commit
-`3a36cc1a3400a892e8fbd5bc8a035c192faa2b2e`, and both manifests record
-`source_worktree_dirty: false`. This provenance refresh did not change `events.jsonl`,
-the 38-event order, or any event semantics; its event-file SHA-256 remains
-`7ddafe7b17ecf16c68b32d4ad310a3385d537e46b9cc18de9eced2e99b1cc9cd`.
+The checked `inc-sciguard-champion` artifact is the clean-source canonical capture:
+55 contiguous events, one incident ID, an `APPLIED` Repair Bundle, two fresh
+recovery-verification executions, final `RESOLVED`, and 19 native entities. Its replay
+manifest, repair manifest, and DataHub closure receipt all record
+`source_worktree_dirty: false`. Reproduce that gate with:
+
+```bash
+make champion-capture-clean
+# equivalent:
+PYTHONPATH=. python scripts/capture_champion_run.py --require-clean
+```
+
+The command fails closed unless the worktree is clean and rewrites all three
+provenance-bearing artifacts from the same source commit. Then run
+`make verify-public URL=...` to compare deployed bytes. The deployment
+verifier does not establish source cleanliness by itself; both gates are required.
+The generated evidence is committed as the release wrapper; record both the
+capture-source SHA and final release-tag SHA; do not create an impossible recursive
+recapture loop merely because committing evidence creates a newer release commit.
+
+The older `inc-wp6-flagship` 38-event replay and its later linked action capture remain
+available only as legacy development evidence. They are no longer the Judge Mode default
+and must not be combined with the canonical champion run to support a submission claim.
 
 ## Repository layout
 
@@ -245,15 +359,16 @@ the 38-event order, or any event semantics; its event-file SHA-256 remains
 app/                         thin Streamlit fallback client (no business decisions)
 api/                         sole runtime composition root, Event API, SSE and Run Store
 web/                         full command center + independent static Judge Mode + public replay
-core/                        Sentinel, investigation, impact, policy, enforcement and recovery
+core/                        Sentinel, investigation, policy, repair, application, enforcement and recovery
 security/                    prompt redaction, bounded context and read-only tool gate
 datahub_client/              DataHub metadata readers and writers
 domain_profiles/             generic, materials and polymer rules (YAML)
 data/synthetic_polymer/      synthetic data generator + DataHub ingest
 evaluation/                  labelled scenarios, metrics and gated harness
 examples/                    incident inputs and curated outputs
+scripts/                     canonical capture, public verification and local bootstrap tools
 tests/                       automated tests
-docs/                        architecture, evaluation and development notes
+docs/                        architecture, evaluation, champion execution and development notes
 ```
 
 ## License

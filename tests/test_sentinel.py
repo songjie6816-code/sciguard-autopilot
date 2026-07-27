@@ -169,6 +169,12 @@ class BroadGraph:
                 entity_type="DATASET",
                 degree=2,
             ),
+            SimpleNamespace(
+                urn="urn:li:mlModel:(polymer_rnd,tg_prediction_model,PROD)",
+                name=None,
+                entity_type="MLMODEL",
+                degree=2,
+            ),
         ]
 
     def get_owners(self, urn):
@@ -178,3 +184,4 @@ class BroadGraph:
 def test_initial_scope_is_conservative_and_role_aware() -> None:
     scope = trace_initial_scope(BroadGraph(), "urn:source")
     assert [item.role for item in scope] == ["model", "decision_report"]
+    assert [item.urn for item in scope] == ["urn:model", "urn:report"]

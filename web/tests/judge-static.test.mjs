@@ -6,13 +6,25 @@ test("judge build is a no-login static replay with no localhost evidence links",
   const html = await readFile(new URL("../judge-dist/index.html", import.meta.url), "utf8");
   const manifest = JSON.parse(
     await readFile(
-      new URL("../judge-dist/replays/inc-wp6-flagship/manifest.json", import.meta.url),
+      new URL(
+        "../judge-dist/replays/inc-sciguard-champion/manifest.json",
+        import.meta.url,
+      ),
       "utf8",
     ),
   );
   const events = await readFile(
-    new URL("../judge-dist/replays/inc-wp6-flagship/events.jsonl", import.meta.url),
+    new URL(
+      "../judge-dist/replays/inc-sciguard-champion/events.jsonl",
+      import.meta.url,
+    ),
     "utf8",
+  );
+  const dataHubReceipt = JSON.parse(
+    await readFile(
+      new URL("../judge-dist/evidence/datahub_live_receipt.json", import.meta.url),
+      "utf8",
+    ),
   );
 
   assert.match(html, /Public Judge Mode/);
@@ -20,6 +32,12 @@ test("judge build is a no-login static replay with no localhost evidence links",
   assert.equal(manifest.mode, "RECORDED_REPLAY");
   assert.equal(manifest.status, "COMPLETED");
   assert.equal(events.trim().split("\n").length, manifest.event_count);
+  assert.equal(dataHubReceipt.capture_type, "LIVE_DATAHUB_END_TO_END_CLOSURE");
+  assert.equal(dataHubReceipt.incident_id, "inc-sciguard-champion");
+  assert.equal(dataHubReceipt.repair_lifecycle.status, "APPLIED");
+  assert.equal(dataHubReceipt.repair_lifecycle.recovery_results.at(-1).resume_allowed, true);
+  assert.equal(dataHubReceipt.entity_count, 19);
+  assert.equal(dataHubReceipt.all_verified, true);
 });
 
 test("judge bundle contains the P1 cockpit, measured comparison, and Evidence Drawer", async () => {
@@ -39,10 +57,14 @@ test("judge bundle contains the P1 cockpit, measured comparison, and Evidence Dr
     "VERIFY RECOVERY",
     "Search can find similar names; directed lineage proves the exact downstream decision cone.",
     "SEARCH-ONLY DATAHUB",
-    "69.8%",
+    "75%",
     "EXACT CONE · 3/3 WITH LINEAGE → 0/3 SEARCH-ONLY",
     "NO DATAHUB",
-    "NOT YET MEASURED",
+    "MEASURED ABSTENTION",
+    "LIVE_DATAHUB_END_TO_END_CLOSURE",
+    "CANONICAL SINGLE RUN",
+    "APPLY TO SYNTHETIC STAGING",
+    "NATIVE ENTITIES READ BACK",
     "PUBLIC EVIDENCE RECEIPT",
     "not a digital signature and not proof of origin",
   ]) {

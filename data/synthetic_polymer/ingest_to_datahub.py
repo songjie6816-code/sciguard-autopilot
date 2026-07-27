@@ -1,8 +1,9 @@
 """Register the deterministic flagship graph in DataHub.
 
-All ten assets use dataset URNs so the current DataHub MCP Server and SDK readers expose
-the same schema, ownership, custom properties, and multi-hop lineage. Model/report roles,
-versions, criticality, and governance tags are explicit metadata—not name-only claims.
+The ten dataset projections preserve MCP-readable schema, ownership, custom properties,
+and fine-grained lineage. A linked native Production ML projection adds MLFeature,
+MLFeatureTable, MLModelGroup, MLModel, MLModelDeployment, training-run, and inference-run
+entities without weakening that field-level contract.
 
 Dataset-level edges are always emitted. Fine-grained lineage is also emitted for the
 single-upstream transformations, allowing later investigation to prove that ``tg_degC``
@@ -35,19 +36,26 @@ from datahub.metadata.schema_classes import (
 
 from datahub_client import metadata_writer
 from datahub_client.metadata_reader import connect
+from data.synthetic_polymer.native_ml import (
+    deployment_urn,
+    emit_native_ml_graph,
+    feature_table_urn,
+    model_urn,
+)
 
 PLATFORM = "polymer_rnd"
 ENV = "PROD"
 SYNTHETIC_TAG = "urn:li:tag:sciguard:synthetic-data"
 
 ML_METADATA_DECISION = {
-    "mode": "dataset_entity_fallback",
+    "mode": "dual_native_projection",
     "reason": (
-        "DataHub SDK 1.6 exposes native MLModel classes, but the current MCP/SDK parity "
-        "contract reads schema, custom units, and lineage consistently through dataset URNs. "
-        "A split native-model graph would weaken MCP parity for the competition demo."
+        "Dataset projections retain MCP-readable schemas and fine-grained lineage while "
+        "native ML entities represent features, model versions, training runs, deployments, "
+        "and model-to-decision execution."
     ),
-    "revisit": "Add a native MLModel projection after verified MCP lineage parity exists.",
+    "dataset_projection_role": "field_contract_and_decision_lineage",
+    "native_projection_role": "production_ml_semantics_and_lifecycle",
 }
 
 
@@ -157,7 +165,12 @@ NODES: dict[str, dict] = {
             ("mn_g_mol", "log10_mn"), ("pdi", "pdi"),
             ("polymer_class", "class_code"), ("tg_degC", "tg_degC"),
         ],
-        "extra_props": {"entity_role": "feature_table", "feature_branch": "tg"},
+        "extra_props": {
+            "entity_role": "feature_table",
+            "feature_branch": "tg",
+            "sciguard:native_projection_urn": feature_table_urn("tg_feature_table"),
+            "sciguard:native_projection_aspect": "MLFeatureTablePropertiesClass",
+        },
     },
     "molecular_weight_feature_table": {
         "schema": [
@@ -176,11 +189,18 @@ NODES: dict[str, dict] = {
             ("sample_id", "sample_id"), ("batch_id", "batch_id"),
             ("mn_g_mol", "mn_g_mol"), ("mw_g_mol", "mw_g_mol"), ("pdi", "pdi"),
         ],
-        "extra_props": {"entity_role": "feature_table", "feature_branch": "molecular_weight"},
+        "extra_props": {
+            "entity_role": "feature_table",
+            "feature_branch": "molecular_weight",
+            "sciguard:native_projection_urn": feature_table_urn(
+                "molecular_weight_feature_table"
+            ),
+            "sciguard:native_projection_aspect": "MLFeatureTablePropertiesClass",
+        },
     },
     "tg_prediction_model": {
         "schema": [("sample_id", "str"), ("predicted_tg_degC", "num")],
-        "description": "Tg gradient-boosting model represented as a dataset for MCP parity.",
+        "description": "Dataset projection of Tg model outputs for MCP field-lineage parity.",
         "units": {"predicted_tg_degC": "degC"},
         "owner": "ml_engineer",
         "criticality": "CRITICAL",
@@ -199,6 +219,11 @@ NODES: dict[str, dict] = {
             "training_rows": "420",
             "validation_mae_degC": "6.4",
             "ml_metadata_mode": ML_METADATA_DECISION["mode"],
+            "sciguard:native_projection_urn": model_urn("tg_prediction_model"),
+            "sciguard:native_projection_aspect": "MLModelPropertiesClass",
+            "sciguard:native_deployment_urn": deployment_urn(
+                "tg-prediction-production"
+            ),
         },
     },
     "exploratory_dashboard": {
@@ -214,7 +239,7 @@ NODES: dict[str, dict] = {
     },
     "durability_model": {
         "schema": [("sample_id", "str"), ("durability_score", "num")],
-        "description": "Durability model using only molecular-weight features.",
+        "description": "Dataset projection of durability outputs for MCP field-lineage parity.",
         "units": {"durability_score": "dimensionless"},
         "owner": "ml_engineer",
         "criticality": "HIGH",
@@ -229,6 +254,11 @@ NODES: dict[str, dict] = {
             "model_version": "durability-rf-v2",
             "algorithm": "random_forest",
             "ml_metadata_mode": ML_METADATA_DECISION["mode"],
+            "sciguard:native_projection_urn": model_urn("durability_model"),
+            "sciguard:native_projection_aspect": "MLModelPropertiesClass",
+            "sciguard:native_deployment_urn": deployment_urn(
+                "durability-production"
+            ),
         },
     },
     "candidate_ranking_report": {
@@ -372,7 +402,12 @@ def main() -> None:
         )
         print(f"[migrate] detached legacy lineage for {legacy_name}")
 
-    print(f"done: {len(NODES)} flagship assets; field lineage enabled")
+    native_receipt = emit_native_ml_graph(graph)
+    native_count = sum(len(urns) for urns in native_receipt.values())
+    print(
+        f"done: {len(NODES)} dataset projections; field lineage enabled; "
+        f"{native_count} native Production ML entities"
+    )
 
 
 if __name__ == "__main__":

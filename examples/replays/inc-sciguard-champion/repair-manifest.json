@@ -1,0 +1,49 @@
+{
+  "application_receipt_id": "application-receipt:1aba310999194dea",
+  "approval_receipt_id": "approval-receipt:89a70936544ff867",
+  "boundaries": {
+    "application_environment": "SCIGUARD_SYNTHETIC_STAGING",
+    "canonical_single_run": true,
+    "capture_type": "RECORDED_DATAHUB_END_TO_END",
+    "change_provider": "LOCAL_GIT",
+    "datahub_native_context_source": "LIVE_DATAHUB_END_TO_END_CLOSURE",
+    "datahub_native_receipt_sha256": "bac1a7a826f9cf7d12eef592a9be7cf3cd6dd6474951d766235cba6866a81f87",
+    "datahub_server_version": "v1.5.0.6",
+    "evaluation_report_sha256": "fabae311f308036499a64d7a6da7013da9a80472a0dfec47dcff406fefa2901e",
+    "identity_boundary": "DEMO_SIGNED_NOT_SSO",
+    "production_authorized": false,
+    "public_event_stream_sha256": "b243fe006a3e0a937d81528907e61a7eb8042a6901ac802022ec6165c7091411",
+    "public_safe_redactions": [
+      {
+        "field_class": "machine_local_repository_path",
+        "replacement": "EPHEMERAL_REPRODUCIBLE_GIT_SANDBOX"
+      },
+      {
+        "field_class": "machine_local_python_executable",
+        "replacement": "python"
+      }
+    ],
+    "remote_pull_request_claimed": false,
+    "source_incident_id": "inc-sciguard-champion"
+  },
+  "bundle_id": "repair-bundle:8f481c5a7d457821",
+  "canonical_single_run": true,
+  "capture_type": "RECORDED_DATAHUB_END_TO_END",
+  "clean_run_count": 2,
+  "commit_sha": "f3b009c91b712ecf7c93e901de770ea950cd1963",
+  "datahub_native_receipt_sha256": "bac1a7a826f9cf7d12eef592a9be7cf3cd6dd6474951d766235cba6866a81f87",
+  "evaluation_report_sha256": "fabae311f308036499a64d7a6da7013da9a80472a0dfec47dcff406fefa2901e",
+  "final_incident_state": "RESOLVED",
+  "generated_at": "2026-07-26T21:22:28.518080Z",
+  "recovery_verification_receipt_ids": [
+    "verification-receipt:78804a1ed8cda421",
+    "verification-receipt:78804a1ed8cda421"
+  ],
+  "repair_bundle_sha256": "f4e10c5e2e02742779c73626f74b0534a02c2bbd179e75eaca0eea29d817ea6e",
+  "schema_version": 2,
+  "source_commit": "3246a325682e74166384509bff8e5c0a5eaef680",
+  "source_events_sha256": "b243fe006a3e0a937d81528907e61a7eb8042a6901ac802022ec6165c7091411",
+  "source_incident_id": "inc-sciguard-champion",
+  "source_worktree_dirty": true,
+  "verification_receipt_id": "verification-receipt:78804a1ed8cda421"
+}
