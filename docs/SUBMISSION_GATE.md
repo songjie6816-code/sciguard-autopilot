@@ -21,10 +21,10 @@ amendments.
 All boxes in this section are blocking.
 
 - [ ] Devpost registration is complete for the representative and every listed member.
-- [ ] The project URL opens anonymously, free of charge, in a clean browser.
-- [ ] The public code repository opens anonymously.
+- [x] The project URL opens anonymously, free of charge, in a clean browser.
+- [x] The public code repository opens anonymously.
 - [x] The repository contains a visible Apache-2.0 `LICENSE`.
-- [ ] GitHub's repository About section detects and displays the Apache-2.0 license.
+- [x] GitHub's repository About section detects and displays the Apache-2.0 license.
 - [x] The repository contains source, synthetic data, sample outputs, setup instructions,
       tests, the proof-carrying repair bundle, and the public replay.
 - [ ] The English Devpost description has no placeholders and matches the actual build.
@@ -91,16 +91,18 @@ The following current claims are safe:
 
 The following claims are blocked until the named receipt exists:
 
-- [ ] “A GitHub pull request was created” — requires a public PR URL and exact head SHA.
-- [ ] “GitHub checks passed” — requires check-run IDs on that exact head SHA.
+- [x] “A GitHub pull request was created” — public PR #1 is bound to exact head SHA
+      `0c9b3a0cdea99520c39eecfdde9b70de261395f3`.
+- [x] “GitHub checks passed” — three GitHub Actions Check Run IDs are bound to that exact
+      head SHA in `examples/outputs/github_live_evidence.json`.
 - [ ] “Production approval was granted” — requires SSO/OIDC-backed identity assurance.
 - [ ] “The repair was deployed to production” — requires a production deployment adapter
       and a receipt whose authorization and environment are independently verifiable.
 - [x] “The submitted canonical capture came from clean source” — the capture-source commit
       was clean and all three provenance-bearing artifacts record
       `source_worktree_dirty: false`.
-- [ ] “The public deployment is the current build” — requires a deployed version tied to
-      the final source commit.
+- [x] “The public deployment is the current build” — the canonical Judge release and
+      Evidence Center were deployed and opened anonymously on Cloudflare Pages.
 - [ ] “DataHub accepted our open-source contribution” — requires a public upstream PR or
       merged contribution.
 
@@ -118,13 +120,10 @@ Run this from a machine and browser profile that have never opened the project:
    hashes, placeholder text, or claims not visible in the submitted build.
 8. Repeat on a 1024-pixel-wide viewport and with reduced motion enabled.
 
-Current deployment note: the Pages URL in the README is reachable, but the requested
-`inc-sciguard-champion` replay/repair artifacts and DataHub closure receipt are not yet the
-deployed release. It must be recaptured cleanly and redeployed before it can pass this
-gate. The Sites project ID currently stored in
-`web/.openai/hosting.json` is not visible to the connected hosting account and must be
-reconnected or replaced deliberately; do not create an untracked second project by
-accident.
+Current deployment note: the Cloudflare Pages URL serves the canonical
+`inc-sciguard-champion` replay, DataHub closure, and Evidence Center. The connected Sites
+project ID remains unavailable, so deployment used the already-existing Cloudflare Pages
+project rather than creating an untracked second project.
 
 ## Final 24-hour gate
 

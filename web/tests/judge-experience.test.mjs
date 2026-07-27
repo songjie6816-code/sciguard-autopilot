@@ -155,6 +155,7 @@ test("Evidence Drawer states the public integrity and hosted-link boundaries", a
     "EVIDENCE CENTER",
     "DATAHUB RECEIPT",
     "EVALUATION REPORT",
+    "GITHUB PR",
     "Evidence type",
     "Incident ID",
     "Immutable event ID / sequence",
@@ -177,6 +178,44 @@ test("Evidence Drawer states the public integrity and hosted-link boundaries", a
   assert.match(styles, /\.drawer-facts dd[^}]*13px/);
   assert.match(styles, /\.drawer-integrity p[^}]*11px/);
   assert.match(styles, /\.drawer-payload summary[^}]*11px/);
+});
+
+test("GitHub Evidence Center receipt binds a real PR and hosted checks without overstating SSO", async () => {
+  const receipt = JSON.parse(
+    await readFile(
+      new URL("../public/evidence/github_live_evidence.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  assert.equal(receipt.evidence_type, "GITHUB_REMOTE_REPAIR_AND_IDENTITY_BOUNDARY");
+  assert.equal(
+    receipt.pull_request.url,
+    "https://github.com/songjie6816-code/sciguard-repair-sandbox/pull/1",
+  );
+  assert.equal(receipt.pull_request.state, "open");
+  assert.match(receipt.pull_request.head_sha, /^[0-9a-f]{40}$/);
+  assert.equal(receipt.change_receipt.commit_sha, receipt.pull_request.head_sha);
+  assert.equal(receipt.verification_receipt.commit_sha, receipt.pull_request.head_sha);
+  assert.equal(receipt.verification_receipt.provider, "GITHUB_CHECK_RUNS");
+  assert.equal(receipt.verification_receipt.status, "PASS");
+  assert.equal(receipt.verification_receipt.checks.length, 3);
+  assert.equal(
+    receipt.verification_receipt.checks.every(
+      (check) =>
+        check.status === "PASS" &&
+        check.details_url.startsWith(
+          "https://github.com/songjie6816-code/sciguard-repair-sandbox/actions/runs/",
+        ),
+    ),
+    true,
+  );
+  assert.equal(
+    receipt.authenticated_review.identity_assurance,
+    "GITHUB_AUTHENTICATED_ACCOUNT",
+  );
+  assert.equal(receipt.authenticated_review.enterprise_sso_verified, false);
+  assert.equal(receipt.authenticated_review.independent_reviewer, false);
+  assert.equal(receipt.authenticated_review.production_authorized, false);
 });
 
 test("champion experience exposes brief, operate, audit, and receipt-bound repair", async () => {

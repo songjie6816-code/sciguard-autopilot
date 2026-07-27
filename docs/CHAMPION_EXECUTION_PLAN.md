@@ -78,7 +78,7 @@ first cognitive load presented to a judge.
 - [x] GitHub Git Data + Pull Requests adapter implements a real branch/commit/PR path,
       strict target binding, patch-context validation, and idempotent receipt recovery.
 - [x] GitHub Check Runs adapter binds the latest three hosted results to the exact head SHA.
-- [ ] Live public-sandbox GitHub PR and Check Runs receipt.
+- [x] Live public-sandbox GitHub PR and three exact-SHA Check Runs receipt.
 - [ ] SSO/OIDC authentication upgrades the signed demo receipt to production authorization.
 - [ ] Production deployment adapter and independently verifiable production authorization.
 - [ ] Retry, concurrent-incident, and partial-outage tests for remote adapters.
@@ -195,16 +195,18 @@ GitHub base commit, creates blobs/tree/commit/branch through the Git Data API, a
 one bundle-marked pull request. `core/github_verification.py` accepts only the latest
 required Check Runs on that exact head SHA. The sandbox workflow uses read-only contents
 permission and exposes three stable check names. These adapters are implemented and tested
-against an adversarial transport, but the checked-in public evidence still reports
-`remote PR: false` until a real sandbox PR receipt is captured.
+against an adversarial transport. The canonical incident still truthfully reports its
+recorded local action as `remote PR: false`; a separately labelled public receipt now binds
+[PR #1](https://github.com/songjie6816-code/sciguard-repair-sandbox/pull/1) and three
+successful hosted Check Runs to exact head SHA
+`0c9b3a0cdea99520c39eecfdde9b70de261395f3`.
 
 ## Next execution order
 
-1. Capture a live public-sandbox GitHub PR and hosted Check Runs receipt.
-2. Add SSO/OIDC-backed reviewer identity and a production deployment adapter.
-3. Add practitioner validation and operational-efficiency measures.
-4. Publish reusable DataHub Skills and one upstream contribution.
-5. Produce the videos, final judge guide, and submission package.
+1. Add independent SSO/OIDC-backed reviewer identity and a production deployment adapter.
+2. Add practitioner validation and operational-efficiency measures.
+3. Publish reusable DataHub Skills and one upstream contribution.
+4. Produce the videos, final judge guide, and submission package.
 
 The canonical 55-event clean-source capture was produced against a real local DataHub
 Quickstart GMS `v1.5.0.6` using CLI `1.6.0.15`. It reaches `APPLIED`, executes the fresh

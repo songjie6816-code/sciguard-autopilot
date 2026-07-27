@@ -27,6 +27,7 @@ REQUIRED_ARTIFACTS = (
     "replays/inc-sciguard-champion/repair-bundle.json",
     "evidence/datahub_live_receipt.json",
     "evidence/evaluation_report.json",
+    "evidence/github_live_evidence.json",
 )
 ASSET_PATTERN = re.compile(rb"""(?:src|href)=["']([^"'?#]+\.(?:js|css))["']""")
 

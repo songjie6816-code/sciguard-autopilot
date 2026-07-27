@@ -11,13 +11,11 @@ unpublished research data is used — all data is synthetic and reproducible.
 
 ## Judge Mode (public, no login)
 
-Pre-release Judge Mode: <https://sciguard-autopilot-demo.pages.dev/>
+Live Judge Mode: <https://sciguard-autopilot-demo.pages.dev/>
 
-> **Deployment gate:** the URL is online, but it currently serves the previous public
-> release. The champion build in this worktree now uses the canonical
-> `inc-sciguard-champion` closure; do not use the URL in the final submission until it has
-> been recaptured from a clean source revision, redeployed, and its public artifact digests
-> match `web/public/`.
+The anonymous Cloudflare Pages release serves the canonical
+`inc-sciguard-champion` closure. Its Evidence Center exposes the DataHub read-back,
+measured evaluation, and a separate live GitHub PR/CI receipt.
 
 The current ChatGPT-hosted product URL is workspace-gated by the hosting platform even
 though the application route itself does not require identity. P0 therefore includes an
@@ -40,6 +38,10 @@ independent, static Judge Mode build under `web/judge-dist`:
   branch digest;
 - the canonical capture explicitly reports `remote PR: false`, `DEMO_SIGNED_NOT_SSO`, and
   `production authorization: false` instead of presenting local actions as production ones;
+- a separately labelled external-action receipt opens a real public GitHub PR, binds three
+  hosted GitHub Actions checks to head SHA `0c9b3a0cdea99520c39eecfdde9b70de261395f3`,
+  and records an authenticated GitHub review without mislabelling it as independent
+  enterprise SSO/OIDC approval;
 - the logged-in/full product remains intact and can still connect to the bounded live API;
 - hosted asset nodes open public read-only evidence receipts; a local DataHub deep link is
   shown only when the full product itself is running on localhost.
@@ -294,11 +296,15 @@ incident-ID mismatches before changing DataHub state. A demo-signed approval rem
 audit evidence but cannot shorten the default requirement for two consecutive clean runs.
 
 Run `make repair-sandbox` first and launch the API with the two environment variables it
-prints. `LOCAL_GIT` intentionally returns `remote_url = null` and no PR number. A GitHub
-receipt is not claimed by the checked-in replay. The implemented optional GitHub adapter
-uses the Git Data and Pull Requests APIs to materialize the reviewed patch against an exact
-base commit, then the Check Runs adapter binds the three required hosted results to the
-exact head SHA. SSO/OIDC-backed approval remains a future production integration.
+prints. `LOCAL_GIT` intentionally returns `remote_url = null` and no PR number. The
+canonical replay remains a local synthetic-staging closure; it does not retroactively claim
+that its recorded action was remote. A separately labelled live receipt at
+`examples/outputs/github_live_evidence.json` records public
+[PR #1](https://github.com/songjie6816-code/sciguard-repair-sandbox/pull/1), the exact
+head SHA, and all three hosted Check Runs. The authenticated review proves a real GitHub
+account action, while `enterprise_sso_verified`, `independent_reviewer`, and
+`production_authorized` remain `false`. SSO/OIDC-backed production approval remains a
+future integration.
 
 The checked-in canonical receipt was read back from a real local DataHub Quickstart GMS
 `v1.5.0.6` with CLI `1.6.0.15`. In the same `inc-sciguard-champion` execution it verifies

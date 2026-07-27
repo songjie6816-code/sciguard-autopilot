@@ -75,6 +75,8 @@ const dataHubCapabilityEvidence: EvidenceRecord = {
 
 const DATAHUB_LIVE_RECEIPT_EVIDENCE_ID =
   "datahub-live-receipt:inc-sciguard-champion";
+const GITHUB_LIVE_EVIDENCE_ID =
+  "github-live-evidence:inc-sciguard-champion";
 
 const actorLabels: Record<string, string> = {
   SYSTEM: "System",
@@ -314,6 +316,65 @@ async function verifyRepairCapture(
   return { bundle, dataHubReceipt };
 }
 
+function verifyGitHubLiveEvidence(
+  rawEvidence: string,
+): Record<string, JsonValue> {
+  const evidence = JSON.parse(rawEvidence) as Record<string, JsonValue>;
+  const pullRequest = objectValue(evidence.pull_request);
+  const review = objectValue(evidence.authenticated_review);
+  const actor = objectValue(evidence.authenticated_actor);
+  const change = objectValue(evidence.change_receipt);
+  const verification = objectValue(evidence.verification_receipt);
+  const checks = Array.isArray(verification.checks)
+    ? verification.checks.map(objectValue)
+    : [];
+  const headSha = stringValue(pullRequest.head_sha);
+  const baseSha = stringValue(pullRequest.base_sha);
+  const pullRequestUrl = stringValue(pullRequest.url);
+  const expectedRepository =
+    "https://github.com/songjie6816-code/sciguard-repair-sandbox";
+  const expectedPullRequestUrl = `${expectedRepository}/pull/1`;
+  const expectedCheckPrefix = `${expectedRepository}/actions/runs/`;
+
+  if (
+    numberValue(evidence.schema_version) !== 1 ||
+    stringValue(evidence.evidence_type) !==
+      "GITHUB_REMOTE_REPAIR_AND_IDENTITY_BOUNDARY" ||
+    stringValue(evidence.repository) !== expectedRepository ||
+    pullRequestUrl !== expectedPullRequestUrl ||
+    stringValue(pullRequest.state) !== "open" ||
+    !/^[0-9a-f]{40}$/.test(headSha) ||
+    !/^[0-9a-f]{40}$/.test(baseSha) ||
+    stringValue(pullRequest.author_login) !== stringValue(actor.login) ||
+    numberValue(pullRequest.author_id) !== numberValue(actor.id) ||
+    stringValue(change.provider) !== "GITHUB" ||
+    stringValue(change.status) !== "PULL_REQUEST_OPEN" ||
+    stringValue(change.remote_url) !== pullRequestUrl ||
+    stringValue(change.commit_sha) !== headSha ||
+    stringValue(change.base_commit_sha) !== baseSha ||
+    numberValue(change.pull_request_number) !== numberValue(pullRequest.number) ||
+    stringValue(verification.provider) !== "GITHUB_CHECK_RUNS" ||
+    stringValue(verification.status) !== "PASS" ||
+    stringValue(verification.commit_sha) !== headSha ||
+    checks.length !== 3 ||
+    checks.some(
+      (check) =>
+        stringValue(check.status) !== "PASS" ||
+        !stringValue(check.details_url).startsWith(expectedCheckPrefix),
+    ) ||
+    stringValue(review.commit_id) !== headSha ||
+    stringValue(review.reviewer_login) !== stringValue(actor.login) ||
+    numberValue(review.reviewer_id) !== numberValue(actor.id) ||
+    stringValue(review.identity_assurance) !== "GITHUB_AUTHENTICATED_ACCOUNT" ||
+    booleanValue(review.enterprise_sso_verified) ||
+    booleanValue(review.independent_reviewer) ||
+    booleanValue(review.production_authorized)
+  ) {
+    throw new Error("GitHub live evidence does not satisfy the public identity boundary");
+  }
+  return evidence;
+}
+
 function EvidenceLink({
   id,
   onSelect,
@@ -376,6 +437,9 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
   const [dataHubLiveReceipt, setDataHubLiveReceipt] = useState<
     Record<string, JsonValue> | null
   >(null);
+  const [githubLiveEvidence, setGithubLiveEvidence] = useState<
+    Record<string, JsonValue> | null
+  >(null);
   const [repairAction, setRepairAction] = useState<
     "idle" | "publish" | "verify" | "approval" | "apply" | "recover"
   >("idle");
@@ -408,6 +472,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
       repairBundleResponse,
       dataHubReceiptResponse,
       evaluationReportResponse,
+      githubEvidenceResponse,
     ] = await Promise.all([
       fetch(`/replays/${REPLAY_ID}/manifest.json`, { cache: "no-store" }),
       fetch(`/replays/${REPLAY_ID}/events.jsonl`, { cache: "no-store" }),
@@ -415,6 +480,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
       fetch(`/replays/${REPLAY_ID}/repair-bundle.json`, { cache: "no-store" }),
       fetch("/evidence/datahub_live_receipt.json", { cache: "no-store" }),
       fetch("/evidence/evaluation_report.json", { cache: "no-store" }),
+      fetch("/evidence/github_live_evidence.json", { cache: "no-store" }),
     ]);
     if (
       !manifestResponse.ok ||
@@ -422,7 +488,8 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
       !repairManifestResponse.ok ||
       !repairBundleResponse.ok ||
       !dataHubReceiptResponse.ok ||
-      !evaluationReportResponse.ok
+      !evaluationReportResponse.ok ||
+      !githubEvidenceResponse.ok
     ) {
       throw new Error("Recorded replay bundle is unavailable");
     }
@@ -436,10 +503,14 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
       await dataHubReceiptResponse.text(),
       await evaluationReportResponse.text(),
     );
+    const verifiedGitHubEvidence = verifyGitHubLiveEvidence(
+      await githubEvidenceResponse.text(),
+    );
     setManifest(replayManifest);
     setEvents(replayEvents);
     setRepairOverride(verifiedRepair.bundle);
     setDataHubLiveReceipt(verifiedRepair.dataHubReceipt);
+    setGithubLiveEvidence(verifiedGitHubEvidence);
     setVisibleCount(showFinal ? replayEvents.length : 0);
     setMode("RECORDED_REPLAY");
     setIntegrity("verified");
@@ -580,6 +651,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
     setEvents([]);
     setRepairOverride(null);
     setDataHubLiveReceipt(null);
+    setGithubLiveEvidence(null);
     setVisibleCount(0);
     setMode("LIVE");
     setPlaying(false);
@@ -652,6 +724,31 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
         },
       });
     }
+    if (githubLiveEvidence) {
+      const pullRequest = objectValue(githubLiveEvidence.pull_request);
+      const review = objectValue(githubLiveEvidence.authenticated_review);
+      const verification = objectValue(githubLiveEvidence.verification_receipt);
+      records.set(GITHUB_LIVE_EVIDENCE_ID, {
+        evidence_id: GITHUB_LIVE_EVIDENCE_ID,
+        source: "GITHUB_REMOTE_VERIFICATION",
+        kind: "GITHUB_PR_CHECKS_AND_IDENTITY_BOUNDARY",
+        summary: "Real GitHub PR, exact-SHA hosted checks, and truthful identity boundary",
+        payload: {
+          ...githubLiveEvidence,
+          deterministic_effect:
+            "A reviewable repair exists at the exact verified head SHA",
+          reason_code: "PRODUCTION_AUTHORIZATION_REMAINS_FALSE",
+          actions: [
+            "PULL_REQUEST_OPEN",
+            "THREE_HOSTED_CHECKS_PASS",
+            "AUTHENTICATED_REVIEW_RECORDED",
+          ],
+          pull_request_url: stringValue(pullRequest.url),
+          review_url: stringValue(review.url),
+          verification_status: stringValue(verification.status),
+        },
+      });
+    }
     for (const event of visibleEvents) {
       const entries = event.payload.evidence;
       if (!Array.isArray(entries)) continue;
@@ -717,7 +814,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
       });
     }
     return records;
-  }, [dataHubLiveReceipt, visibleEvents]);
+  }, [dataHubLiveReceipt, githubLiveEvidence, visibleEvents]);
 
   const hypotheses = visibleEvents.filter((event) =>
     ["HYPOTHESIS_PROPOSED", "HYPOTHESIS_RESOLVED"].includes(event.event_type),
@@ -982,6 +1079,16 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
     selectedEvidence === evaluationEvidence.evidence_id;
   const drawerIsDataHubReceipt =
     selectedEvidence === DATAHUB_LIVE_RECEIPT_EVIDENCE_ID;
+  const drawerIsGitHubEvidence =
+    selectedEvidence === GITHUB_LIVE_EVIDENCE_ID;
+  const drawerGitHubPullRequest = objectValue(drawerPayload.pull_request);
+  const drawerGitHubReview = objectValue(drawerPayload.authenticated_review);
+  const drawerGitHubVerification = objectValue(
+    drawerPayload.verification_receipt,
+  );
+  const drawerGitHubChecks = Array.isArray(drawerGitHubVerification.checks)
+    ? drawerGitHubVerification.checks.map(objectValue)
+    : [];
 
   return (
     <main className={`command-center ${judgeMode ? "judge-mode" : "product-mode"} experience-${experienceView.toLowerCase()} stage-focus-${activeStage + 1}`}>
@@ -2071,6 +2178,21 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
                 <strong>EVALUATION REPORT</strong>
                 <span>13 SCENARIOS · PASS</span>
               </button>
+              <button
+                aria-pressed={selectedEvidence === GITHUB_LIVE_EVIDENCE_ID}
+                className={
+                  selectedEvidence === GITHUB_LIVE_EVIDENCE_ID ? "active" : ""
+                }
+                disabled={!githubLiveEvidence}
+                onClick={(event) =>
+                  openEvidence(GITHUB_LIVE_EVIDENCE_ID, event.currentTarget)
+                }
+                type="button"
+              >
+                <small>03</small>
+                <strong>GITHUB PR + CI</strong>
+                <span>{githubLiveEvidence ? "EXACT SHA · PASS" : "LOADING"}</span>
+              </button>
             </nav>
             <div className="drawer-stage">
               <span>
@@ -2078,13 +2200,17 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
                   ? "CONTROLLED BENCHMARK"
                   : drawerIsDataHubReceipt
                     ? "LIVE READ-BACK"
-                  : `STAGE ${drawerResolvedStageIndex + 1} / 6`}
+                    : drawerIsGitHubEvidence
+                      ? "REMOTE ACTION PROOF"
+                    : `STAGE ${drawerResolvedStageIndex + 1} / 6`}
               </span>
               <strong>
                 {drawerIsCrossRunEvaluation
                   ? "WHY DATAHUB"
                   : drawerIsDataHubReceipt
                     ? "DATAHUB CLOSURE"
+                    : drawerIsGitHubEvidence
+                      ? "GITHUB VERIFIED"
                     : drawerStage.label}
               </strong>
             </div>
@@ -2136,6 +2262,59 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
                   </div>
                 ))}
                 <p>{DATAHUB_CAPABILITY_BOUNDARY}</p>
+              </div>
+            )}
+            {drawerIsGitHubEvidence && (
+              <div
+                className="drawer-github-proof"
+                aria-label="GitHub pull request, hosted checks, and identity boundary"
+              >
+                <div>
+                  <strong>REAL PULL REQUEST · OPEN</strong>
+                  <code>{stringValue(drawerGitHubPullRequest.head_sha)}</code>
+                  <a
+                    href={stringValue(drawerGitHubPullRequest.url)}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    OPEN PUBLIC PR #1 ↗
+                  </a>
+                </div>
+                <div>
+                  <strong>HOSTED CHECKS · 3 / 3 PASS</strong>
+                  {drawerGitHubChecks.map((check) => (
+                    <a
+                      href={stringValue(check.details_url)}
+                      key={stringValue(check.check_id)}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      {formatName(stringValue(check.check_id))} · PASS ↗
+                    </a>
+                  ))}
+                </div>
+                <div>
+                  <strong>IDENTITY BOUNDARY</strong>
+                  <span>
+                    {stringValue(drawerGitHubReview.identity_assurance)} · reviewer{" "}
+                    {stringValue(drawerGitHubReview.reviewer_login)}
+                  </span>
+                  <span>Enterprise SSO verified · NO</span>
+                  <span>Independent reviewer · NO</span>
+                  <span>Production authorization · NO</span>
+                  <a
+                    href={stringValue(drawerGitHubReview.url)}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    OPEN AUTHENTICATED REVIEW ↗
+                  </a>
+                </div>
+                <p>
+                  A GitHub-authenticated account created and reviewed the exact
+                  revision. This is real remote identity evidence, but it is not
+                  misrepresented as independent enterprise SSO/OIDC approval.
+                </p>
               </div>
             )}
             <div className="drawer-integrity">

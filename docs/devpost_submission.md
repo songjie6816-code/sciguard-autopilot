@@ -5,10 +5,10 @@
 
 ## Submission checklist (do before submitting)
 
-- [ ] Public GitHub repository (currently local only — push and make public)
+- [x] Public GitHub repository — <https://github.com/songjie6816-code/sciguard-autopilot>
 - [ ] Apache-2.0 LICENSE present ✅ (already in repo)
-- [ ] GitHub About section detects and displays the Apache-2.0 license
-- [ ] Anonymous project URL opens from a clean browser with no login or local dependency
+- [x] GitHub About section detects and displays the Apache-2.0 license
+- [x] Anonymous project URL opens from a clean browser with no login or local dependency
 - [ ] Public demo video < 3 minutes (YouTube / Vimeo / Youku) — `[add link]`
 - [ ] English README and install/test steps ✅
 - [ ] Complete the blocking checks in [`SUBMISSION_GATE.md`](SUBMISSION_GATE.md)
@@ -49,8 +49,9 @@ context, evidence, and action-state layer:
 5. **Control deterministically** with per-asset `HALT` / `WARN` / `ALLOW` decisions.
 6. **Generate a proof-carrying repair** with patch, tests, rollback, native ML context,
    exact evidence closure, and a DataHub-owner approval gate.
-7. **Act and verify** by creating a real local Git commit and executing contract,
-   scientific-decision, and safe-branch tests against that revision.
+7. **Act and verify** by creating a reviewable GitHub PR and executing hosted contract,
+   scientific-decision, and safe-branch checks against its exact head revision; the
+   canonical replay also preserves its local exact-revision closure separately.
 8. **Apply exactly what was reviewed** by materializing the approved Git tree in isolated
    synthetic staging and recording its canonical tree digest.
 9. **Write and recover safely** with incident-scoped DataHub state and fresh,
@@ -104,9 +105,11 @@ lineage — expressed as configurable domain profiles rather than a hard-coded s
 - Its live DataHub closure receipt reads back 19 native Production ML entities. The public
   repair manifest and bundle cross-bind the event SHA, DataHub receipt digest, lifecycle,
   and receipt IDs before Judge Mode renders them.
-- Optional GitHub adapters implement Git Data API branch/commit/PR publication and exact-SHA
-  Check Run verification. They are covered by fail-closed transport tests; the current
-  public capture does not claim a live remote PR until that external receipt exists.
+- GitHub adapters implement Git Data API branch/commit/PR publication and exact-SHA
+  Check Run verification. Public PR #1 and its three successful hosted checks are captured
+  in `examples/outputs/github_live_evidence.json`. The authenticated review is explicitly
+  labelled `GITHUB_AUTHENTICATED_ACCOUNT`, not enterprise SSO or independent production
+  approval.
 - The exact-revision application boundary accepts only an `APPROVED` bundle whose change,
   verification, and approval receipts agree on the commit. Its current implementation is
   explicitly `LOCAL_STAGING` / `SCIGUARD_SYNTHETIC_STAGING` /
@@ -184,9 +187,9 @@ applied to our own code and metrics via adversarial review and a gated evaluatio
 
 ## What's next
 
-- Capture a real public-sandbox GitHub PR/check-run receipt from the implemented adapters,
-  and add SSO/OIDC-backed production approval; the current local action capture
-  deliberately does not claim either external result.
+- Add an independent SSO/OIDC-backed production approver. The real public-sandbox GitHub
+  PR/check-run receipt now exists, while the canonical local action capture deliberately
+  remains separate.
 - Re-run the successful 55-event canonical incident with
   `python scripts/capture_champion_run.py --require-clean` whenever the frozen
   implementation changes; the checked capture already records
@@ -199,5 +202,6 @@ python · datahub · datahub-mcp-server · mcp · fastapi · react · pydantic �
 
 ## Links
 
-- Code: `[public GitHub repo URL]`
+- Code: <https://github.com/songjie6816-code/sciguard-autopilot>
+- Demo: <https://sciguard-autopilot-demo.pages.dev/>
 - Demo video: `[< 3 min video URL]`
