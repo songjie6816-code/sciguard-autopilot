@@ -8,13 +8,13 @@
     "urn:li:dataset:(urn:li:dataPlatform:polymer_rnd,candidate_ranking_report,PROD)"
   ],
   "application_receipt": {
-    "applied_at": "2026-07-26T21:22:19.510187Z",
+    "applied_at": "2026-07-27T01:38:22.404916Z",
     "bundle_id": "repair-bundle:8f481c5a7d457821",
-    "commit_sha": "f3b009c91b712ecf7c93e901de770ea950cd1963",
-    "deployment_id": "staging-deployment:e6e58766e6c70f8e",
+    "commit_sha": "ca699d3ea996c4d111f0c4690a3809ff24f6218d",
+    "deployment_id": "staging-deployment:90e9f51c9753c1b3",
     "production_authorized": false,
     "provider": "LOCAL_STAGING",
-    "receipt_id": "application-receipt:1aba310999194dea",
+    "receipt_id": "application-receipt:1b5c2dee7afe7fc3",
     "source_tree_sha256": "d1a002f8053d82b38736fa2ab821901f643eb6db3deea756cfe8279d831ad223",
     "status": "APPLIED",
     "target_environment": "SCIGUARD_SYNTHETIC_STAGING"
@@ -38,8 +38,8 @@
   "approval_receipt": {
     "approver_urn": "urn:li:corpuser:research_lead",
     "bundle_id": "repair-bundle:8f481c5a7d457821",
-    "commit_sha": "f3b009c91b712ecf7c93e901de770ea950cd1963",
-    "created_at": "2026-07-26T21:22:19.401806Z",
+    "commit_sha": "ca699d3ea996c4d111f0c4690a3809ff24f6218d",
+    "created_at": "2026-07-27T01:38:22.310424Z",
     "decision": "APPROVE",
     "evidence_ids": [
       "field-impact:6d7265f6ecc4d6e1",
@@ -49,18 +49,18 @@
       "unit-firmware-contract:711d085fe8869ed0",
       "rank-baseline-comparison:55a5b1ad73eb48b1",
       "experimental-value-check:916960df3b3c41fa",
-      "verification-receipt:78804a1ed8cda421",
-      "approval-receipt:89a70936544ff867"
+      "verification-receipt:3f91a06066b71518",
+      "approval-receipt:7364e03b0d59cbaa"
     ],
     "expected_approver_urn": "urn:li:corpuser:research_lead",
     "identity_assurance": "DEMO_SIGNED_NOT_SSO",
     "identity_provider": "SCIGUARD_LOCAL_REVIEW_SESSION",
     "note": "Reviewed the commit-bound unit contract, P-204 rank restoration, safe-branch digest, rollback plan, and exact target revision.",
     "production_authorized": false,
-    "receipt_id": "approval-receipt:89a70936544ff867",
-    "signature_sha256": "89d9d3cbd967f9bae891fe3fca797f1596d3e964c2f9c1a475112e25aa17158f",
+    "receipt_id": "approval-receipt:7364e03b0d59cbaa",
+    "signature_sha256": "0b2370385eda9ae59323337bf6e9cf6bec055e3ffb9c767f9d30cfab614eb729",
     "signing_key_id": "sciguard-champion-demo-v1",
-    "verification_receipt_id": "verification-receipt:78804a1ed8cda421"
+    "verification_receipt_id": "verification-receipt:3f91a06066b71518"
   },
   "artifacts": [
     {
@@ -162,7 +162,7 @@
     "experimental-value-check:916960df3b3c41fa"
   ],
   "external_action_receipt": {
-    "base_commit_sha": "a45b6fe3aff28ad1c1b1f3d7b3077d3e7750928c",
+    "base_commit_sha": "b16596f977265061956f19f183bb7e6762818fb6",
     "base_revision": "main",
     "branch": "sciguard/inc-sciguard-champion-8f481c5a",
     "bundle_id": "repair-bundle:8f481c5a7d457821",
@@ -173,8 +173,8 @@
       "tests/test_scientific_decision.py",
       "tests/test_unit_contract.py"
     ],
-    "commit_sha": "f3b009c91b712ecf7c93e901de770ea950cd1963",
-    "created_at": "2026-07-26T21:22:18Z",
+    "commit_sha": "ca699d3ea996c4d111f0c4690a3809ff24f6218d",
+    "created_at": "2026-07-27T01:38:20Z",
     "provider": "LOCAL_GIT",
     "pull_request_number": null,
     "remote_url": null,
@@ -188,12 +188,12 @@
     "capture_type": "RECORDED_DATAHUB_END_TO_END",
     "change_provider": "LOCAL_GIT",
     "datahub_native_context_source": "LIVE_DATAHUB_END_TO_END_CLOSURE",
-    "datahub_native_receipt_sha256": "bac1a7a826f9cf7d12eef592a9be7cf3cd6dd6474951d766235cba6866a81f87",
+    "datahub_native_receipt_sha256": "f673f73dd02e915c74662c82f4a588f025639140db76fa1a7ad018bf1ec13caa",
     "datahub_server_version": "v1.5.0.6",
-    "evaluation_report_sha256": "fabae311f308036499a64d7a6da7013da9a80472a0dfec47dcff406fefa2901e",
+    "evaluation_report_sha256": "8022108b2a82740bfc57bd1e4592f7eeb7fee5b5846952a1461147e1dc90ed01",
     "identity_boundary": "DEMO_SIGNED_NOT_SSO",
     "production_authorized": false,
-    "public_event_stream_sha256": "b243fe006a3e0a937d81528907e61a7eb8042a6901ac802022ec6165c7091411",
+    "public_event_stream_sha256": "d7d56acd651c8683564962d22e710f4179cf890dbc4db2b2ded19f911c9d10df",
     "public_safe_redactions": [
       {
         "field_class": "machine_local_repository_path",
@@ -360,7 +360,7 @@
         "check_suite_id": null,
         "declared_command": "pytest -q tests/test_unit_contract.py",
         "details_url": null,
-        "duration_ms": 349,
+        "duration_ms": 378,
         "evidence_ids": [
           "field-impact:6d7265f6ecc4d6e1",
           "model-release-context:4a4561dbb638527d",
@@ -386,6 +386,7 @@
         "output_sha256": "2a65b3e70e6bfbb4eb9b9ffb91f4dcd6383e685bd1546efd5b451c200a907c28",
         "result_sha256": "6c44851674e9a81e15edee5f7ba6c03e6c39fb664e6638ef9304874d596843a5",
         "status": "PASS",
+        "workflow_conclusion": null,
         "workflow_id": null,
         "workflow_path": null,
         "workflow_run_attempt": null,
@@ -396,7 +397,7 @@
         "check_suite_id": null,
         "declared_command": "pytest -q tests/test_scientific_decision.py",
         "details_url": null,
-        "duration_ms": 312,
+        "duration_ms": 323,
         "evidence_ids": [
           "field-impact:6d7265f6ecc4d6e1",
           "model-release-context:4a4561dbb638527d",
@@ -422,6 +423,7 @@
         "output_sha256": "bdf92807d46a2f074abfbdc8fbfd95883c2cd441a53ae518f02cec6264b8f4e2",
         "result_sha256": "b7748ea79f74856d34573ce2184362e2ef978b6bc16b98fe7068991ee2c8d528",
         "status": "PASS",
+        "workflow_conclusion": null,
         "workflow_id": null,
         "workflow_path": null,
         "workflow_run_attempt": null,
@@ -432,7 +434,7 @@
         "check_suite_id": null,
         "declared_command": "pytest -q tests/test_safe_branch.py",
         "details_url": null,
-        "duration_ms": 457,
+        "duration_ms": 335,
         "evidence_ids": [
           "field-impact:6d7265f6ecc4d6e1",
           "model-release-context:4a4561dbb638527d",
@@ -458,16 +460,17 @@
         "output_sha256": "bdf92807d46a2f074abfbdc8fbfd95883c2cd441a53ae518f02cec6264b8f4e2",
         "result_sha256": "a8de43bb58be9e9cd3037e2034baf38fbc1c6fc13e08257d1f2c9949654f58be",
         "status": "PASS",
+        "workflow_conclusion": null,
         "workflow_id": null,
         "workflow_path": null,
         "workflow_run_attempt": null,
         "workflow_run_id": null
       }
     ],
-    "commit_sha": "f3b009c91b712ecf7c93e901de770ea950cd1963",
-    "created_at": "2026-07-26T21:22:19.348912Z",
+    "commit_sha": "ca699d3ea996c4d111f0c4690a3809ff24f6218d",
+    "created_at": "2026-07-27T01:38:22.261813Z",
     "provider": "LOCAL_PROCESS",
-    "receipt_id": "verification-receipt:78804a1ed8cda421",
+    "receipt_id": "verification-receipt:3f91a06066b71518",
     "repository": "EPHEMERAL_REPRODUCIBLE_GIT_SANDBOX",
     "source_tree_clean": true,
     "status": "PASS"
