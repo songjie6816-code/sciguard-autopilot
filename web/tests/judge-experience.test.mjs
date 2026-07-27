@@ -152,6 +152,9 @@ test("Evidence Drawer states the public integrity and hosted-link boundaries", a
     "utf8",
   );
   for (const label of [
+    "EVIDENCE CENTER",
+    "DATAHUB RECEIPT",
+    "EVALUATION REPORT",
     "Evidence type",
     "Incident ID",
     "Immutable event ID / sequence",

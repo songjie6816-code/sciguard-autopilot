@@ -73,6 +73,9 @@ const dataHubCapabilityEvidence: EvidenceRecord = {
   },
 };
 
+const DATAHUB_LIVE_RECEIPT_EVIDENCE_ID =
+  "datahub-live-receipt:inc-sciguard-champion";
+
 const actorLabels: Record<string, string> = {
   SYSTEM: "System",
   SENTINEL: "Sentinel",
@@ -615,6 +618,40 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
     const records = new Map<string, EvidenceRecord>();
     records.set(evaluationEvidence.evidence_id, evaluationEvidence);
     records.set(dataHubCapabilityEvidence.evidence_id, dataHubCapabilityEvidence);
+    if (dataHubLiveReceipt) {
+      const incidentLifecycle = objectValue(dataHubLiveReceipt.incident_lifecycle);
+      const resolvedIncident = objectValue(incidentLifecycle.resolved);
+      const decisionLogLifecycle = objectValue(
+        dataHubLiveReceipt.decision_log_lifecycle,
+      );
+      const finalDecisionLog = objectValue(decisionLogLifecycle.final);
+      const repairLifecycle = objectValue(dataHubLiveReceipt.repair_lifecycle);
+      records.set(DATAHUB_LIVE_RECEIPT_EVIDENCE_ID, {
+        evidence_id: DATAHUB_LIVE_RECEIPT_EVIDENCE_ID,
+        source: stringValue(
+          dataHubLiveReceipt.capture_type,
+          "LIVE_DATAHUB_END_TO_END_CLOSURE",
+        ),
+        kind: "DATAHUB_LIVE_RECEIPT",
+        summary: "DataHub Incident, Decision Log, ML context, and repair closure",
+        payload: {
+          datahub_urn: stringValue(resolvedIncident.incident_urn),
+          incident_state: stringValue(incidentLifecycle.readback_state),
+          incident_stage: stringValue(incidentLifecycle.readback_stage),
+          decision_log_urn: stringValue(finalDecisionLog.document_urn),
+          decision_log_status: stringValue(finalDecisionLog.status),
+          native_entity_count: dataHubLiveReceipt.entity_count ?? 0,
+          repair_status: stringValue(repairLifecycle.status),
+          actions: [
+            "INCIDENT_RESOLVED",
+            "DECISION_LOG_PUBLISHED",
+            "ML_CONTEXT_READ_BACK",
+            "REPAIR_APPLIED",
+          ],
+          receipt: dataHubLiveReceipt,
+        },
+      });
+    }
     for (const event of visibleEvents) {
       const entries = event.payload.evidence;
       if (!Array.isArray(entries)) continue;
@@ -680,7 +717,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
       });
     }
     return records;
-  }, [visibleEvents]);
+  }, [dataHubLiveReceipt, visibleEvents]);
 
   const hypotheses = visibleEvents.filter((event) =>
     ["HYPOTHESIS_PROPOSED", "HYPOTHESIS_RESOLVED"].includes(event.event_type),
@@ -865,7 +902,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
   const selectedRecord = evidence.get(selectedEvidence) ?? evidence.values().next().value;
   const selectedUrn = stringValue(selectedRecord?.payload.datahub_urn);
   const localDataHubHref =
-    localDataHubEnabled && selectedUrn
+    localDataHubEnabled && selectedUrn.startsWith("urn:li:dataset:")
       ? `${LOCAL_DATAHUB_BASE}/dataset/${encodeURIComponent(selectedUrn)}`
       : null;
 
@@ -943,6 +980,8 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
   const drawerStage = JUDGE_STAGES[drawerResolvedStageIndex];
   const drawerIsCrossRunEvaluation =
     selectedEvidence === evaluationEvidence.evidence_id;
+  const drawerIsDataHubReceipt =
+    selectedEvidence === DATAHUB_LIVE_RECEIPT_EVIDENCE_ID;
 
   return (
     <main className={`command-center ${judgeMode ? "judge-mode" : "product-mode"} experience-${experienceView.toLowerCase()} stage-focus-${activeStage + 1}`}>
@@ -961,6 +1000,21 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
           <span className="backend-pill"><i /> {manifest?.datahub_backend ?? "DATAHUB"}</span>
         </div>
         <div className="header-actions">
+          <button
+            aria-label="Open Evidence Center"
+            className="button evidence-center-trigger"
+            onClick={(event) =>
+              openEvidence(
+                dataHubLiveReceipt
+                  ? DATAHUB_LIVE_RECEIPT_EVIDENCE_ID
+                  : evaluationEvidence.evidence_id,
+                event.currentTarget,
+              )
+            }
+            type="button"
+          >
+            <span aria-hidden="true">⌁</span> EVIDENCE CENTER
+          </button>
           <button
             aria-label="Run the 15 second verified replay"
             className="button primary"
@@ -1955,7 +2009,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
           >
             <div className="drawer-header">
               <div>
-                <span className="kicker">PUBLIC EVIDENCE RECEIPT</span>
+                <span className="kicker">EVIDENCE CENTER · PUBLIC RECEIPT</span>
                 <h2 id="evidence-drawer-title">
                   {drawerRecord?.summary ?? drawerEvent?.summary ?? drawerStage.purpose}
                 </h2>
@@ -1970,14 +2024,68 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
                 ×
               </button>
             </div>
+            <nav
+              aria-label="Evidence Center quick access"
+              className="drawer-quick-access"
+            >
+              <button
+                aria-pressed={
+                  selectedEvidence === DATAHUB_LIVE_RECEIPT_EVIDENCE_ID
+                }
+                className={
+                  selectedEvidence === DATAHUB_LIVE_RECEIPT_EVIDENCE_ID
+                    ? "active"
+                    : ""
+                }
+                disabled={!dataHubLiveReceipt}
+                onClick={(event) =>
+                  openEvidence(
+                    DATAHUB_LIVE_RECEIPT_EVIDENCE_ID,
+                    event.currentTarget,
+                  )
+                }
+                type="button"
+              >
+                <small>01</small>
+                <strong>DATAHUB RECEIPT</strong>
+                <span>{dataHubLiveReceipt ? "LIVE READ-BACK" : "LOADING"}</span>
+              </button>
+              <button
+                aria-pressed={
+                  selectedEvidence === evaluationEvidence.evidence_id
+                }
+                className={
+                  selectedEvidence === evaluationEvidence.evidence_id
+                    ? "active"
+                    : ""
+                }
+                onClick={(event) =>
+                  openEvidence(
+                    evaluationEvidence.evidence_id,
+                    event.currentTarget,
+                  )
+                }
+                type="button"
+              >
+                <small>02</small>
+                <strong>EVALUATION REPORT</strong>
+                <span>13 SCENARIOS · PASS</span>
+              </button>
+            </nav>
             <div className="drawer-stage">
               <span>
                 {drawerIsCrossRunEvaluation
                   ? "CONTROLLED BENCHMARK"
+                  : drawerIsDataHubReceipt
+                    ? "LIVE READ-BACK"
                   : `STAGE ${drawerResolvedStageIndex + 1} / 6`}
               </span>
               <strong>
-                {drawerIsCrossRunEvaluation ? "WHY DATAHUB" : drawerStage.label}
+                {drawerIsCrossRunEvaluation
+                  ? "WHY DATAHUB"
+                  : drawerIsDataHubReceipt
+                    ? "DATAHUB CLOSURE"
+                    : drawerStage.label}
               </strong>
             </div>
             <dl className="drawer-facts">
