@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "incident_id": "inc-sciguard-b042-unit-contract",
+  "mode": "RECORDED_REPLAY",
+  "status": "COMPLETED",
+  "incident_state": "RESOLVED",
+  "datahub_backend": "DATAHUB_SDK",
+  "source_commit": "7115813bbb0ed167f84c6ccbffa684c2076da341",
+  "source_worktree_dirty": false,
+  "generated_at": "2026-07-29T07:36:45.642194Z",
+  "updated_at": "2026-07-29T07:38:02.467184Z",
+  "completed_at": "2026-07-29T07:36:52.588863Z",
+  "event_count": 55,
+  "events_sha256": "5b84a811ecb1b0d4ee6eab9e0adfce772995b56cbdc71bf944ed65f95243a8f9",
+  "validation": {
+    "event_schema": "core.events.Event@1",
+    "single_incident": true,
+    "contiguous_sequence": true,
+    "unique_event_ids": true
+  },
+  "source_run_id": "inc-sciguard-b042-unit-contract",
+  "error": null
+}

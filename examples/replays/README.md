@@ -12,15 +12,15 @@ Each subdirectory is exported from a completed real SciGuard run. It contains:
 
 The API always labels these bundles `RECORDED_REPLAY`; it never presents them as live data.
 
-`inc-sciguard-champion/` is the primary Judge replay. Its 55 events come from one
+`inc-sciguard-b042-unit-contract/` is the primary Judge replay. Its 55 events come from one
 DataHub-backed incident and one exact repair revision, including `APPLIED`, two fresh
 recovery-verification executions, and final `RESOLVED`. The checked artifact was captured
 from a clean implementation commit and records `source_worktree_dirty: false` in the
 replay manifest, repair manifest, and DataHub closure receipt. Reproduce it with:
 
 ```bash
-make champion-capture-clean
+make canonical-capture-clean
 ```
 
 `inc-wp6-flagship/` is retained only as a 38-event legacy development replay. Do not merge
-its separate action capture into claims about the canonical champion incident.
+its separate action capture into claims about the canonical release incident.

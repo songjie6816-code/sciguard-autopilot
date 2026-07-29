@@ -2,47 +2,47 @@
   "all_verified": true,
   "capture_location": "LOCAL_DATAHUB_GMS",
   "capture_type": "LIVE_DATAHUB_END_TO_END_CLOSURE",
-  "captured_at": "2026-07-27T01:38:34.212367Z",
+  "captured_at": "2026-07-29T07:38:09.404907Z",
   "cli_version": "1.6.0.15",
   "decision_log_lifecycle": {
-    "aspect_sha256": "a652f0eb7719d09e976a818d25a0d4c136a5241335d8d263a1bb437840c7314a",
-    "content_sha256": "ac304c7e50dce534a03bb8c4467b42b1cc6ecbc5eac71640f234462fe188f296",
+    "aspect_sha256": "e1511e8bf6369fe842bcff6136988a83f1046d7a6cb87994c18c23a0643148d8",
+    "content_sha256": "941c5c561df7a16cb128b25d285ed3c45834a9a45365399f0fb9113051d67661",
     "custom_properties": {
       "sciguard:application_environment": "SCIGUARD_SYNTHETIC_STAGING",
-      "sciguard:application_receipt_id": "application-receipt:1b5c2dee7afe7fc3",
-      "sciguard:approval_receipt_id": "approval-receipt:7364e03b0d59cbaa",
-      "sciguard:change_commit_sha": "ca699d3ea996c4d111f0c4690a3809ff24f6218d",
+      "sciguard:application_receipt_id": "application-receipt:77a8751f9679db44",
+      "sciguard:approval_receipt_id": "approval-receipt:ab445fd00736239f",
+      "sciguard:change_commit_sha": "ea1a4760520fcb299d8b8f73d955e5c66cc03ee3",
       "sciguard:evidence_ids": "field-impact:6d7265f6ecc4d6e1,model-release-context:4a4561dbb638527d,trusted-release-baseline:10394eeb17c20877,upstream-lineage:94ee77e7deccd454,unit-firmware-contract:711d085fe8869ed0,rank-baseline-comparison:55a5b1ad73eb48b1,experimental-value-check:916960df3b3c41fa",
-      "sciguard:incident_id": "inc-sciguard-champion",
+      "sciguard:incident_id": "inc-sciguard-b042-unit-contract",
       "sciguard:incident_state": "RESOLVED",
       "sciguard:native_deployment_urns": "urn:li:mlModelDeployment:(urn:li:dataPlatform:polymer_rnd,tg-prediction-production,PROD),urn:li:mlModelDeployment:(urn:li:dataPlatform:polymer_rnd,durability-production,PROD)",
       "sciguard:recovery_resume_allowed": "true",
-      "sciguard:recovery_verification_receipt_id": "verification-receipt:3f91a06066b71518",
-      "sciguard:repair_bundle_id": "repair-bundle:8f481c5a7d457821",
+      "sciguard:recovery_verification_receipt_id": "verification-receipt:546b11a6edf8ee06",
+      "sciguard:repair_bundle_id": "repair-bundle:301bd0a4d7b8f086",
       "sciguard:repair_status": "APPLIED",
       "sciguard:server_unsupported_related_asset_urns": "",
-      "sciguard:verification_receipt_id": "verification-receipt:3f91a06066b71518"
+      "sciguard:verification_receipt_id": "verification-receipt:546b11a6edf8ee06"
     },
     "final": {
-      "content_sha256": "ac304c7e50dce534a03bb8c4467b42b1cc6ecbc5eac71640f234462fe188f296",
-      "document_urn": "urn:li:document:sciguard-decision-log-inc-sciguard-champion",
+      "content_sha256": "941c5c561df7a16cb128b25d285ed3c45834a9a45365399f0fb9113051d67661",
+      "document_urn": "urn:li:document:sciguard-decision-log-inc-sciguard-b042-unit-contract",
       "related_asset_count": 11,
       "status": "PUBLISHED"
     },
     "initial": {
-      "content_sha256": "87b7664702dcf4ccfce2f24a4bdc9d251c974abcebb6d5dfb1bef956de0ff1f2",
-      "document_urn": "urn:li:document:sciguard-decision-log-inc-sciguard-champion",
+      "content_sha256": "70ecc18969a58fb4a611f53e3e01b4320b0ada04511a12ee99d5eef9963da714",
+      "document_urn": "urn:li:document:sciguard-decision-log-inc-sciguard-b042-unit-contract",
       "related_asset_count": 11,
       "status": "PUBLISHED"
     },
     "readback_state": "PUBLISHED",
     "related_asset_count": 11,
     "required_receipts_present": {
-      "application_receipt_id": "application-receipt:1b5c2dee7afe7fc3",
-      "approval_receipt_id": "approval-receipt:7364e03b0d59cbaa",
-      "commit_sha": "ca699d3ea996c4d111f0c4690a3809ff24f6218d",
-      "recovery_verification_receipt_id": "verification-receipt:3f91a06066b71518",
-      "verification_receipt_id": "verification-receipt:3f91a06066b71518"
+      "application_receipt_id": "application-receipt:77a8751f9679db44",
+      "approval_receipt_id": "approval-receipt:ab445fd00736239f",
+      "commit_sha": "ea1a4760520fcb299d8b8f73d955e5c66cc03ee3",
+      "recovery_verification_receipt_id": "verification-receipt:546b11a6edf8ee06",
+      "verification_receipt_id": "verification-receipt:546b11a6edf8ee06"
     }
   },
   "entities": [
@@ -51,7 +51,7 @@
       "observed_aspects": [
         {
           "aspect": "MLFeatureTablePropertiesClass",
-          "sha256": "13dedd52a5e6b41449aef2712a59391ea6998c57a2299f36d4562f4c67148263"
+          "sha256": "832458e6a0a79bcaf269b4bd95b3c258d334e57880f09d9c6e7a310336c7b88f"
         }
       ],
       "required_aspects": [
@@ -191,7 +191,7 @@
       "observed_aspects": [
         {
           "aspect": "MLModelPropertiesClass",
-          "sha256": "32fba4bfe740d701d53606f0ca65d66aee70b1ec72f9d3bc645a644acce39703"
+          "sha256": "609d9f1f3d738e421df88039e21561669e53bd806f616e9751f6ec1a91d76be7"
         }
       ],
       "required_aspects": [
@@ -205,7 +205,7 @@
       "observed_aspects": [
         {
           "aspect": "MLModelDeploymentPropertiesClass",
-          "sha256": "09a0a9f8e054ea16c171f6da8eb961d937ad417ed10f84428acc033cd963253b"
+          "sha256": "b77f408f8dd4267a4eaa0fe5b55297af162184bdf9e7723d6822777e603b8d36"
         }
       ],
       "required_aspects": [
@@ -393,12 +393,12 @@
     "MLModelGroup": 2
   },
   "evaluation_report_sha256": "8022108b2a82740bfc57bd1e4592f7eeb7fee5b5846952a1461147e1dc90ed01",
-  "incident_id": "inc-sciguard-champion",
+  "incident_id": "inc-sciguard-b042-unit-contract",
   "incident_lifecycle": {
-    "aspect_sha256": "9d39c9424609b5a7cbba926b68a90c983470b49095062371c71dd16950dc8b98",
+    "aspect_sha256": "89fdabeb31a42eb721cf7a2ed0ea9aae3a012fe4e278211e9535f6e6238973a7",
     "opened": {
       "entity_count": 9,
-      "incident_urn": "urn:li:incident:sciguard-inc-sciguard-champion",
+      "incident_urn": "urn:li:incident:sciguard-inc-sciguard-b042-unit-contract",
       "notes_capability": "STATUS_MESSAGE_FALLBACK_SERVER_SCHEMA",
       "notes_written": false,
       "stage": "WORK_IN_PROGRESS",
@@ -408,7 +408,7 @@
     "readback_state": "RESOLVED",
     "resolved": {
       "entity_count": 9,
-      "incident_urn": "urn:li:incident:sciguard-inc-sciguard-champion",
+      "incident_urn": "urn:li:incident:sciguard-inc-sciguard-b042-unit-contract",
       "notes_capability": "STATUS_MESSAGE_FALLBACK_SERVER_SCHEMA",
       "notes_written": false,
       "stage": "FIXED",
@@ -490,7 +490,7 @@
       ]
     }
   ],
-  "public_event_stream_sha256": "d7d56acd651c8683564962d22e710f4179cf890dbc4db2b2ded19f911c9d10df",
+  "public_event_stream_sha256": "5b84a811ecb1b0d4ee6eab9e0adfce772995b56cbdc71bf944ed65f95243a8f9",
   "public_projection": {
     "canonical_single_run": true,
     "decision_fields_redacted": false,
@@ -498,7 +498,7 @@
     "redactions": [
       {
         "field_class": "machine_local_repository_path",
-        "replacement": "EPHEMERAL_REPRODUCIBLE_GIT_SANDBOX"
+        "replacement": "https://github.com/songjie6816-code/sciguard-repair-sandbox"
       },
       {
         "field_class": "machine_local_python_executable",
@@ -509,12 +509,12 @@
   "repair_lifecycle": {
     "application_environment": "SCIGUARD_SYNTHETIC_STAGING",
     "application_production_authorized": false,
-    "application_receipt_id": "application-receipt:1b5c2dee7afe7fc3",
+    "application_receipt_id": "application-receipt:77a8751f9679db44",
     "approval_production_authorized": false,
-    "approval_receipt_id": "approval-receipt:7364e03b0d59cbaa",
-    "bundle_id": "repair-bundle:8f481c5a7d457821",
-    "change_provider": "LOCAL_GIT",
-    "commit_sha": "ca699d3ea996c4d111f0c4690a3809ff24f6218d",
+    "approval_receipt_id": "approval-receipt:ab445fd00736239f",
+    "bundle_id": "repair-bundle:301bd0a4d7b8f086",
+    "change_provider": "GITHUB",
+    "commit_sha": "ea1a4760520fcb299d8b8f73d955e5c66cc03ee3",
     "identity_assurance": "DEMO_SIGNED_NOT_SSO",
     "recovery_results": [
       {
@@ -524,7 +524,7 @@
         "clean_run_count": 1,
         "failed_checks": [],
         "human_approval_used": false,
-        "incident_id": "inc-sciguard-champion",
+        "incident_id": "inc-sciguard-b042-unit-contract",
         "incident_state": "RECOVERY_PENDING",
         "llm_instruction_ignored": false,
         "missing_checks": [],
@@ -537,7 +537,7 @@
         "clean_run_count": 2,
         "failed_checks": [],
         "human_approval_used": false,
-        "incident_id": "inc-sciguard-champion",
+        "incident_id": "inc-sciguard-b042-unit-contract",
         "incident_state": "RESOLVED",
         "llm_instruction_ignored": false,
         "missing_checks": [],
@@ -549,55 +549,55 @@
         "checks": [
           {
             "check_id": "unit_contract",
-            "result_sha256": "6c44851674e9a81e15edee5f7ba6c03e6c39fb664e6638ef9304874d596843a5",
+            "result_sha256": "9ad01013ac29a2ebd463c00b9ff2f1034679cacc3f634e43158ae7da87b13e4b",
             "status": "PASS"
           },
           {
             "check_id": "candidate_ranking_stability",
-            "result_sha256": "b7748ea79f74856d34573ce2184362e2ef978b6bc16b98fe7068991ee2c8d528",
+            "result_sha256": "3d1fc4d96cf0a0074bb7e8290a13a01a4262aa4818999856ef067496d59fd7ce",
             "status": "PASS"
           },
           {
             "check_id": "safe_branch_preservation",
-            "result_sha256": "a8de43bb58be9e9cd3037e2034baf38fbc1c6fc13e08257d1f2c9949654f58be",
+            "result_sha256": "32e602f96834b58f3625f08cb2254eeb1253a3dad074c66f19892cc9cd6576f1",
             "status": "PASS"
           }
         ],
-        "commit_sha": "ca699d3ea996c4d111f0c4690a3809ff24f6218d",
-        "receipt_id": "verification-receipt:3f91a06066b71518",
+        "commit_sha": "ea1a4760520fcb299d8b8f73d955e5c66cc03ee3",
+        "receipt_id": "verification-receipt:546b11a6edf8ee06",
         "status": "PASS"
       },
       {
         "checks": [
           {
             "check_id": "unit_contract",
-            "result_sha256": "6c44851674e9a81e15edee5f7ba6c03e6c39fb664e6638ef9304874d596843a5",
+            "result_sha256": "9ad01013ac29a2ebd463c00b9ff2f1034679cacc3f634e43158ae7da87b13e4b",
             "status": "PASS"
           },
           {
             "check_id": "candidate_ranking_stability",
-            "result_sha256": "b7748ea79f74856d34573ce2184362e2ef978b6bc16b98fe7068991ee2c8d528",
+            "result_sha256": "3d1fc4d96cf0a0074bb7e8290a13a01a4262aa4818999856ef067496d59fd7ce",
             "status": "PASS"
           },
           {
             "check_id": "safe_branch_preservation",
-            "result_sha256": "a8de43bb58be9e9cd3037e2034baf38fbc1c6fc13e08257d1f2c9949654f58be",
+            "result_sha256": "32e602f96834b58f3625f08cb2254eeb1253a3dad074c66f19892cc9cd6576f1",
             "status": "PASS"
           }
         ],
-        "commit_sha": "ca699d3ea996c4d111f0c4690a3809ff24f6218d",
-        "receipt_id": "verification-receipt:3f91a06066b71518",
+        "commit_sha": "ea1a4760520fcb299d8b8f73d955e5c66cc03ee3",
+        "receipt_id": "verification-receipt:546b11a6edf8ee06",
         "status": "PASS"
       }
     ],
-    "remote_pull_request_claimed": false,
+    "remote_pull_request_claimed": true,
     "status": "APPLIED",
-    "verification_receipt_id": "verification-receipt:3f91a06066b71518",
+    "verification_receipt_id": "verification-receipt:546b11a6edf8ee06",
     "verification_status": "PASS"
   },
   "schema_version": 2,
   "server_type": "quickstart",
   "server_version": "v1.5.0.6",
-  "source_commit": "24be47e95ed141f9ba1549beebbf312635e18974",
+  "source_commit": "7115813bbb0ed167f84c6ccbffa684c2076da341",
   "source_worktree_dirty": false
 }
