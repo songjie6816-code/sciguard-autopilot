@@ -1,4 +1,4 @@
-# SciGuard Grand Prize submission gate
+# SciGuard submission gate
 
 This is the final go/no-go gate for the public hackathon entry. It is based on the
 attached Official Rules snapshot and the repository's measured evidence. Re-check the
@@ -71,7 +71,7 @@ End on this sentence:
 
 The following current claims are safe:
 
-- The canonical `inc-sciguard-champion` replay contains 55 contiguous, unique events for
+- The canonical `inc-sciguard-b042-unit-contract` replay contains 55 contiguous, unique events for
   one incident ID.
 - The same execution contains a real local Git commit and three executed pytest checks.
 - The three verification results have distinct result digests.
@@ -121,7 +121,7 @@ Run this from a machine and browser profile that have never opened the project:
 8. Repeat on a 1024-pixel-wide viewport and with reduced motion enabled.
 
 Current deployment note: the Cloudflare Pages URL serves the canonical
-`inc-sciguard-champion` replay, DataHub closure, and Evidence Center. The connected Sites
+`inc-sciguard-b042-unit-contract` replay, DataHub closure, and Evidence Center. The connected Sites
 project ID remains unavailable, so deployment used the already-existing Cloudflare Pages
 project rather than creating an untracked second project.
 
@@ -129,7 +129,7 @@ project rather than creating an untracked second project.
 
 - [x] Freeze and commit the implementation; require a clean worktree and record this
       capture-source SHA.
-- [x] Run `make champion-capture-clean` from that clean implementation commit. Confirm the repair
+- [x] Run `make canonical-capture-clean` from that clean implementation commit. Confirm the repair
       reaches `PROPOSED → PUBLISHED → VERIFIED → APPROVED → APPLIED`, two fresh recovery
       executions occur, and the same incident reaches `RESOLVED`.
 - [ ] Rebuild the Judge artifact and re-run the full Python, lint, web, integrity, and

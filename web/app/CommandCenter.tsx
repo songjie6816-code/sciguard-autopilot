@@ -21,7 +21,7 @@ import {
 const CONFIGURED_API_BASE = process.env.NEXT_PUBLIC_SCIGUARD_API_URL ?? "";
 const STATIC_JUDGE_BUILD =
   process.env.NEXT_PUBLIC_SCIGUARD_JUDGE_BUILD === "true";
-const REPLAY_ID = "inc-sciguard-champion";
+const REPLAY_ID = "inc-sciguard-b042-unit-contract";
 const REPLAY_DURATION_MS = 15_000;
 const REPLAY_EVENT_DISCLOSURE =
   "55 immutable events: one live DataHub incident, one exact repair revision, and two fresh recovery verifications.";
@@ -74,9 +74,9 @@ const dataHubCapabilityEvidence: EvidenceRecord = {
 };
 
 const DATAHUB_LIVE_RECEIPT_EVIDENCE_ID =
-  "datahub-live-receipt:inc-sciguard-champion";
+  "datahub-live-receipt:inc-sciguard-b042-unit-contract";
 const GITHUB_LIVE_EVIDENCE_ID =
-  "github-live-evidence:inc-sciguard-champion";
+  "github-live-evidence:inc-sciguard-b042-unit-contract";
 
 const actorLabels: Record<string, string> = {
   SYSTEM: "System",
@@ -214,6 +214,7 @@ async function verifyRepairCapture(
   rawRepairBundle: string,
   rawDataHubReceipt: string,
   rawEvaluationReport: string,
+  rawGitHubEvidence: string,
 ): Promise<{
   bundle: Record<string, JsonValue>;
   dataHubReceipt: Record<string, JsonValue>;
@@ -222,6 +223,7 @@ async function verifyRepairCapture(
   const bundleDigest = await sha256Hex(rawRepairBundle);
   const dataHubReceiptDigest = await sha256Hex(rawDataHubReceipt);
   const evaluationReportDigest = await sha256Hex(rawEvaluationReport);
+  const githubEvidenceDigest = await sha256Hex(rawGitHubEvidence);
   if (
     stringValue(capture.capture_type) !== "RECORDED_DATAHUB_END_TO_END" ||
     stringValue(capture.source_events_sha256) !== replayManifest.events_sha256 ||
@@ -278,12 +280,14 @@ async function verifyRepairCapture(
     checks.length !== 3 ||
     checks.some((check) => stringValue(check.status) !== "PASS") ||
     !booleanValue(boundaries.canonical_single_run) ||
-    booleanValue(boundaries.remote_pull_request_claimed) ||
+    !booleanValue(boundaries.remote_pull_request_claimed) ||
+    stringValue(boundaries.change_provider) !== "GITHUB" ||
     booleanValue(boundaries.production_authorized) ||
     stringValue(boundaries.source_incident_id) !== replayManifest.incident_id ||
     stringValue(boundaries.public_event_stream_sha256) !==
       replayManifest.events_sha256 ||
     stringValue(boundaries.datahub_native_receipt_sha256) !== dataHubReceiptDigest ||
+    stringValue(boundaries.github_live_evidence_sha256) !== githubEvidenceDigest ||
     stringValue(boundaries.evaluation_report_sha256) !== evaluationReportDigest ||
     stringValue(captureBoundaries.datahub_native_receipt_sha256) !== dataHubReceiptDigest ||
     stringValue(dataHubReceipt.capture_type) !==
@@ -318,6 +322,7 @@ async function verifyRepairCapture(
 
 function verifyGitHubLiveEvidence(
   rawEvidence: string,
+  canonicalBundle: Record<string, JsonValue>,
 ): Record<string, JsonValue> {
   const evidence = JSON.parse(rawEvidence) as Record<string, JsonValue>;
   const pullRequest = objectValue(evidence.pull_request);
@@ -325,6 +330,12 @@ function verifyGitHubLiveEvidence(
   const actor = objectValue(evidence.authenticated_actor);
   const change = objectValue(evidence.change_receipt);
   const verification = objectValue(evidence.verification_receipt);
+  const approvalBinding = objectValue(evidence.approval_binding);
+  const canonicalBindings = objectValue(evidence.canonical_bindings);
+  const canonicalChange = objectValue(canonicalBundle.external_action_receipt);
+  const canonicalVerification = objectValue(canonicalBundle.verification_receipt);
+  const canonicalApproval = objectValue(canonicalBundle.approval_receipt);
+  const canonicalApplication = objectValue(canonicalBundle.application_receipt);
   const checks = Array.isArray(verification.checks)
     ? verification.checks.map(objectValue)
     : [];
@@ -333,20 +344,19 @@ function verifyGitHubLiveEvidence(
   const pullRequestUrl = stringValue(pullRequest.url);
   const expectedRepository =
     "https://github.com/songjie6816-code/sciguard-repair-sandbox";
-  const expectedPullRequestUrl = `${expectedRepository}/pull/1`;
   const expectedCheckPrefix = `${expectedRepository}/actions/runs/`;
 
   if (
-    numberValue(evidence.schema_version) !== 1 ||
+    numberValue(evidence.schema_version) !== 2 ||
     stringValue(evidence.evidence_type) !==
       "GITHUB_REMOTE_REPAIR_AND_IDENTITY_BOUNDARY" ||
     stringValue(evidence.repository) !== expectedRepository ||
-    pullRequestUrl !== expectedPullRequestUrl ||
+    !pullRequestUrl.startsWith(`${expectedRepository}/pull/`) ||
     stringValue(pullRequest.state) !== "open" ||
     !/^[0-9a-f]{40}$/.test(headSha) ||
     !/^[0-9a-f]{40}$/.test(baseSha) ||
-    stringValue(pullRequest.author_login) !== stringValue(actor.login) ||
-    numberValue(pullRequest.author_id) !== numberValue(actor.id) ||
+    !stringValue(pullRequest.author_login) ||
+    !numberValue(pullRequest.author_id) ||
     stringValue(change.provider) !== "GITHUB" ||
     stringValue(change.status) !== "PULL_REQUEST_OPEN" ||
     stringValue(change.remote_url) !== pullRequestUrl ||
@@ -365,10 +375,30 @@ function verifyGitHubLiveEvidence(
     stringValue(review.commit_id) !== headSha ||
     stringValue(review.reviewer_login) !== stringValue(actor.login) ||
     numberValue(review.reviewer_id) !== numberValue(actor.id) ||
-    stringValue(review.identity_assurance) !== "GITHUB_AUTHENTICATED_ACCOUNT" ||
+    stringValue(review.identity_assurance) !== "GITHUB_ACCOUNT_REVIEW" ||
     booleanValue(review.enterprise_sso_verified) ||
-    booleanValue(review.independent_reviewer) ||
-    booleanValue(review.production_authorized)
+    booleanValue(review.production_authorized) ||
+    stringValue(evidence.incident_id) !== stringValue(canonicalBundle.incident_id) ||
+    stringValue(evidence.bundle_id) !== stringValue(canonicalBundle.bundle_id) ||
+    stringValue(change.commit_sha) !== stringValue(canonicalChange.commit_sha) ||
+    stringValue(verification.receipt_id) !==
+      stringValue(canonicalVerification.receipt_id) ||
+    stringValue(approvalBinding.receipt_id) !==
+      stringValue(canonicalApproval.receipt_id) ||
+    stringValue(approvalBinding.commit_sha) !== headSha ||
+    stringValue(canonicalBindings.incident_id) !==
+      stringValue(canonicalBundle.incident_id) ||
+    stringValue(canonicalBindings.bundle_id) !==
+      stringValue(canonicalBundle.bundle_id) ||
+    [canonicalBindings.publication_sha,
+      canonicalBindings.verification_sha,
+      canonicalBindings.approval_sha,
+      canonicalBindings.application_sha,
+      canonicalChange.commit_sha,
+      canonicalVerification.commit_sha,
+      canonicalApproval.commit_sha,
+      canonicalApplication.commit_sha,
+    ].some((value) => stringValue(value) !== headSha)
   ) {
     throw new Error("GitHub live evidence does not satisfy the public identity boundary");
   }
@@ -496,15 +526,22 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
     const replayManifest = (await manifestResponse.json()) as RunManifest;
     const rawEvents = await eventsResponse.text();
     const replayEvents = await verifyReplayBundle(replayManifest, rawEvents);
+    const rawRepairManifest = await repairManifestResponse.text();
+    const rawRepairBundle = await repairBundleResponse.text();
+    const rawDataHubReceipt = await dataHubReceiptResponse.text();
+    const rawEvaluationReport = await evaluationReportResponse.text();
+    const rawGitHubEvidence = await githubEvidenceResponse.text();
     const verifiedRepair = await verifyRepairCapture(
       replayManifest,
-      await repairManifestResponse.text(),
-      await repairBundleResponse.text(),
-      await dataHubReceiptResponse.text(),
-      await evaluationReportResponse.text(),
+      rawRepairManifest,
+      rawRepairBundle,
+      rawDataHubReceipt,
+      rawEvaluationReport,
+      rawGitHubEvidence,
     );
     const verifiedGitHubEvidence = verifyGitHubLiveEvidence(
-      await githubEvidenceResponse.text(),
+      rawGitHubEvidence,
+      verifiedRepair.bundle,
     );
     setManifest(replayManifest);
     setEvents(replayEvents);
@@ -1169,14 +1206,14 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
       </nav>
 
       {judgeMode && experienceView === "BRIEF" && (
-        <section className="champion-brief" aria-labelledby="champion-brief-title">
+        <section className="decision-brief" aria-labelledby="decision-brief-title">
           <div className="brief-signal">
             <div className="brief-eyebrow">
               <span>SCIENTIFIC DECISION INCIDENT</span>
               <i />
               <strong>POLYMER R&amp;D</strong>
             </div>
-            <h1 id="champion-brief-title">
+            <h1 id="decision-brief-title">
               The pipeline passed.
               <em>The decision became unsafe.</em>
             </h1>

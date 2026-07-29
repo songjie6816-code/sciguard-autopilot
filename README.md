@@ -14,8 +14,8 @@ unpublished research data is used — all data is synthetic and reproducible.
 Live Judge Mode: <https://sciguard-autopilot-demo.pages.dev/>
 
 The anonymous Cloudflare Pages release serves the canonical
-`inc-sciguard-champion` closure. Its Evidence Center exposes the DataHub read-back,
-measured evaluation, and a separate live GitHub PR/CI receipt.
+`inc-sciguard-b042-unit-contract` closure. Its Evidence Center exposes the DataHub
+read-back, measured evaluation, and the GitHub PR/CI receipts from that same incident.
 
 The current ChatGPT-hosted product URL is workspace-gated by the hosting platform even
 though the application route itself does not require identity. P0 therefore includes an
@@ -27,8 +27,8 @@ independent, static Judge Mode build under `web/judge-dist`:
 - one click runs a fixed 15-second narrated replay over the immutable canonical events;
 - **55 immutable events bind one live DataHub incident, one exact repair revision, and two
   fresh recovery-verification executions from detection through `RESOLVED`;**
-- the same `inc-sciguard-champion` execution contains the real local Git commit, three
-  executed pytest checks, demo-signed owner review, `APPLIED` synthetic-staging receipt,
+- the same `inc-sciguard-b042-unit-contract` execution contains the real GitHub PR, three
+  hosted GitHub Actions checks, demo-signed owner review, `APPLIED` synthetic-staging receipt,
   two-clean-run recovery gate, native Incident, and published Decision Log;
 - its live DataHub closure receipt reads back 19 native Production ML entities; the repair
   manifest and bundle cross-bind the event SHA, DataHub receipt digest, lifecycle, and
@@ -36,12 +36,11 @@ independent, static Judge Mode build under `web/judge-dist`:
 - the Counterfactual Verification Lab renders trusted rank `#18`, contaminated rank `#1`,
   and verified repaired rank `#18` from executed receipts, alongside the unchanged safe
   branch digest;
-- the canonical capture explicitly reports `remote PR: false`, `DEMO_SIGNED_NOT_SSO`, and
-  `production authorization: false` instead of presenting local actions as production ones;
-- a separately labelled external-action receipt opens a real public GitHub PR, binds three
-  hosted GitHub Actions checks to head SHA `0c9b3a0cdea99520c39eecfdde9b70de261395f3`,
-  and records an authenticated GitHub review without mislabelling it as independent
-  enterprise SSO/OIDC approval;
+- the canonical capture reports `remote PR: true`, `DEMO_SIGNED_NOT_SSO`, and
+  `production authorization: false`; the PR, CI, approval, application and recovery
+  receipts all bind the same exact commit;
+- a public GitHub evidence receipt records an account-bound review without mislabelling it
+  as independent enterprise SSO/OIDC approval;
 - the logged-in/full product remains intact and can still connect to the bounded live API;
 - hosted asset nodes open public read-only evidence receipts; a local DataHub deep link is
   shown only when the full product itself is running on localhost.
@@ -224,7 +223,7 @@ uv tool install mcp-server-datahub@latest               # the DataHub MCP Server
 PYTHONPATH=. python data/synthetic_polymer/generate.py
 PYTHONPATH=. python data/synthetic_polymer/ingest_to_datahub.py
 PYTHONPATH=. python scripts/bootstrap_repair_sandbox.py
-PYTHONPATH=. python scripts/capture_champion_run.py       # canonical 55-event closure
+PYTHONPATH=. python scripts/capture_canonical_run.py      # canonical 55-event closure
 PYTHONPATH=. uvicorn api.main:app --host 127.0.0.1 --port 8000  # one runtime + Event API
 PYTHONPATH=. python examples/run_incident.py            # thin CLI client of that runtime
 PYTHONPATH=. python -m examples.publish_candidate_report \
@@ -264,7 +263,7 @@ python -m ruff check .
 The bounded API exposes health, live run/state/events, proof-carrying repair actions,
 evidence-gated recovery, incident-scoped reset, and recorded replay. Start a live flagship run with
 `POST /api/runs`; stream `/api/runs/{incident_id}/events` as SSE. The curated real-run
-fallback is available at `/api/replays/inc-sciguard-champion` and is always labelled
+fallback is available at `/api/replays/inc-sciguard-b042-unit-contract` and is always labelled
 `RECORDED_REPLAY`. Its manifest records provenance and an event-file SHA-256.
 
 After root cause and field impact are proven,
@@ -274,8 +273,8 @@ rollback, native model/deployment context, evidence closure, and a locked owner 
 gate. The action sequence is:
 
 ```text
-POST /api/runs/{id}/repair/publish   -> real local branch + commit receipt
-POST /api/runs/{id}/repair/verify    -> three B042 integration-test receipts
+POST /api/runs/{id}/repair/publish   -> real GitHub PR + exact-commit receipt
+POST /api/runs/{id}/repair/verify    -> three hosted B042 Check Run receipts
 POST /api/runs/{id}/repair/approval  -> commit-bound signed review receipt
 POST /api/runs/{id}/repair/apply     -> exact approved tree in isolated synthetic staging
 POST /api/runs/{id}/recovery         -> server re-runs exact-commit checks; caller cannot submit PASS
@@ -295,19 +294,16 @@ commit, maps the exact declared check set into fresh recovery evidence, and reje
 incident-ID mismatches before changing DataHub state. A demo-signed approval remains useful
 audit evidence but cannot shorten the default requirement for two consecutive clean runs.
 
-Run `make repair-sandbox` first and launch the API with the two environment variables it
-prints. `LOCAL_GIT` intentionally returns `remote_url = null` and no PR number. The
-canonical replay remains a local synthetic-staging closure; it does not retroactively claim
-that its recorded action was remote. A separately labelled live receipt at
-`examples/outputs/github_live_evidence.json` records public
-[PR #1](https://github.com/songjie6816-code/sciguard-repair-sandbox/pull/1), the exact
-head SHA, and all three hosted Check Runs. The authenticated review proves a real GitHub
-account action, while `enterprise_sso_verified`, `independent_reviewer`, and
-`production_authorized` remain `false`. SSO/OIDC-backed production approval remains a
-future integration.
+Run `make canonical-prepare` to generate and push the deterministic repair branch, then
+open the printed compare URL and create the PR with the exact printed title and body.
+After the hosted checks and account-bound review exist, `make canonical-capture` re-reads
+the public GitHub state and records it inside the same canonical incident. The
+`enterprise_sso_verified` and `production_authorized` fields remain `false`; SSO/OIDC-backed
+production approval is a deliberately unclaimed boundary.
 
 The checked-in canonical receipt was read back from a real local DataHub Quickstart GMS
-`v1.5.0.6` with CLI `1.6.0.15`. In the same `inc-sciguard-champion` execution it verifies
+`v1.5.0.6` with CLI `1.6.0.15`. In the same
+`inc-sciguard-b042-unit-contract` execution it verifies
 19 native entities:
 7 MLFeatures, 2 MLFeatureTables, 2 MLModelGroups, 2 MLModels, 2 MLModelDeployments,
 and 4 training/inference DataProcessInstances. It also records the exact repair revision,
@@ -335,16 +331,16 @@ deep links appear only in a local full-product session. The console shows the re
 exit 0 publication outcomes. See [docs/evaluation.md](docs/evaluation.md) for the metrics and
 [docs/architecture.md](docs/architecture.md) for the design.
 
-The checked `inc-sciguard-champion` artifact is the clean-source canonical capture:
+The checked `inc-sciguard-b042-unit-contract` artifact is the clean-source canonical capture:
 55 contiguous events, one incident ID, an `APPLIED` Repair Bundle, two fresh
 recovery-verification executions, final `RESOLVED`, and 19 native entities. Its replay
 manifest, repair manifest, and DataHub closure receipt all record
 `source_worktree_dirty: false`. Reproduce that gate with:
 
 ```bash
-make champion-capture-clean
+make canonical-capture-clean
 # equivalent:
-PYTHONPATH=. python scripts/capture_champion_run.py --require-clean
+PYTHONPATH=. python scripts/capture_canonical_run.py --require-clean
 ```
 
 The command fails closed unless the worktree is clean and rewrites all three
@@ -357,7 +353,7 @@ recapture loop merely because committing evidence creates a newer release commit
 
 The older `inc-wp6-flagship` 38-event replay and its later linked action capture remain
 available only as legacy development evidence. They are no longer the Judge Mode default
-and must not be combined with the canonical champion run to support a submission claim.
+and must not be combined with the canonical release run to support a submission claim.
 
 ## Repository layout
 
@@ -374,7 +370,7 @@ evaluation/                  labelled scenarios, metrics and gated harness
 examples/                    incident inputs and curated outputs
 scripts/                     canonical capture, public verification and local bootstrap tools
 tests/                       automated tests
-docs/                        architecture, evaluation, champion execution and development notes
+docs/                        architecture, evaluation, release execution and development notes
 ```
 
 ## License

@@ -15,6 +15,7 @@ from core.change_provider import (
 from core.github_provider import (
     GitHubChangePublisher,
     GitHubResponse,
+    PublicReadOnlyGitHubTransport,
 )
 from core.github_verification import GitHubCheckRunVerifier
 from core.impact import FieldImpact
@@ -33,6 +34,15 @@ HEAD_SHA = "3" * 40
 TREE_SHA = "4" * 40
 MOVED_BASE_SHA = "9" * 40
 ROOT = Path(__file__).parents[1]
+
+
+def test_public_transport_is_fail_closed_for_writes() -> None:
+    transport = PublicReadOnlyGitHubTransport()
+
+    response = transport.request("POST", "/repos/acme/sciguard/pulls", {})
+
+    assert response.status == 403
+    assert response.data == {"message": "public evidence transport is read-only"}
 
 
 def _bundle(*, target_repository: str = "https://github.com/acme/sciguard-sandbox"):

@@ -100,7 +100,7 @@ unit contracts, output fields, and fine-grained lineage. In parallel,
 `data/synthetic_polymer/native_ml.py` emits native MLFeature, MLFeatureTable,
 MLModelGroup, MLModel, MLModelDeployment, training-run, and inference-run entities. Stable
 cross-projection URNs connect Production ML lifecycle semantics to the field-level
-decision graph. The canonical `inc-sciguard-champion` Quickstart capture proves 19 native
+decision graph. The canonical `inc-sciguard-b042-unit-contract` Quickstart capture proves 19 native
 entities, the exact repair lifecycle, two fresh recovery executions, one native Incident,
 and one published Decision Log inside the same incident closure. It is not evidence of a
 hosted DataHub deployment.
@@ -310,19 +310,19 @@ dirty-worktree disclosure, UTC timestamps, backend, terminal state, and the stre
 validation invariants. Replay validates this metadata plus contiguous sequence, unique IDs,
 and single-incident ownership before rendering. Because the expected digest and JSONL ship
 together, this is an integrity and internal-consistency check, not a digital signature or
-independent source authentication. The primary `inc-sciguard-champion` bundle is an export
+independent source authentication. The primary `inc-sciguard-b042-unit-contract` bundle is an export
 of one real 55-event DataHub SDK execution. One incident ID binds Sentinel detection,
 investigation, selective enforcement, one local Git revision, locked verification,
 demo-signed review, exact-tree synthetic-staging application, two fresh recovery
 executions, DataHub Incident resolution, and the final Decision Log. It is not a
 hand-authored animation script and does not splice receipts from different runs.
 
-`scripts/capture_champion_run.py` projects only machine-local repository and Python paths
+`scripts/capture_canonical_run.py` projects only machine-local repository and Python paths
 to stable public labels; receipt IDs, decision fields, and SHA-256 bindings are preserved.
 Its replay manifest, repair manifest, Repair Bundle, and live DataHub closure receipt are
 written in one capture transaction: replay assets go to both
-`examples/replays/inc-sciguard-champion/` and
-`web/public/replays/inc-sciguard-champion/`, while the closure receipt goes to
+`examples/replays/inc-sciguard-b042-unit-contract/` and
+`web/public/replays/inc-sciguard-b042-unit-contract/`, while the closure receipt goes to
 `examples/outputs/` and `web/public/evidence/`.
 The checked canonical capture was regenerated from a clean, frozen implementation commit
 with `--require-clean` and records `source_worktree_dirty: false` in every

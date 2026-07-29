@@ -107,7 +107,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .experience-switcher button.active span { color: var(--blue); }
 .experience-switcher small { color: var(--muted); font-size: 11px; }
 
-.champion-brief {
+.decision-brief {
   max-width: 1492px; margin: 16px auto 0; padding: 28px;
   display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(420px, .85fr);
   gap: 18px;
@@ -756,8 +756,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
   .global-header { grid-template-columns: 1fr auto; }.header-status { grid-column: 1/-1; grid-row: 2; padding-bottom: 10px; justify-content: center; }.header-actions { grid-column: 2; grid-row: 1; }
   .runtime-strip { align-items: flex-start; }.live-backend { align-items: flex-start; flex-direction: column; }.live-backend small { max-width: 500px; white-space: normal; }
   .judge-cockpit { margin-inline: 18px; grid-template-columns: 1.05fr 1fr; }.cockpit-lead { grid-row: 1 / 4; }.cockpit-datahub { grid-column: 2; grid-template-columns: 1fr; gap: 5px; }
-  .experience-switcher, .champion-brief { margin-inline: 18px; }
-  .champion-brief { grid-template-columns: minmax(0, 1fr) minmax(360px, .8fr); }
+  .experience-switcher, .decision-brief { margin-inline: 18px; }
+  .decision-brief { grid-template-columns: minmax(0, 1fr) minmax(360px, .8fr); }
   .brief-graph { grid-template-columns: 145px 68px 160px 76px minmax(0, 1fr); }
   .brief-branch { grid-template-columns: 1fr; }
   .repair-studio { margin-inline: 18px; }
@@ -776,7 +776,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
   .runtime-strip { padding: 10px 18px; flex-direction: column; }.timing-facts { width: 100%; }.timing-facts > span { min-width: 0; flex: 1; }
   .experience-switcher { grid-template-columns: 1fr; }
   .experience-switcher button { min-height: 42px; }
-  .champion-brief { padding: 18px; grid-template-columns: 1fr; }
+  .decision-brief { padding: 18px; grid-template-columns: 1fr; }
   .brief-signal h1 { font-size: 44px; }
   .brief-outcomes { grid-template-columns: 1fr; }
   .brief-outcomes article { border-right: 0; border-bottom: 1px solid var(--line); }

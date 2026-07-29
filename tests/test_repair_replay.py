@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).parents[1]
-INCIDENT = "inc-sciguard-champion"
+INCIDENT = "inc-sciguard-b042-unit-contract"
 
 
 def test_canonical_repair_capture_closes_one_incident_and_is_honestly_bounded() -> None:
@@ -55,11 +55,13 @@ def test_canonical_repair_capture_closes_one_incident_and_is_honestly_bounded() 
     assert any(event["event_type"] == "REPAIR_APPLIED" for event in events)
     assert any(event["event_type"] == "INCIDENT_RESOLVED" for event in events)
     assert bundle["status"] == "APPLIED"
-    assert bundle["external_action_receipt"]["provider"] == "LOCAL_GIT"
-    assert bundle["external_action_receipt"]["remote_url"] is None
-    assert bundle["external_action_receipt"]["pull_request_number"] is None
+    assert bundle["external_action_receipt"]["provider"] == "GITHUB"
+    assert bundle["external_action_receipt"]["remote_url"].startswith(
+        "https://github.com/songjie6816-code/sciguard-repair-sandbox/pull/"
+    )
+    assert bundle["external_action_receipt"]["pull_request_number"] > 1
     assert bundle["external_action_receipt"]["repository"] == (
-        "EPHEMERAL_REPRODUCIBLE_GIT_SANDBOX"
+        "https://github.com/songjie6816-code/sciguard-repair-sandbox"
     )
     assert bundle["verification_receipt"]["commit_sha"] == (
         bundle["external_action_receipt"]["commit_sha"]
@@ -81,7 +83,8 @@ def test_canonical_repair_capture_closes_one_incident_and_is_honestly_bounded() 
     )
     assert bundle["linked_capture"]["canonical_single_run"] is True
     assert bundle["linked_capture"]["source_incident_id"] == INCIDENT
-    assert bundle["linked_capture"]["remote_pull_request_claimed"] is False
+    assert bundle["linked_capture"]["change_provider"] == "GITHUB"
+    assert bundle["linked_capture"]["remote_pull_request_claimed"] is True
     assert (web_replay / "repair-bundle.json").read_bytes() == raw_bundle
     assert (web_replay / "repair-manifest.json").read_bytes() == (
         replay / "repair-manifest.json"

@@ -16,12 +16,13 @@ import copy
 import hashlib
 import json
 import os
-import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -42,8 +43,18 @@ from api.run_store import (
 )
 from api.runtime import CONTROL_URN, DEFAULT_SYMPTOM, SciGuardRuntime
 from core.approval import ApprovalAuthority, ApprovalDecision
+from core.change_provider import ChangeReceipt, LocalGitChangePublisher
 from core.events import Event, EventType, validate_event_stream
+from core.github_provider import (
+    GitHubChangePublisher,
+    GitHubResponse,
+    GitHubTransport,
+    PublicReadOnlyGitHubTransport,
+    UrllibGitHubTransport,
+)
+from core.github_verification import GitHubCheckRunVerifier
 from core.repair import RepairBundle, RepairStatus
+from core.verification import CheckExecutionStatus, VerificationError
 from data.synthetic_polymer import native_ml
 from datahub_client import metadata_reader
 from datahub_client.incident_writer import decision_log_urn, incident_urn
@@ -53,9 +64,11 @@ from scripts.capture_datahub_live_receipt import (
     _verify_entity,
 )
 
-INCIDENT_ID = "inc-sciguard-champion"
-PUBLIC_REPOSITORY_LABEL = "EPHEMERAL_REPRODUCIBLE_GIT_SANDBOX"
-DEMO_SIGNING_KEY = b"sciguard-champion-public-demo-key-not-production"
+INCIDENT_ID = "inc-sciguard-b042-unit-contract"
+GITHUB_REPOSITORY = "songjie6816-code/sciguard-repair-sandbox"
+GITHUB_REPOSITORY_URL = f"https://github.com/{GITHUB_REPOSITORY}"
+PUBLIC_REPOSITORY_LABEL = GITHUB_REPOSITORY_URL
+DEMO_SIGNING_KEY = b"sciguard-b042-canonical-demo-key-not-production"
 REPLAY_ROOTS = [
     ROOT / "examples" / "replays",
     ROOT / "web" / "public" / "replays",
@@ -63,6 +76,10 @@ REPLAY_ROOTS = [
 DATAHUB_RECEIPTS = [
     ROOT / "examples" / "outputs" / "datahub_live_receipt.json",
     ROOT / "web" / "public" / "evidence" / "datahub_live_receipt.json",
+]
+GITHUB_RECEIPTS = [
+    ROOT / "examples" / "outputs" / "github_live_evidence.json",
+    ROOT / "web" / "public" / "evidence" / "github_live_evidence.json",
 ]
 
 
@@ -95,12 +112,36 @@ def _atomic_bytes(path: Path, content: bytes) -> None:
 
 
 def _bootstrap_repository(destination: Path) -> None:
-    shutil.copytree(ROOT / "examples" / "repair_sandbox", destination)
-    _git(destination, "init", "-q", "-b", "main")
+    subprocess.run(
+        ["git", "clone", "--quiet", "--no-tags", f"{GITHUB_REPOSITORY_URL}.git", str(destination)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
     _git(destination, "config", "user.name", "SciGuard Canonical Capture")
     _git(destination, "config", "user.email", "sciguard@example.invalid")
-    _git(destination, "add", "--all")
-    _git(destination, "commit", "-q", "-m", "baseline scientific normalizer")
+
+
+def _github_transport() -> GitHubTransport:
+    token = os.environ.get("SCIGUARD_GITHUB_TOKEN", "").strip()
+    if token:
+        return UrllibGitHubTransport(token=token)
+    return PublicReadOnlyGitHubTransport()
+
+
+def _github_adapters(
+    transport: GitHubTransport,
+) -> tuple[GitHubChangePublisher, GitHubCheckRunVerifier]:
+    return (
+        GitHubChangePublisher(
+            repository=GITHUB_REPOSITORY,
+            transport=transport,
+        ),
+        GitHubCheckRunVerifier(
+            repository=GITHUB_REPOSITORY,
+            transport=transport,
+        ),
+    )
 
 
 def _redact(value: object, replacements: dict[str, str]) -> object:
@@ -245,11 +286,80 @@ def _reset_active_overlay_if_needed(runtime: SciGuardRuntime) -> None:
         runtime.reset(persisted_incident)
 
 
+def _runtime(
+    *,
+    repository: Path,
+    workspace: Path,
+    authority: ApprovalAuthority,
+    transport: GitHubTransport,
+) -> SciGuardRuntime:
+    token_configured = bool(os.environ.get("SCIGUARD_GITHUB_TOKEN", "").strip())
+    adapters: dict[str, object] = {}
+    if not token_configured:
+        publisher, verifier = _github_adapters(transport)
+        adapters = {
+            "change_publisher": publisher,
+            "verification_engine": verifier,
+        }
+    return SciGuardRuntime(
+        repair_repository=repository,
+        repair_target_repository=GITHUB_REPOSITORY_URL,
+        deployment_root=workspace / "deployments",
+        approval_authority=authority,
+        **adapters,
+    )
+
+
+def _wait_for_hosted_verification(
+    runtime: SciGuardRuntime,
+    store: RunStore,
+    *,
+    timeout_seconds: int,
+) -> RepairBundle:
+    deadline = time.monotonic() + timeout_seconds
+    while True:
+        published = runtime._latest_repair_bundle(store, INCIDENT_ID)
+        change_receipt = ChangeReceipt.model_validate(
+            published.external_action_receipt
+        )
+        try:
+            observed = runtime._verifier_for(change_receipt).verify(
+                published,
+                change_receipt,
+            )
+            if observed.status is not CheckExecutionStatus.PASS:
+                failed = [
+                    check.check_id
+                    for check in observed.checks
+                    if check.status is not CheckExecutionStatus.PASS
+                ]
+                raise RuntimeError(f"hosted GitHub checks failed: {failed}")
+            return runtime.verify_repair(store, INCIDENT_ID)
+        except VerificationError:
+            if time.monotonic() >= deadline:
+                raise
+            time.sleep(min(5, max(0, deadline - time.monotonic())))
+
+
+def _sync_repository_to_change(
+    repository: Path,
+    change_receipt: ChangeReceipt,
+) -> None:
+    _git(repository, "fetch", "--quiet", "--no-tags", "origin", change_receipt.branch)
+    fetched_sha = _git(repository, "rev-parse", "FETCH_HEAD")
+    if fetched_sha != change_receipt.commit_sha:
+        raise RuntimeError("fetched GitHub branch does not match the publication receipt")
+    _git(repository, "checkout", "--quiet", "--detach", change_receipt.commit_sha)
+    if _git(repository, "status", "--porcelain"):
+        raise RuntimeError("exact GitHub revision is dirty before staging application")
+
+
 def _run_canonical_chain(
     *,
     source_commit: str,
     source_dirty: bool,
     workspace: Path,
+    ci_timeout_seconds: int,
 ) -> tuple[RunStore, SciGuardRuntime, RepairBundle, list[dict], list[dict]]:
     repository = workspace / "repair-repository"
     _bootstrap_repository(repository)
@@ -260,12 +370,14 @@ def _run_canonical_chain(
     )
     authority = ApprovalAuthority(
         DEMO_SIGNING_KEY,
-        key_id="sciguard-champion-demo-v1",
+        key_id="sciguard-b042-demo-v1",
     )
-    runtime = SciGuardRuntime(
-        repair_repository=repository,
-        deployment_root=workspace / "deployments",
-        approval_authority=authority,
+    transport = _github_transport()
+    runtime = _runtime(
+        repository=repository,
+        workspace=workspace,
+        authority=authority,
+        transport=transport,
     )
     _reset_active_overlay_if_needed(runtime)
 
@@ -282,7 +394,11 @@ def _run_canonical_chain(
             datahub_backend=result.datahub_backend,
         )
         published = runtime.publish_repair(store, INCIDENT_ID)
-        verified = runtime.verify_repair(store, INCIDENT_ID)
+        verified = _wait_for_hosted_verification(
+            runtime,
+            store,
+            timeout_seconds=ci_timeout_seconds,
+        )
         approved = runtime.approve_repair(
             store,
             INCIDENT_ID,
@@ -292,6 +408,10 @@ def _run_canonical_chain(
                 "Reviewed the commit-bound unit contract, P-204 rank restoration, "
                 "safe-branch digest, rollback plan, and exact target revision."
             ),
+        )
+        _sync_repository_to_change(
+            repository,
+            ChangeReceipt.model_validate(approved.external_action_receipt),
         )
         applied = runtime.apply_repair(store, INCIDENT_ID)
         first_recovery = runtime.recover(
@@ -345,6 +465,81 @@ def _run_canonical_chain(
     if len(recovery_results) != 2:
         raise RuntimeError("canonical run did not record both recovery decisions")
     return store, runtime, applied, recovery_receipts, recovery_results
+
+
+def _pull_body(bundle: RepairBundle) -> str:
+    return "\n".join(
+        [
+            "## Proof-Carrying Repair",
+            "",
+            bundle.root_cause_summary,
+            "",
+            f"SciGuard-Incident: {bundle.incident_id}",
+            f"SciGuard-Bundle: {bundle.bundle_id}",
+            f"SciGuard-Evidence: {','.join(bundle.evidence_ids)}",
+            "",
+            "High-risk application remains locked until required checks pass "
+            "and the accountable DataHub owner approves this exact commit.",
+        ]
+    )
+
+
+def prepare_github_branch() -> dict[str, object]:
+    """Create and push the deterministic repair branch before the final capture."""
+
+    source_commit = current_source_commit(ROOT)
+    source_dirty = current_worktree_dirty(ROOT)
+    with tempfile.TemporaryDirectory(prefix="sciguard-b042-prepare-") as temporary:
+        workspace = Path(temporary)
+        repository = workspace / "repair-repository"
+        _bootstrap_repository(repository)
+        store = RunStore(
+            workspace / "runs",
+            source_commit=source_commit,
+            source_worktree_dirty=source_dirty,
+        )
+        runtime = SciGuardRuntime(
+            repair_repository=repository,
+            repair_target_repository=GITHUB_REPOSITORY_URL,
+        )
+        _reset_active_overlay_if_needed(runtime)
+        store.start_run(INCIDENT_ID)
+        try:
+            result = runtime.run_live(
+                INCIDENT_ID,
+                DEFAULT_SYMPTOM,
+                store.append_event,
+            )
+            store.finish_run(
+                INCIDENT_ID,
+                incident_state=result.incident_state,
+                datahub_backend=result.datahub_backend,
+            )
+            proposal = runtime._latest_repair_bundle(store, INCIDENT_ID)
+            receipt = LocalGitChangePublisher(repository).publish(proposal)
+            _git(
+                repository,
+                "push",
+                "--set-upstream",
+                "origin",
+                receipt.branch,
+            )
+        except Exception as exc:
+            store.fail_run(INCIDENT_ID, f"{type(exc).__name__}: {exc}")
+            raise
+
+    compare_url = (
+        f"{GITHUB_REPOSITORY_URL}/compare/main...{receipt.branch}?expand=1"
+    )
+    return {
+        "incident_id": INCIDENT_ID,
+        "bundle_id": proposal.bundle_id,
+        "branch": receipt.branch,
+        "commit_sha": receipt.commit_sha,
+        "pull_request_title": f"[SciGuard] {proposal.title}",
+        "pull_request_body": _pull_body(proposal),
+        "compare_url": compare_url,
+    }
 
 
 def _datahub_receipt(
@@ -502,7 +697,170 @@ def _datahub_receipt(
     return receipt
 
 
-def capture(*, require_clean: bool = False) -> dict:
+def _github_get(
+    transport: GitHubTransport,
+    path: str,
+    *,
+    expected_type: type,
+) -> Any:
+    response: GitHubResponse = transport.request("GET", path)
+    if response.status != 200 or not isinstance(response.data, expected_type):
+        raise RuntimeError(f"GitHub evidence read failed for {path}: HTTP {response.status}")
+    return response.data
+
+
+def _github_live_evidence(
+    *,
+    bundle: RepairBundle,
+    transport: GitHubTransport,
+) -> dict[str, object]:
+    change = ChangeReceipt.model_validate(bundle.external_action_receipt)
+    verification = bundle.verification_receipt or {}
+    approval = bundle.approval_receipt or {}
+    if (
+        change.provider != "GITHUB"
+        or change.remote_url is None
+        or change.pull_request_number is None
+        or verification.get("provider") != "GITHUB_CHECK_RUNS"
+        or verification.get("commit_sha") != change.commit_sha
+        or approval.get("commit_sha") != change.commit_sha
+    ):
+        raise RuntimeError("canonical bundle lacks a fully bound GitHub repair lifecycle")
+
+    prefix = f"/repos/{GITHUB_REPOSITORY}"
+    pull = _github_get(
+        transport,
+        f"{prefix}/pulls/{change.pull_request_number}",
+        expected_type=dict,
+    )
+    commit = _github_get(
+        transport,
+        f"{prefix}/commits/{change.commit_sha}",
+        expected_type=dict,
+    )
+    reviews = _github_get(
+        transport,
+        f"{prefix}/pulls/{change.pull_request_number}/reviews?per_page=100",
+        expected_type=list,
+    )
+    head = pull.get("head") if isinstance(pull.get("head"), dict) else {}
+    base = pull.get("base") if isinstance(pull.get("base"), dict) else {}
+    author = pull.get("user") if isinstance(pull.get("user"), dict) else {}
+    matching_reviews = [
+        review
+        for review in reviews
+        if isinstance(review, dict)
+        and review.get("commit_id") == change.commit_sha
+        and isinstance(review.get("user"), dict)
+        and review.get("state") in {"APPROVED", "COMMENTED", "CHANGES_REQUESTED"}
+    ]
+    if not matching_reviews:
+        raise RuntimeError(
+            "the exact GitHub commit has no public account-bound review evidence"
+        )
+    review = max(
+        matching_reviews,
+        key=lambda item: str(item.get("submitted_at") or ""),
+    )
+    reviewer = review["user"]
+    commit_verification = (
+        commit.get("commit", {}).get("verification", {})
+        if isinstance(commit.get("commit"), dict)
+        else {}
+    )
+    reviewer_login = str(reviewer.get("login") or "")
+    author_login = str(author.get("login") or "")
+    independent_reviewer = bool(
+        reviewer_login and author_login and reviewer_login != author_login
+    )
+    evidence = {
+        "schema_version": 2,
+        "evidence_type": "GITHUB_REMOTE_REPAIR_AND_IDENTITY_BOUNDARY",
+        "incident_id": bundle.incident_id,
+        "bundle_id": bundle.bundle_id,
+        "repository": GITHUB_REPOSITORY_URL,
+        "boundary_statement": (
+            "The canonical incident contains a real GitHub PR, a public account-bound "
+            "review, and exact-SHA hosted CI. Enterprise SSO/OIDC is not asserted; "
+            "production_authorized remains false."
+        ),
+        "pull_request": {
+            "number": pull.get("number"),
+            "state": pull.get("state"),
+            "url": pull.get("html_url"),
+            "author_login": author_login,
+            "author_id": author.get("id"),
+            "head_ref": head.get("ref"),
+            "head_sha": head.get("sha"),
+            "base_ref": base.get("ref"),
+            "base_sha": base.get("sha"),
+        },
+        "commit": {
+            "sha": commit.get("sha"),
+            "url": commit.get("html_url"),
+            "verified_signature": bool(commit_verification.get("verified")),
+        },
+        "authenticated_actor": {
+            "login": reviewer_login,
+            "id": reviewer.get("id"),
+        },
+        "authenticated_review": {
+            "review_id": review.get("id"),
+            "reviewer_login": reviewer_login,
+            "reviewer_id": reviewer.get("id"),
+            "commit_id": review.get("commit_id"),
+            "state": review.get("state"),
+            "submitted_at": review.get("submitted_at"),
+            "url": review.get("html_url"),
+            "identity_assurance": "GITHUB_ACCOUNT_REVIEW",
+            "enterprise_sso_verified": False,
+            "independent_reviewer": independent_reviewer,
+            "production_authorized": False,
+        },
+        "change_receipt": change.model_dump(mode="json"),
+        "verification_receipt": verification,
+        "approval_binding": {
+            "receipt_id": approval.get("receipt_id"),
+            "commit_sha": approval.get("commit_sha"),
+            "identity_assurance": approval.get("identity_assurance"),
+            "production_authorized": approval.get("production_authorized"),
+        },
+        "canonical_bindings": {
+            "incident_id": bundle.incident_id,
+            "bundle_id": bundle.bundle_id,
+            "publication_sha": change.commit_sha,
+            "verification_sha": verification.get("commit_sha"),
+            "approval_sha": approval.get("commit_sha"),
+            "application_sha": (bundle.application_receipt or {}).get("commit_sha"),
+        },
+    }
+    bindings = evidence["canonical_bindings"]
+    bound_shas = [
+        bindings["publication_sha"],
+        bindings["verification_sha"],
+        bindings["approval_sha"],
+        bindings["application_sha"],
+    ]
+    if (
+        pull.get("state") != "open"
+        or pull.get("html_url") != change.remote_url
+        or head.get("sha") != change.commit_sha
+        or base.get("sha") != change.base_commit_sha
+        or commit.get("sha") != change.commit_sha
+        or bindings["incident_id"] != bundle.incident_id
+        or bindings["bundle_id"] != bundle.bundle_id
+        or len(set(bound_shas)) != 1
+        or bound_shas[0] != change.commit_sha
+    ):
+        raise RuntimeError("GitHub evidence does not match the canonical repair receipts")
+    return evidence
+
+
+def capture(
+    *,
+    require_clean: bool = False,
+    ci_timeout_seconds: int = 60,
+) -> dict:
     source_commit = current_source_commit(ROOT)
     source_dirty = current_worktree_dirty(ROOT)
     evaluation_report = (
@@ -511,12 +869,13 @@ def capture(*, require_clean: bool = False) -> dict:
     evaluation_report_sha256 = _sha256(evaluation_report)
     if require_clean and source_dirty:
         raise RuntimeError("official canonical capture requires a clean source worktree")
-    with tempfile.TemporaryDirectory(prefix="sciguard-champion-capture-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="sciguard-b042-capture-") as temporary:
         workspace = Path(temporary)
         store, _runtime, bundle, recovery_receipts, recovery_results = _run_canonical_chain(
             source_commit=source_commit,
             source_dirty=source_dirty,
             workspace=workspace,
+            ci_timeout_seconds=ci_timeout_seconds,
         )
         events = store.get_events(INCIDENT_ID)
         public_events, redactions = _public_event_bytes(
@@ -537,12 +896,17 @@ def capture(*, require_clean: bool = False) -> dict:
         )
         raw_datahub_receipt = _json_bytes(datahub_receipt)
         datahub_receipt_sha256 = _sha256(raw_datahub_receipt)
+        github_live_evidence = _github_live_evidence(
+            bundle=bundle,
+            transport=_github_transport(),
+        )
+        raw_github_live_evidence = _json_bytes(github_live_evidence)
+        github_live_evidence_sha256 = _sha256(raw_github_live_evidence)
 
         public_bundle = copy.deepcopy(bundle.model_dump(mode="json"))
-        public_bundle["external_action_receipt"]["repository"] = PUBLIC_REPOSITORY_LABEL
-        public_bundle["verification_receipt"]["repository"] = PUBLIC_REPOSITORY_LABEL
         for check in public_bundle["verification_receipt"]["checks"]:
-            check["executed_command"][0] = "python"
+            if check["executed_command"]:
+                check["executed_command"][0] = "python"
         public_bundle["linked_capture"] = {
             "capture_type": "RECORDED_DATAHUB_END_TO_END",
             "canonical_single_run": True,
@@ -550,10 +914,11 @@ def capture(*, require_clean: bool = False) -> dict:
             "public_event_stream_sha256": public_events_sha256,
             "datahub_native_context_source": "LIVE_DATAHUB_END_TO_END_CLOSURE",
             "datahub_native_receipt_sha256": datahub_receipt_sha256,
+            "github_live_evidence_sha256": github_live_evidence_sha256,
             "evaluation_report_sha256": evaluation_report_sha256,
             "datahub_server_version": datahub_receipt["server_version"],
-            "change_provider": "LOCAL_GIT",
-            "remote_pull_request_claimed": False,
+            "change_provider": "GITHUB",
+            "remote_pull_request_claimed": True,
             "identity_boundary": "DEMO_SIGNED_NOT_SSO",
             "production_authorized": False,
             "application_environment": "SCIGUARD_SYNTHETIC_STAGING",
@@ -580,6 +945,7 @@ def capture(*, require_clean: bool = False) -> dict:
             "source_incident_id": INCIDENT_ID,
             "source_events_sha256": public_events_sha256,
             "datahub_native_receipt_sha256": datahub_receipt_sha256,
+            "github_live_evidence_sha256": github_live_evidence_sha256,
             "evaluation_report_sha256": evaluation_report_sha256,
             "repair_bundle_sha256": _sha256(raw_bundle),
             "bundle_id": public_bundle["bundle_id"],
@@ -610,6 +976,8 @@ def capture(*, require_clean: bool = False) -> dict:
             )
         for receipt_path in DATAHUB_RECEIPTS:
             _atomic_bytes(receipt_path, raw_datahub_receipt)
+        for receipt_path in GITHUB_RECEIPTS:
+            _atomic_bytes(receipt_path, raw_github_live_evidence)
 
     return {
         "incident_id": INCIDENT_ID,
@@ -619,6 +987,8 @@ def capture(*, require_clean: bool = False) -> dict:
         "commit_sha": repair_manifest["commit_sha"],
         "application_receipt_id": repair_manifest["application_receipt_id"],
         "datahub_receipt_sha256": datahub_receipt_sha256,
+        "github_live_evidence_sha256": github_live_evidence_sha256,
+        "pull_request_url": bundle.external_action_receipt["remote_url"],
         "source_commit": source_commit,
         "source_worktree_dirty": source_dirty,
     }
@@ -626,15 +996,35 @@ def capture(*, require_clean: bool = False) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Capture the canonical one-incident SciGuard champion replay."
+        description="Prepare or capture the canonical B042 SciGuard repair closure."
+    )
+    parser.add_argument(
+        "--prepare-github",
+        action="store_true",
+        help="Create and push the deterministic repair branch, then print PR details.",
     )
     parser.add_argument(
         "--require-clean",
         action="store_true",
         help="Fail unless the source worktree is clean before capture.",
     )
+    parser.add_argument(
+        "--ci-timeout-seconds",
+        type=int,
+        default=60,
+        help="Maximum seconds to wait for the three exact-SHA GitHub checks.",
+    )
     args = parser.parse_args()
-    result = capture(require_clean=args.require_clean)
+    if args.ci_timeout_seconds < 1:
+        parser.error("--ci-timeout-seconds must be positive")
+    result = (
+        prepare_github_branch()
+        if args.prepare_github
+        else capture(
+            require_clean=args.require_clean,
+            ci_timeout_seconds=args.ci_timeout_seconds,
+        )
+    )
     print(json.dumps(result, indent=2, sort_keys=True))
 
 

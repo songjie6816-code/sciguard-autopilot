@@ -21,10 +21,10 @@ import certifi
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_ROOT = ROOT / "web" / "public"
 REQUIRED_ARTIFACTS = (
-    "replays/inc-sciguard-champion/manifest.json",
-    "replays/inc-sciguard-champion/events.jsonl",
-    "replays/inc-sciguard-champion/repair-manifest.json",
-    "replays/inc-sciguard-champion/repair-bundle.json",
+    "replays/inc-sciguard-b042-unit-contract/manifest.json",
+    "replays/inc-sciguard-b042-unit-contract/events.jsonl",
+    "replays/inc-sciguard-b042-unit-contract/repair-manifest.json",
+    "replays/inc-sciguard-b042-unit-contract/repair-bundle.json",
     "evidence/datahub_live_receipt.json",
     "evidence/evaluation_report.json",
     "evidence/github_live_evidence.json",

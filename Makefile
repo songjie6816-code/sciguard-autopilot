@@ -2,7 +2,7 @@ PYTHON ?= python3
 DATAHUB ?= datahub
 DATAHUB_GMS_URL ?= http://localhost:8080
 
-.PHONY: setup test lint check api datahub-up datahub-sample repair-sandbox repair-replay datahub-live-receipt champion-capture champion-capture-clean verify-public
+.PHONY: setup test lint check api datahub-up datahub-sample repair-sandbox repair-replay datahub-live-receipt canonical-prepare canonical-capture canonical-capture-clean verify-public
 
 setup:
 	$(PYTHON) -m pip install --upgrade pip wheel setuptools
@@ -35,11 +35,14 @@ datahub-live-receipt:
 	$(PYTHON) scripts/capture_datahub_live_receipt.py
 
 # Primary one-incident Judge evidence. The two targets above are legacy refreshers.
-champion-capture:
-	$(PYTHON) scripts/capture_champion_run.py
+canonical-prepare:
+	$(PYTHON) scripts/capture_canonical_run.py --prepare-github
 
-champion-capture-clean:
-	$(PYTHON) scripts/capture_champion_run.py --require-clean
+canonical-capture:
+	$(PYTHON) scripts/capture_canonical_run.py
+
+canonical-capture-clean:
+	$(PYTHON) scripts/capture_canonical_run.py --require-clean
 
 verify-public:
 	@test -n "$(URL)" || (echo "Usage: make verify-public URL=https://judge.example" && exit 2)

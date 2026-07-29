@@ -64,10 +64,10 @@ After ingesting the synthetic polymer graph into the running Quickstart, a devel
 capture of the complete one-incident chain is:
 
 ```bash
-make champion-capture
+make canonical-capture
 ```
 
-This executes `inc-sciguard-champion` through the 55-event DataHub, repair, `APPLIED`, and
+This executes `inc-sciguard-b042-unit-contract` through the 55-event DataHub, repair, `APPLIED`, and
 two-clean-run recovery closure, then updates the replay package and DataHub receipt in both
 repository and public-asset locations. Development captures may truthfully record a dirty
 worktree.
@@ -75,10 +75,10 @@ worktree.
 For official evidence, first freeze and commit the implementation, then run:
 
 ```bash
-make champion-capture-clean
+make canonical-capture-clean
 ```
 
-This maps to `python scripts/capture_champion_run.py --require-clean` and fails before
+This maps to `python scripts/capture_canonical_run.py --require-clean` and fails before
 capture if the source worktree is dirty. Verify `source_worktree_dirty: false` in the
 replay manifest, repair manifest, and DataHub closure receipt before committing the
 generated evidence as the release wrapper.

@@ -98,7 +98,7 @@ lineage — expressed as configurable domain profiles rather than a hard-coded s
   incident, one exact repair revision, and two fresh recovery-verification executions.**
   The bundle is integrity-checked and globally labelled `RECORDED_REPLAY`, never presented
   as a live run.
-- The same `inc-sciguard-champion` execution creates a real `LOCAL_GIT` commit, executes
+- The same `inc-sciguard-b042-unit-contract` execution creates a real GitHub PR, executes
   three pytest checks, records a demo-signed owner review, applies the exact tree to
   synthetic staging, enforces two clean recovery runs, resolves the native Incident, and
   publishes the final Decision Log.
@@ -191,7 +191,7 @@ applied to our own code and metrics via adversarial review and a gated evaluatio
   PR/check-run receipt now exists, while the canonical local action capture deliberately
   remains separate.
 - Re-run the successful 55-event canonical incident with
-  `python scripts/capture_champion_run.py --require-clean` whenever the frozen
+  `python scripts/capture_canonical_run.py --require-clean` whenever the frozen
   implementation changes; the checked capture already records
   `source_worktree_dirty: false`.
 - Add domains beyond polymers (battery cycle-life, catalysis) as new profiles.

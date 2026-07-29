@@ -12,7 +12,7 @@ api/main.py → api/runtime.py → core modules → DataHub / local controller
 
 `api/runtime.py` is the only business-workflow composition root. To understand the
 complete closure, follow `SciGuardRuntime.run_live()` through publish, verify, approve,
-apply, and two recovery calls in `scripts/capture_champion_run.py`.
+apply, and two recovery calls in `scripts/capture_canonical_run.py`.
 
 ## Main trunk
 
@@ -42,7 +42,7 @@ apply, and two recovery calls in `scripts/capture_champion_run.py`.
 | DataHub access | `datahub_client/*`, `data/synthetic_polymer/native_ml.py` | SDK/MCP context, native Production ML projection, and safe read-modify-write updates. |
 | LLM safety | `security/*` | Zero raw rows, redaction, bounded context, read-only tool gate. |
 | Interfaces | `api/main.py`, `web/`, `app/streamlit_app.py`, `examples/run_incident.py` | One API plus thin visual/CLI clients. |
-| Evidence | `data/synthetic_polymer/`, `evaluation/`, `scripts/capture_champion_run.py`, `examples/replays/inc-sciguard-champion/` | Reproducible scenario, machine-readable metrics, and one canonical 55-event closure. |
+| Evidence | `data/synthetic_polymer/`, `evaluation/`, `scripts/capture_canonical_run.py`, `examples/replays/inc-sciguard-b042-unit-contract/` | Reproducible scenario, machine-readable metrics, and one canonical 55-event closure. |
 | Reusable agent context | `skills/` | DataHub scientific impact, repair review, and recovery certification workflows. |
 
 ## Authority rules

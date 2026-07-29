@@ -7,7 +7,7 @@ test("judge build is a no-login static replay with no localhost evidence links",
   const manifest = JSON.parse(
     await readFile(
       new URL(
-        "../judge-dist/replays/inc-sciguard-champion/manifest.json",
+        "../judge-dist/replays/inc-sciguard-b042-unit-contract/manifest.json",
         import.meta.url,
       ),
       "utf8",
@@ -15,7 +15,7 @@ test("judge build is a no-login static replay with no localhost evidence links",
   );
   const events = await readFile(
     new URL(
-      "../judge-dist/replays/inc-sciguard-champion/events.jsonl",
+      "../judge-dist/replays/inc-sciguard-b042-unit-contract/events.jsonl",
       import.meta.url,
     ),
     "utf8",
@@ -33,7 +33,7 @@ test("judge build is a no-login static replay with no localhost evidence links",
   assert.equal(manifest.status, "COMPLETED");
   assert.equal(events.trim().split("\n").length, manifest.event_count);
   assert.equal(dataHubReceipt.capture_type, "LIVE_DATAHUB_END_TO_END_CLOSURE");
-  assert.equal(dataHubReceipt.incident_id, "inc-sciguard-champion");
+  assert.equal(dataHubReceipt.incident_id, "inc-sciguard-b042-unit-contract");
   assert.equal(dataHubReceipt.repair_lifecycle.status, "APPLIED");
   assert.equal(dataHubReceipt.repair_lifecycle.recovery_results.at(-1).resume_allowed, true);
   assert.equal(dataHubReceipt.entity_count, 19);

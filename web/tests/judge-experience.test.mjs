@@ -11,7 +11,7 @@ import {
 } from "../app/judge-experience.mjs";
 
 const replayUrl = new URL(
-  "../public/replays/inc-sciguard-champion/events.jsonl",
+  "../public/replays/inc-sciguard-b042-unit-contract/events.jsonl",
   import.meta.url,
 );
 
@@ -188,9 +188,9 @@ test("GitHub Evidence Center receipt binds a real PR and hosted checks without o
     ),
   );
   assert.equal(receipt.evidence_type, "GITHUB_REMOTE_REPAIR_AND_IDENTITY_BOUNDARY");
-  assert.equal(
+  assert.match(
     receipt.pull_request.url,
-    "https://github.com/songjie6816-code/sciguard-repair-sandbox/pull/1",
+    /^https:\/\/github\.com\/songjie6816-code\/sciguard-repair-sandbox\/pull\/[2-9][0-9]*$/,
   );
   assert.equal(receipt.pull_request.state, "open");
   assert.match(receipt.pull_request.head_sha, /^[0-9a-f]{40}$/);
@@ -211,14 +211,14 @@ test("GitHub Evidence Center receipt binds a real PR and hosted checks without o
   );
   assert.equal(
     receipt.authenticated_review.identity_assurance,
-    "GITHUB_AUTHENTICATED_ACCOUNT",
+    "GITHUB_ACCOUNT_REVIEW",
   );
   assert.equal(receipt.authenticated_review.enterprise_sso_verified, false);
   assert.equal(receipt.authenticated_review.independent_reviewer, false);
   assert.equal(receipt.authenticated_review.production_authorized, false);
 });
 
-test("champion experience exposes brief, operate, audit, and receipt-bound repair", async () => {
+test("judge experience exposes brief, operate, audit, and receipt-bound repair", async () => {
   const source = await readFile(
     new URL("../app/CommandCenter.tsx", import.meta.url),
     "utf8",

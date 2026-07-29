@@ -11,7 +11,7 @@ def test_curated_live_datahub_receipt_proves_native_entities_and_lifecycle() -> 
     receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
 
     assert receipt["capture_type"] == "LIVE_DATAHUB_END_TO_END_CLOSURE"
-    assert receipt["incident_id"] == "inc-sciguard-champion"
+    assert receipt["incident_id"] == "inc-sciguard-b042-unit-contract"
     assert receipt["source_worktree_dirty"] is False
     assert receipt["public_projection"]["canonical_single_run"] is True
     assert receipt["public_projection"]["decision_fields_redacted"] is False
@@ -42,8 +42,8 @@ def test_curated_live_datahub_receipt_proves_native_entities_and_lifecycle() -> 
     assert receipt["decision_log_lifecycle"]["related_asset_count"] == 11
     lifecycle = receipt["repair_lifecycle"]
     assert lifecycle["status"] == "APPLIED"
-    assert lifecycle["change_provider"] == "LOCAL_GIT"
-    assert lifecycle["remote_pull_request_claimed"] is False
+    assert lifecycle["change_provider"] == "GITHUB"
+    assert lifecycle["remote_pull_request_claimed"] is True
     assert lifecycle["identity_assurance"] == "DEMO_SIGNED_NOT_SSO"
     assert lifecycle["approval_production_authorized"] is False
     assert lifecycle["application_environment"] == "SCIGUARD_SYNTHETIC_STAGING"

@@ -41,13 +41,13 @@ test("judge artifact contains only public static replay material", async () => {
 
   const manifest = JSON.parse(
     await readFile(
-      new URL("replays/inc-sciguard-champion/manifest.json", judgeRoot),
+      new URL("replays/inc-sciguard-b042-unit-contract/manifest.json", judgeRoot),
       "utf8",
     ),
   );
   const events = (
     await readFile(
-      new URL("replays/inc-sciguard-champion/events.jsonl", judgeRoot),
+      new URL("replays/inc-sciguard-b042-unit-contract/events.jsonl", judgeRoot),
       "utf8",
     )
   )
@@ -57,7 +57,7 @@ test("judge artifact contains only public static replay material", async () => {
   assert.equal(manifest.event_count, 55);
   assert.equal(events.length, 55);
   assert.deepEqual([...new Set(events.map((event) => event.incident_id))], [
-    "inc-sciguard-champion",
+    "inc-sciguard-b042-unit-contract",
   ]);
   assert.equal(
     events.some((event) =>

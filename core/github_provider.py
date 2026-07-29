@@ -14,12 +14,15 @@ import base64
 import hashlib
 import json
 import re
+import ssl
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Protocol
 from urllib.error import HTTPError
 from urllib.parse import quote
 from urllib.request import Request, urlopen
+
+import certifi
 
 from core.change_provider import (
     ChangePublicationError,
@@ -63,6 +66,7 @@ class UrllibGitHubTransport:
         self._token = token
         self._api_base = api_base.rstrip("/")
         self._timeout_seconds = timeout_seconds
+        self._tls_context = ssl.create_default_context(cafile=certifi.where())
 
     def request(
         self,
@@ -86,7 +90,66 @@ class UrllibGitHubTransport:
             },
         )
         try:
-            with urlopen(request, timeout=self._timeout_seconds) as response:
+            with urlopen(
+                request,
+                timeout=self._timeout_seconds,
+                context=self._tls_context,
+            ) as response:
+                raw = response.read()
+                return GitHubResponse(
+                    status=response.status,
+                    data=json.loads(raw) if raw else {},
+                )
+        except HTTPError as exc:
+            raw = exc.read()
+            try:
+                detail = json.loads(raw) if raw else {}
+            except json.JSONDecodeError:
+                detail = {}
+            return GitHubResponse(status=exc.code, data=detail)
+
+
+class PublicReadOnlyGitHubTransport:
+    """Read public GitHub evidence without creating or storing a credential."""
+
+    def __init__(
+        self,
+        *,
+        api_base: str = "https://api.github.com",
+        timeout_seconds: float = 20,
+    ) -> None:
+        if not api_base.startswith("https://"):
+            raise ValueError("GitHub API base must use HTTPS")
+        self._api_base = api_base.rstrip("/")
+        self._timeout_seconds = timeout_seconds
+        self._tls_context = ssl.create_default_context(cafile=certifi.where())
+
+    def request(
+        self,
+        method: str,
+        path: str,
+        body: dict[str, Any] | None = None,
+    ) -> GitHubResponse:
+        if method != "GET" or body is not None:
+            return GitHubResponse(
+                status=403,
+                data={"message": "public evidence transport is read-only"},
+            )
+        request = Request(
+            f"{self._api_base}{path}",
+            method="GET",
+            headers={
+                "Accept": "application/vnd.github+json",
+                "User-Agent": "sciguard-public-evidence-verifier",
+                "X-GitHub-Api-Version": "2022-11-28",
+            },
+        )
+        try:
+            with urlopen(
+                request,
+                timeout=self._timeout_seconds,
+                context=self._tls_context,
+            ) as response:
                 raw = response.read()
                 return GitHubResponse(
                     status=response.status,

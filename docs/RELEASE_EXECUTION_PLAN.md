@@ -1,4 +1,4 @@
-# SciGuard Champion Execution Plan
+# SciGuard Release Execution Plan
 
 > Status source for the post-P1 upgrade from a verified incident replay to a
 > proof-carrying Scientific AI Autopilot. Update a gate only when the cited
@@ -110,7 +110,7 @@ first cognitive load presented to a judge.
 - [x] Inspectable evidence receipts and measured lineage ablation.
 - [x] Brief / Operate / Audit progressive disclosure.
 - [x] Repair Studio shows patch, artifacts, commit, test, approval, and honesty boundaries.
-- [x] One canonical `inc-sciguard-champion` capture replaces the former stitched replay and
+- [x] One canonical `inc-sciguard-b042-unit-contract` capture replaces the former stitched replay and
       binds all lifecycle receipts to the same incident and event stream.
 - [x] Three-arm measured ablation: lineage, search-only DataHub, and zero-call no-DataHub abstention.
 - [x] Reviewed machine-readable evaluation JSON is shared by the repository and Judge UI.
@@ -180,7 +180,7 @@ bundle, commit, tree digest, deployment ID, and environment while explicitly rec
 caller-supplied check status has no authority. The UI and API preserve the boundary that
 this is not a GitHub pull request, production identity, or a production deployment.
 
-`scripts/capture_champion_run.py` executes the entire chain against one local DataHub
+`scripts/capture_canonical_run.py` executes the entire chain against one local DataHub
 incident and one ephemeral Git repository, verifies `APPLIED`, requires two fresh recovery
 executions, reads back 19 native entities plus the resolved Incident and final Decision
 Log, then exports a 55-event public projection. Only machine-local paths are redacted;
