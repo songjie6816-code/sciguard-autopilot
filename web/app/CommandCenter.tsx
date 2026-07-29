@@ -2314,7 +2314,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
                     rel="noreferrer"
                     target="_blank"
                   >
-                    OPEN PUBLIC PR #1 ↗
+                    OPEN PUBLIC PR #{numberValue(drawerGitHubPullRequest.number)} ↗
                   </a>
                 </div>
                 <div>

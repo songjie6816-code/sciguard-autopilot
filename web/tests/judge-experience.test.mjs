@@ -193,6 +193,7 @@ test("GitHub Evidence Center receipt binds a real PR and hosted checks without o
     /^https:\/\/github\.com\/songjie6816-code\/sciguard-repair-sandbox\/pull\/[2-9][0-9]*$/,
   );
   assert.equal(receipt.pull_request.state, "open");
+  assert.equal(receipt.pull_request.number, 2);
   assert.match(receipt.pull_request.head_sha, /^[0-9a-f]{40}$/);
   assert.equal(receipt.change_receipt.commit_sha, receipt.pull_request.head_sha);
   assert.equal(receipt.verification_receipt.commit_sha, receipt.pull_request.head_sha);
@@ -216,6 +217,16 @@ test("GitHub Evidence Center receipt binds a real PR and hosted checks without o
   assert.equal(receipt.authenticated_review.enterprise_sso_verified, false);
   assert.equal(receipt.authenticated_review.independent_reviewer, false);
   assert.equal(receipt.authenticated_review.production_authorized, false);
+
+  const source = await readFile(
+    new URL("../app/CommandCenter.tsx", import.meta.url),
+    "utf8",
+  );
+  assert.match(
+    source,
+    /OPEN PUBLIC PR #\{numberValue\(drawerGitHubPullRequest\.number\)\}/,
+  );
+  assert.doesNotMatch(source, /OPEN PUBLIC PR #1/);
 });
 
 test("judge experience exposes brief, operate, audit, and receipt-bound repair", async () => {
