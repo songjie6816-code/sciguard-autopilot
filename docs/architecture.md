@@ -341,11 +341,14 @@ all other DataHub metadata, and deletes only that incident's known manifest/even
 
 `web/` contains two builds of the same command center and three progressive views:
 Brief for the scientific decision, Operate for graph/action work, and Audit for receipts.
-The full vinext/Next.js product can
-connect to the FastAPI SSE endpoint and remains compatible with the hosting platform's
-identity layer. `pnpm build:judge` creates an independent static `judge-dist/` build that
-requires no login, secret, backend, local DataHub, or paid API. Both consume the frozen
-Event schema directly. Recorded mode verifies the 55-event public bundle's SHA-256, count,
+The full vinext/Next.js product can connect to the FastAPI SSE endpoint and remains
+compatible with the hosting platform's identity layer. `pnpm build:judge` creates an
+independent static `judge-dist/` build that requires no login, browser secret, local
+DataHub, or paid API. Its public Cloudflare Worker mirrors the bounded Event API contract
+for one fixed synthetic scenario. Each run performs a fresh calculation and persists
+isolated events in a Durable Object, while DataHub context is explicitly sourced from the
+Module 1 verified read-back snapshot. GitHub and DataHub actions remain read-only.
+Both modes consume the Event schema directly. Recorded mode verifies the 55-event public bundle's SHA-256, count,
 single incident, contiguous sequence, and unique IDs in the browser before rendering.
 Playback changes only how many events are visible, so incident state, policy counts,
 enforcement outcomes, and recovery never come from a parallel UI state machine.

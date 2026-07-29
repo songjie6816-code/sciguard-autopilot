@@ -198,7 +198,8 @@ applied to our own code and metrics via adversarial review and a gated evaluatio
 
 ## Built with
 
-python · datahub · datahub-mcp-server · mcp · fastapi · react · pydantic · git · pytest · yaml
+python · datahub · datahub-mcp-server · mcp · fastapi · react · cloudflare workers ·
+durable objects · server-sent events · pydantic · git · pytest · yaml
 
 ## Links
 

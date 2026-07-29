@@ -154,6 +154,15 @@ function formatSeconds(milliseconds: number): string {
   return `${(milliseconds / 1000).toFixed(1)}s`;
 }
 
+function liveSession(): string {
+  const storageKey = "sciguard-live-session";
+  const existing = window.sessionStorage.getItem(storageKey);
+  if (existing) return existing;
+  const created = `judge-${globalThis.crypto.randomUUID()}`;
+  window.sessionStorage.setItem(storageKey, created);
+  return created;
+}
+
 function stateFromEvents(events: SciGuardEvent[], fallback: string): string {
   let state = events.some((event) => event.event_type === "SIGNAL_DETECTED")
     ? "DETECTED"
@@ -478,18 +487,18 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerEventId, setDrawerEventId] = useState<string | null>(null);
   const eventSource = useRef<EventSource | null>(null);
+  const liveTimeout = useRef<number | null>(null);
   const drawerRef = useRef<HTMLElement | null>(null);
   const drawerCloseRef = useRef<HTMLButtonElement | null>(null);
   const drawerTriggerRef = useRef<HTMLElement | null>(null);
 
   const apiBase = useMemo(() => {
-    if (judgeMode) return "";
     if (CONFIGURED_API_BASE) return CONFIGURED_API_BASE.replace(/\/$/, "");
     if (typeof window !== "undefined" && ["localhost", "127.0.0.1"].includes(window.location.hostname)) {
       return LOCAL_API_BASE;
     }
     return "";
-  }, [judgeMode]);
+  }, []);
 
   const loadReplay = useCallback(async (showFinal = false) => {
     setPlaying(false);
@@ -569,22 +578,35 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
         setIntegrity("failed");
         setNotice(error instanceof Error ? error.message : "Replay failed to load");
       });
-      if (judgeMode) {
-        setApiHealth("offline");
-        setApiReason(
-          "Judge Mode is intentionally static: no keys, paid API, or local DataHub required.",
-        );
-      } else if (!apiBase) {
+      if (!apiBase) {
         setApiHealth("offline");
         setApiReason("No public live backend is configured for this hosted build.");
       } else {
         void fetch(`${apiBase}/healthz`)
           .then(async (response) => {
             if (!response.ok) throw new Error(`health check returned ${response.status}`);
-            const health = (await response.json()) as { status?: string };
-            if (health.status !== "ok") throw new Error("a live dependency is degraded");
+            const health = (await response.json()) as {
+              status?: string;
+              capabilities?: {
+                live_calculation?: boolean;
+                server_sent_events?: boolean;
+                isolated_state?: boolean;
+                mutating_actions?: boolean;
+              };
+            };
+            if (
+              health.status !== "ok" ||
+              !health.capabilities?.live_calculation ||
+              !health.capabilities.server_sent_events ||
+              !health.capabilities.isolated_state ||
+              health.capabilities.mutating_actions !== false
+            ) {
+              throw new Error("the bounded live capability contract is degraded");
+            }
             setApiHealth("ok");
-            setApiReason("Bounded API and required dependencies are healthy.");
+            setApiReason(
+              "Edge compute and isolated state are healthy · DataHub context uses the verified Module 1 read-back.",
+            );
           })
           .catch((error: unknown) => {
             setApiHealth("offline");
@@ -597,6 +619,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
     return () => {
       window.clearTimeout(replayTimer);
       eventSource.current?.close();
+      if (liveTimeout.current !== null) window.clearTimeout(liveTimeout.current);
     };
   }, [apiBase, judgeMode, loadReplay]);
 
@@ -657,9 +680,24 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
 
   const connectLiveStream = useCallback((runManifest: RunManifest) => {
     eventSource.current?.close();
+    if (liveTimeout.current !== null) window.clearTimeout(liveTimeout.current);
     if (!apiBase) return;
     const source = new EventSource(`${apiBase}/api/runs/${runManifest.incident_id}/events`);
     eventSource.current = source;
+    liveTimeout.current = window.setTimeout(() => {
+      source.close();
+      void loadReplay(false)
+        .then(() => {
+          setNotice(
+            "LIVE TIMED OUT · automatically switched to the verified immutable replay",
+          );
+        })
+        .catch(() => {
+          setNotice(
+            "LIVE TIMED OUT · verified replay fallback is also unavailable",
+          );
+        });
+    }, 15_000);
     source.addEventListener("sciguard-event", (message) => {
       const frame = JSON.parse((message as MessageEvent).data) as EventFrame;
       setEvents((current) => {
@@ -668,16 +706,49 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
       });
       setVisibleCount((count) => count + 1);
     });
-    source.onerror = () => source.close();
-  }, [apiBase]);
+    source.addEventListener("sciguard-complete", (message) => {
+      const completed = JSON.parse((message as MessageEvent).data) as {
+        manifest: RunManifest;
+      };
+      setManifest(completed.manifest);
+      setNotice(
+        "LIVE COMPLETE · scientific calculation, DataHub context, policy, repair plan, and enforcement verified",
+      );
+      if (liveTimeout.current !== null) {
+        window.clearTimeout(liveTimeout.current);
+        liveTimeout.current = null;
+      }
+      source.close();
+    });
+    source.addEventListener("sciguard-error", () => {
+      source.close();
+      if (liveTimeout.current !== null) {
+        window.clearTimeout(liveTimeout.current);
+        liveTimeout.current = null;
+      }
+      void loadReplay(false).then(() => {
+        setNotice(
+          "LIVE BACKEND INTERRUPTED · automatically switched to the verified immutable replay",
+        );
+      });
+    });
+    source.onerror = () => {
+      if (source.readyState === EventSource.CLOSED) source.close();
+    };
+  }, [apiBase, loadReplay]);
 
   const startLive = useCallback(async () => {
-    setNotice("Requesting a real DataHub-backed run…");
+    setNotice("Requesting an isolated live scientific calculation…");
     if (!apiBase) throw new Error(apiReason);
+    const idempotencyKey = `judge-${globalThis.crypto.randomUUID()}`;
     const response = await fetch(`${apiBase}/api/runs`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({}),
+      headers: {
+        "Content-Type": "application/json",
+        "Idempotency-Key": idempotencyKey,
+        "X-SciGuard-Session": liveSession(),
+      },
+      body: JSON.stringify({ scenario: "KELVIN_CELSIUS_B042" }),
     });
     if (!response.ok) {
       const detail = await response.text();
@@ -687,12 +758,12 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
     setManifest(view.manifest);
     setEvents([]);
     setRepairOverride(null);
-    setDataHubLiveReceipt(null);
-    setGithubLiveEvidence(null);
     setVisibleCount(0);
     setMode("LIVE");
     setPlaying(false);
-    setNotice("LIVE · events are arriving from the bounded API");
+    setNotice(
+      "LIVE · new events are arriving from edge compute; DataHub context is a verified read-back snapshot",
+    );
     connectLiveStream(view.manifest);
   }, [apiBase, apiReason, connectLiveStream]);
 
@@ -703,6 +774,21 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
     setPlaying(true);
     setNotice("Playing · deterministic 15s narration over verified event order");
   }, [loadReplay]);
+
+  const resetLive = useCallback(async () => {
+    if (!apiBase || mode !== "LIVE" || !manifest) return;
+    const response = await fetch(`${apiBase}/api/reset`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-SciGuard-Session": liveSession(),
+      },
+      body: JSON.stringify({ incident_id: manifest.incident_id }),
+    });
+    if (!response.ok) throw new Error(await response.text());
+    await loadReplay(false);
+    setNotice("LIVE SANDBOX RESET · verified replay restored");
+  }, [apiBase, loadReplay, manifest, mode]);
 
   const visibleEvents = useMemo(
     () => events.slice(0, visibleCount),
@@ -950,7 +1036,11 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
     (artifact) => artifact.kind === "CODE_PATCH",
   );
   const canOperateRepair = Boolean(
-    mode === "LIVE" && apiBase && manifest?.incident_id && apiHealth === "ok",
+    !judgeMode &&
+      mode === "LIVE" &&
+      apiBase &&
+      manifest?.incident_id &&
+      apiHealth === "ok",
   );
 
   const runRepairAction = async (
@@ -1160,26 +1250,36 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
             <span aria-hidden="true">⌁</span> EVIDENCE CENTER
           </button>
           <button
-            aria-label="Run the 15 second verified replay"
+            aria-label={
+              apiHealth === "ok"
+                ? "Run a live scientific incident"
+                : "Watch the verified champion run"
+            }
             className="button primary"
-            disabled={integrity === "failed"}
+            disabled={apiHealth !== "ok" && integrity === "failed"}
+            onClick={() => {
+              const action = apiHealth === "ok" ? startLive() : playStory();
+              void action.catch((error: unknown) => {
+                setNotice(error instanceof Error ? error.message : "Run failed");
+              });
+            }}
+            type="button"
+          >
+            {apiHealth === "ok"
+              ? "RUN LIVE SCIENTIFIC INCIDENT"
+              : playing
+                ? "PLAYING VERIFIED RUN"
+                : "WATCH VERIFIED CHAMPION RUN"}
+          </button>
+          <button
+            className="button ghost"
             onClick={() => void playStory().catch((error: unknown) => {
               setIntegrity("failed");
               setNotice(error instanceof Error ? error.message : "Replay failed");
             })}
             type="button"
           >
-            {playing ? "PLAYING VERIFIED REPLAY" : "RUN 15s VERIFIED REPLAY"}
-          </button>
-          <button
-            className="button ghost"
-            onClick={() => void loadReplay(true).catch((error: unknown) => {
-              setIntegrity("failed");
-              setNotice(error instanceof Error ? error.message : "Replay failed to load");
-            })}
-            type="button"
-          >
-            SHOW FINAL STATE
+            {playing ? "PLAYING VERIFIED RUN" : "WATCH VERIFIED CHAMPION RUN"}
           </button>
         </div>
       </header>
@@ -1225,6 +1325,16 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
             <div className="brief-actions">
               <button
                 className="button primary"
+                disabled={apiHealth !== "ok"}
+                onClick={() => void startLive().catch((error: unknown) => {
+                  setNotice(error instanceof Error ? error.message : "Live run failed");
+                })}
+                type="button"
+              >
+                RUN LIVE SCIENTIFIC INCIDENT
+              </button>
+              <button
+                className="button ghost"
                 disabled={integrity === "failed"}
                 onClick={() =>
                   void playStory().catch((error: unknown) => {
@@ -1234,14 +1344,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
                 }
                 type="button"
               >
-                {playing ? "RUNNING VERIFIED STORY" : "RUN VERIFIED STORY"}
-              </button>
-              <button
-                className="button ghost"
-                onClick={() => setExperienceView("OPERATE")}
-                type="button"
-              >
-                EXPLORE DECISION GRAPH
+                {playing ? "PLAYING VERIFIED RUN" : "WATCH VERIFIED CHAMPION RUN"}
               </button>
             </div>
             <div className="brief-trust">
@@ -1435,7 +1538,7 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
         <div className={`live-backend live-${apiHealth}`}>
           <span><i /> LIVE BACKEND · {apiHealth === "ok" ? "ONLINE" : apiHealth === "offline" ? "OFFLINE" : "CHECKING"}</span>
           <small>{apiReason}</small>
-          {apiHealth === "ok" && !judgeMode && (
+          {apiHealth === "ok" && (
             <button
               className="button text"
               onClick={() => void startLive().catch((error: unknown) => {
@@ -1443,7 +1546,28 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
               })}
               type="button"
             >
-              Run live backend
+              RUN LIVE SCIENTIFIC INCIDENT
+            </button>
+          )}
+          <button
+            className="button text"
+            onClick={() => void playStory().catch((error: unknown) => {
+              setIntegrity("failed");
+              setNotice(error instanceof Error ? error.message : "Replay failed");
+            })}
+            type="button"
+          >
+            WATCH VERIFIED CHAMPION RUN
+          </button>
+          {mode === "LIVE" && manifest?.status === "COMPLETED" && (
+            <button
+              className="button text"
+              onClick={() => void resetLive().catch((error: unknown) => {
+                setNotice(error instanceof Error ? error.message : "Reset failed");
+              })}
+              type="button"
+            >
+              RESET ISOLATED RUN
             </button>
           )}
         </div>
@@ -1464,18 +1588,26 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
               187 B042 rows violated the Kelvin / Celsius contract.
             </p>
             <button
-              aria-label="Run the 15 second verified replay from the Judge Cockpit"
-              className="button primary cockpit-run"
-              disabled={integrity === "failed"}
-              onClick={() =>
-                void playStory().catch((error: unknown) => {
-                  setIntegrity("failed");
-                  setNotice(error instanceof Error ? error.message : "Replay failed");
-                })
+              aria-label={
+                apiHealth === "ok"
+                  ? "Run a live scientific incident from the Judge Cockpit"
+                  : "Watch the verified champion run from the Judge Cockpit"
               }
+              className="button primary cockpit-run"
+              disabled={apiHealth !== "ok" && integrity === "failed"}
+              onClick={() => {
+                const action = apiHealth === "ok" ? startLive() : playStory();
+                void action.catch((error: unknown) => {
+                  setNotice(error instanceof Error ? error.message : "Run failed");
+                });
+              }}
               type="button"
             >
-              {playing ? "PLAYING VERIFIED REPLAY" : "RUN 15s VERIFIED REPLAY"}
+              {apiHealth === "ok"
+                ? "RUN LIVE SCIENTIFIC INCIDENT"
+                : playing
+                  ? "PLAYING VERIFIED RUN"
+                  : "WATCH VERIFIED CHAMPION RUN"}
             </button>
           </div>
           <button

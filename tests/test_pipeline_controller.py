@@ -1,5 +1,6 @@
-from pathlib import Path
 import subprocess
+import sys
+from pathlib import Path
 
 from core.pipeline_controller import DryRunPipelineController, LocalPipelineController
 from core.policy_engine import (
@@ -102,7 +103,7 @@ def test_blocked_publish_process_returns_nonzero_and_incident_id(tmp_path: Path)
     plan_path.write_text(_plan().model_dump_json(), encoding="utf-8")
     completed = subprocess.run(
         [
-            ".venv/bin/python3.11",
+            sys.executable,
             "-m",
             "examples.publish_candidate_report",
             "--source",

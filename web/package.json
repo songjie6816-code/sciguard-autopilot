@@ -9,9 +9,10 @@
     "dev": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext dev",
     "build": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build",
     "build:judge": "vite build --config vite.judge.config.ts",
+    "verify:live": "node scripts/verify-live-sandbox.mjs",
     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
     "test": "pnpm run build && pnpm run build:judge && node --test tests/*.test.mjs",
-    "lint": "eslint . --ignore-pattern dist --ignore-pattern judge-dist --ignore-pattern .next"
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern judge-dist --ignore-pattern .next --ignore-pattern .wrangler"
   },
   "dependencies": {
     "next": "16.2.6",

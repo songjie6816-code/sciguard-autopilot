@@ -13,15 +13,28 @@ unpublished research data is used — all data is synthetic and reproducible.
 
 Live Judge Mode: <https://sciguard-autopilot-demo.pages.dev/>
 
-The anonymous Cloudflare Pages release serves the canonical
-`inc-sciguard-b042-unit-contract` closure. Its Evidence Center exposes the DataHub
-read-back, measured evaluation, and the GitHub PR/CI receipts from that same incident.
+The anonymous Cloudflare Pages release offers two explicit paths:
+
+- **RUN LIVE SCIENTIFIC INCIDENT** creates an isolated, fixed Kelvin/Celsius incident in
+  the public Cloudflare Worker, performs a new 187-row calculation, traverses a verified
+  DataHub read-back snapshot, evaluates policy, generates a repair plan, and streams
+  enforcement events over SSE;
+- **WATCH VERIFIED CHAMPION RUN** serves the canonical
+  `inc-sciguard-b042-unit-contract` closure. Its Evidence Center exposes the DataHub
+  read-back, measured evaluation, and GitHub PR/CI receipts from that same incident.
+
+The live edge sandbox is deliberately read-only. It reuses the canonical PR #2 receipt,
+never creates anonymous GitHub actions, accepts no arbitrary repository or scenario, keeps
+per-run state in a Durable Object, and allows three runs per browser session per ten
+minutes. Its DataHub input is labelled
+`VERIFIED_DATAHUB_READBACK_SNAPSHOT`: the calculation is live, while the public sandbox
+does not claim that a fresh GMS query occurred.
 
 The current ChatGPT-hosted product URL is workspace-gated by the hosting platform even
 though the application route itself does not require identity. P0 therefore includes an
 independent, static Judge Mode build under `web/judge-dist`:
 
-- no login, secret, local DataHub, backend, or paid API is required at runtime;
+- no login, browser secret, local DataHub, or paid API is required at runtime;
 - the browser verifies the bundled JSONL against its manifest SHA-256, event count,
   contiguous sequence, unique event IDs, and single incident before rendering;
 - one click runs a fixed 15-second narrated replay over the immutable canonical events;
@@ -45,10 +58,10 @@ independent, static Judge Mode build under `web/judge-dist`:
 - hosted asset nodes open public read-only evidence receipts; a local DataHub deep link is
   shown only when the full product itself is running on localhost.
 
-Build it with `cd web && pnpm build:judge`, then publish the contents of `judge-dist/` to
-an anonymous static host. A release is accepted only after the public canonical
-replay/repair package, DataHub closure receipt, and evaluation JSON match the files under
-`web/public/`.
+Build it with `cd web && pnpm build:judge`. Verify the public Worker with
+`pnpm verify:live`, then publish only `judge-dist/` to an anonymous static host. A release
+is accepted only after both the bounded live contract and the public canonical
+replay/repair package pass.
 
 ![P0 Judge Mode at 1280×720](docs/screenshots/p0-judge-final-1280x720.jpg)
 

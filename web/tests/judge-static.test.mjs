@@ -67,6 +67,9 @@ test("judge bundle contains the P1 cockpit, measured comparison, and Evidence Dr
     "NATIVE ENTITIES READ BACK",
     "EVIDENCE CENTER · PUBLIC RECEIPT",
     "not a digital signature and not proof of origin",
+    "RUN LIVE SCIENTIFIC INCIDENT",
+    "WATCH VERIFIED CHAMPION RUN",
+    "sciguard-live-sandbox.songjie6816.workers.dev",
   ]) {
     assert.match(bundleText, new RegExp(expected.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }

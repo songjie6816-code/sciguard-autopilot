@@ -24,7 +24,9 @@ sanitized shape; the real hosted project binding is never required for a clean b
 ## Public Judge Mode
 
 `pnpm build:judge` produces `judge-dist/`, a standalone static site suitable for an
-anonymous static host. It requires no secret, live API, local DataHub, or paid model API.
+anonymous static host. It requires no browser secret, local DataHub, or paid model API.
+The configured public API is a read-only Cloudflare Worker/Durable Object sandbox; if its
+health check fails, the verified replay remains the explicit fallback.
 Do not deploy the parent directory; publish only the contents of `judge-dist/`.
 
 ```bash
@@ -33,14 +35,23 @@ pnpm build:judge
 
 Judge Mode:
 
-- states the replay boundary explicitly: **38 immutable events: 35 events reach recovery
-  lock, followed by 3 verified recovery events.**
+- exposes **RUN LIVE SCIENTIFIC INCIDENT** and **WATCH VERIFIED CHAMPION RUN** as separate
+  paths;
+- creates isolated, resettable live state and streams newly computed events over SSE;
+- limits the public sandbox to the fixed `KELVIN_CELSIUS_B042` scenario and three runs per
+  browser session per ten minutes;
+- resolves the canonical PR #2 read-only and refuses public GitHub, DataHub, or production
+  mutations;
+- labels DataHub context as a verified Module 1 read-back snapshot instead of claiming a
+  fresh public GMS query;
+- states the replay boundary explicitly: **55 immutable canonical events** through two
+  fresh recovery verifications;
 - verifies replay SHA-256, count, contiguous sequence, unique event IDs, and incident ID in
   the browser before rendering;
 - runs the recorded story in 15 seconds and distinguishes that narrated duration from the
   recorded controller event span;
-- marks the live backend OFFLINE with an explanation because static mode intentionally has
-  no backend;
+- marks the live backend ONLINE only after the Worker health and capability contract
+  succeeds; failure leaves the replay available and never displays a fake live success;
 - opens public DataHub evidence receipts rather than linking hosted judges to localhost;
 - discloses that the bundled replay was captured through `DATAHUB_SDK`, while the real MCP
   context path and its SDK field-lineage/write boundary are separately documented.
@@ -50,6 +61,15 @@ JSONL are delivered together, it is not a digital signature or independent sourc
 authentication.
 
 No deploy, push, or access-policy change is performed by the build.
+
+The public contract can be exercised end-to-end with:
+
+```bash
+pnpm verify:live
+```
+
+That script performs three consecutive isolated runs, verifies 12 contiguous events per
+run, idempotency, the fourth-run rate limit, the reset boundary, and refusal of mutation.
 
 ## Tests
 
