@@ -4,6 +4,9 @@
 > proof-carrying Scientific AI Autopilot. Update a gate only when the cited
 > implementation and verification evidence exists.
 
+Module 5 release evidence is recorded in
+[`MODULE5_RELEASE_FREEZE.md`](MODULE5_RELEASE_FREEZE.md).
+
 ## North-star acceptance test
 
 Given a pipeline-successful scientific contract change, SciGuard must:

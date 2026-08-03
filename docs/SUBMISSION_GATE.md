@@ -135,7 +135,7 @@ project rather than creating an untracked second project.
 - [x] Run `make canonical-capture-clean` from that clean implementation commit. Confirm the repair
       reaches `PROPOSED → PUBLISHED → VERIFIED → APPROVED → APPLIED`, two fresh recovery
       executions occur, and the same incident reaches `RESOLVED`.
-- [ ] Rebuild the Judge artifact and re-run the full Python, lint, web, integrity, and
+- [x] Rebuild the Judge artifact and re-run the full Python, lint, web, integrity, and
       clean-install gates against the generated evidence.
 - [ ] Commit the reviewed generated evidence, tag the exact submitted release revision,
       and record both the capture-source SHA and release-tag SHA. Do not recursively

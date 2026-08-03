@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sciguard"
-version = "0.1.0"
+version = "1.0.0"
 description = "Scientific data and ML trust agent powered by DataHub context"
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
