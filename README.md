@@ -1,397 +1,222 @@
-# SciGuard
+<div align="center">
 
-**A domain-configurable trust agent for scientific data and ML, powered by DataHub.**
-SciGuard uses DataHub's schemas, lineage, ownership and governance to catch a silent
-upstream data change, trace every affected model and research output, score the risk with
-configurable domain rules, and write trusted context back to the catalog — demonstrated on
-a polymer materials R&D pipeline.
+# SciGuard Autopilot
 
-Built for **Build with DataHub: The Agent Hackathon 2026**. Apache-2.0. No confidential or
-unpublished research data is used — all data is synthetic and reproducible.
+### Protect the scientific decision—not just the data pipeline.
 
-## Judge Mode (public, no login)
+**A DataHub-native agent that detects silent scientific data failures, isolates only the unsafe decision path, ships an evidence-bound repair, verifies recovery, and writes closure back to the graph.**
 
-Live Judge Mode: <https://sciguard-autopilot-demo.pages.dev/>
+[![CI](https://github.com/songjie6816-code/sciguard-autopilot/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/songjie6816-code/sciguard-autopilot/actions/workflows/ci.yml)
+[![Judge Health](https://github.com/songjie6816-code/sciguard-autopilot/actions/workflows/judge-health.yml/badge.svg?branch=main)](https://github.com/songjie6816-code/sciguard-autopilot/actions/workflows/judge-health.yml)
+[![Release](https://img.shields.io/github/v/release/songjie6816-code/sciguard-autopilot?include_prereleases&label=release)](https://github.com/songjie6816-code/sciguard-autopilot/releases/tag/v1.0.0-hackathon)
+[![License](https://img.shields.io/github/license/songjie6816-code/sciguard-autopilot)](LICENSE)
 
-The anonymous Cloudflare Pages release offers two explicit paths:
+**[Run the live scenario](https://sciguard-autopilot-demo.pages.dev/)** ·
+**[Inspect the Evidence Center](https://sciguard-autopilot-demo.pages.dev/#evidence)** ·
+**[Open the real repair PR](https://github.com/songjie6816-code/sciguard-repair-sandbox/pull/2)** ·
+**[View the frozen release](https://github.com/songjie6816-code/sciguard-autopilot/releases/tag/v1.0.0-hackathon)**
 
-- **RUN LIVE SCIENTIFIC INCIDENT** creates an isolated, fixed Kelvin/Celsius incident in
-  the public Cloudflare Worker, performs a new 187-row calculation, traverses a verified
-  DataHub read-back snapshot, evaluates policy, generates a repair plan, and streams
-  enforcement events over SSE;
-- **WATCH VERIFIED CHAMPION RUN** serves the canonical
-  `inc-sciguard-b042-unit-contract` closure. Its Evidence Center exposes the DataHub
-  read-back, measured evaluation, and GitHub PR/CI receipts from that same incident.
+</div>
 
-The live edge sandbox is deliberately read-only. It reuses the canonical PR #2 receipt,
-never creates anonymous GitHub actions, accepts no arbitrary repository or scenario, keeps
-per-run state in a Durable Object, and allows three runs per browser session per ten
-minutes. Its DataHub input is labelled
-`VERIFIED_DATAHUB_READBACK_SNAPSHOT`: the calculation is live, while the public sandbox
-does not claim that a fresh GMS query occurred.
+> **Pipeline: PASS. Scientific decision: FAIL.** A silent Kelvin/Celsius contract change moved candidate **P-204 from trusted rank #18 to unsafe rank #1**. SciGuard used DataHub field lineage to block only the contaminated Tg decision, kept the independent molecular-weight branch running, delivered a reviewed repair with **3/3 hosted checks**, verified two clean recoveries, and wrote `RESOLVED` back to DataHub.
 
-The current ChatGPT-hosted product URL is workspace-gated by the hosting platform even
-though the application route itself does not require identity. P0 therefore includes an
-independent, static Judge Mode build under `web/judge-dist`:
+![SciGuard Judge Mode: pipeline success, scientific decision failure, selective control, and preserved work](docs/screenshots/module3-overview-1440x900.jpg)
 
-- no login, browser secret, local DataHub, or paid API is required at runtime;
-- the browser verifies the bundled JSONL against its manifest SHA-256, event count,
-  contiguous sequence, unique event IDs, and single incident before rendering;
-- one click runs a fixed 15-second narrated replay over the immutable canonical events;
-- **55 immutable events bind one live DataHub incident, one exact repair revision, and two
-  fresh recovery-verification executions from detection through `RESOLVED`;**
-- the same `inc-sciguard-b042-unit-contract` execution contains the real GitHub PR, three
-  hosted GitHub Actions checks, demo-signed owner review, `APPLIED` synthetic-staging receipt,
-  two-clean-run recovery gate, native Incident, and published Decision Log;
-- its live DataHub closure receipt reads back 19 native Production ML entities; the repair
-  manifest and bundle cross-bind the event SHA, DataHub receipt digest, lifecycle, and
-  receipt IDs;
-- the Counterfactual Verification Lab renders trusted rank `#18`, contaminated rank `#1`,
-  and verified repaired rank `#18` from executed receipts, alongside the unchanged safe
-  branch digest;
-- the canonical capture reports `remote PR: true`, `DEMO_SIGNED_NOT_SSO`, and
-  `production authorization: false`; the PR, CI, approval, application and recovery
-  receipts all bind the same exact commit;
-- a public GitHub evidence receipt records an account-bound review without mislabelling it
-  as independent enterprise SSO/OIDC approval;
-- the logged-in/full product remains intact and can still connect to the bounded live API;
-- hosted asset nodes open public read-only evidence receipts; a local DataHub deep link is
-  shown only when the full product itself is running on localhost.
+Built for **Build with DataHub: The Agent Hackathon 2026**. All scientific data is synthetic and reproducible; no confidential or unpublished research data is used.
 
-Build it with `cd web && pnpm build:judge`. Verify the public Worker with
-`pnpm verify:live`, then publish only `judge-dist/` to an anonymous static host. A release
-is accepted only after both the bounded live contract and the public canonical
-replay/repair package pass.
+## Judge it in 90 seconds
 
-![P0 Judge Mode at 1280×720](docs/screenshots/p0-judge-final-1280x720.jpg)
+No account, local DataHub instance, or secret is required for the public path.
 
-The bundled SHA-256 is an integrity and internal-consistency check. Because the expected
-digest and JSONL ship together, it is not a digital signature, independent source
-authentication, or proof of origin.
+| Time | What to inspect | Direct proof |
+|---:|---|---|
+| 0–10s | Pipeline passed, but a scientific decision failed | [Live Judge Mode](https://sciguard-autopilot-demo.pages.dev/) |
+| 10–25s | DataHub identifies the affected Tg path and preserves the unrelated MW path | [Decision Graph](https://sciguard-autopilot-demo.pages.dev/#context) · [DataHub receipt](examples/outputs/datahub_live_receipt.json) |
+| 25–45s | The agent generates a patch, tests, rollback, and approval gate | [Repair Bundle](web/public/replays/inc-sciguard-b042-unit-contract/repair-bundle.json) |
+| 45–60s | The exact repair revision is delivered and verified | [Real PR #2](https://github.com/songjie6816-code/sciguard-repair-sandbox/pull/2) · [3 hosted Check Runs](examples/outputs/github_live_evidence.json) |
+| 60–75s | Unsafe work stays blocked; safe work continues | [Operate view](https://sciguard-autopilot-demo.pages.dev/#studio) |
+| 75–90s | Two clean recoveries resolve the incident and publish a Decision Log | [Evidence Center](https://sciguard-autopilot-demo.pages.dev/#evidence) · [live DataHub read-back](examples/outputs/datahub_live_receipt.json) |
 
-## The problem
+The canonical incident is `inc-sciguard-b042-unit-contract`. Its 55-event replay, repair bundle, GitHub receipt, evaluation, and DataHub read-back cross-bind the same incident and exact repair SHA `ea1a4760520fcb299d8b8f73d955e5c66cc03ee3`.
 
-Scientific and ML pipelines break *silently* when upstream data changes:
+![Repair delivery: bundle, real PR, hosted CI, approval, and recovery](docs/screenshots/module3-studio-1440x900.jpg)
 
-- a glass-transition temperature `Tg` is reported in Kelvin instead of Celsius,
-- a molecular-weight unit flips `g/mol` → `kg/mol`,
-- a sample identifier or `SMILES` column is dropped, an instrument protocol changes.
+## Why SciGuard is different
 
-The numbers stay plausible, so nothing errors. The model keeps predicting, the report keeps
-ranking candidates — on quietly corrupted inputs. And there is usually no traceability from
-raw experiment → cleaned data → features → model → research decision, so no one can answer
-"if this changed, what downstream is now wrong, and who owns it?"
+| Typical monitoring or catalog feature | SciGuard |
+|---|---|
+| Alerts that a pipeline failed | Detects when the pipeline **passes but the scientific decision is wrong** |
+| Stops an entire downstream system | Uses field lineage to block the contaminated branch and preserve safe work |
+| Suggests a fix in chat | Produces a reviewable patch, regression tests, rollback plan, real PR, and exact-SHA CI |
+| Treats approval as a button | Binds approval, application, and recovery receipts to one immutable commit |
+| Closes an incident in a separate tool | Writes the final state, evidence references, native Incident, and Decision Log back to DataHub |
+| Claims the graph is useful | Measures DataHub lineage against search-only and zero-context ablations |
 
-## What SciGuard does
+SciGuard composes DataHub capabilities rather than rebuilding a catalog. DataHub supplies the context graph, ownership, governance, native Production ML entities, Incidents, Documents, MCP reads, and write-back surface; SciGuard adds scientific contract reasoning, branch-selective control, proof-carrying repair, and evidence-gated recovery.
 
-One continuous incident workflow — lightweight signal detection, bounded investigation,
-deterministic control, and evidence-gated recovery — with DataHub as the context and action
-layer. An optional narration layer can explain frozen decisions but cannot change them:
+## The control loop
 
-![SciGuard architecture](docs/architecture.svg)
+```mermaid
+flowchart LR
+    A[Silent contract change] --> B[DataHub context]
+    B --> C[Field-level impact proof]
+    C --> D{Decision policy}
+    D -->|affected| E[Block unsafe path]
+    D -->|preserved| F[Keep safe work running]
+    E --> G[Repair bundle]
+    G --> H[PR + exact-SHA CI]
+    H --> I[Human approval]
+    I --> J[Two clean recoveries]
+    J --> K[DataHub RESOLVED + Decision Log]
+```
+
+The authority boundary is explicit: the detector cannot write controls, the UI cannot recompute policy, and optional LLM narration cannot change a deterministic decision. `api/runtime.py` is the single composition root. See the [architecture](docs/architecture.md) and [code map](docs/code_map.md).
+
+## Why DataHub is indispensable
+
+The incident begins with 187 plausible rows from firmware `v4.2`: Kelvin values reach a normalizer that still assumes Celsius. Every pipeline job succeeds, yet P-204 moves from #18 to #1. Dataset names alone cannot establish which decisions consume `tg_degC` or which work is independent.
+
+DataHub provides the directed, governed context required to act safely:
+
+- schema and scientific unit contracts through dataset metadata;
+- multi-hop and fine-grained lineage from experiment to feature, model, report, and dashboard;
+- ownership, criticality, model release, deployment, and run context;
+- seven native Production ML roles across 19 verified entities;
+- native Incident and Decision Log lifecycle;
+- MCP-backed supported reads and labelled SDK fallback for fine-grained lineage/write-back;
+- governance write-back for `AT_RISK`, `QUARANTINED`, and `RESOLVED` state.
+
+### Measured three-arm ablation
+
+The checked-in [machine-readable evaluation](examples/outputs/evaluation_report.json) is generated by the harness, mirrored to the Judge UI, and guarded against regression.
+
+| Context arm | Precision | Recall | F1 | Exact impact cones |
+|---|---:|---:|---:|---:|
+| **DataHub directed lineage** | **100%** | **100%** | **100%** | **3/3** |
+| DataHub search only, no lineage | 60% | 100% | 75% | 0/3 |
+| No DataHub | N/A—abstains | 0% | 0% | 0/3 |
+
+The benchmark contains 13 labelled synthetic scenarios: nine actionable changes and four negative controls. It reports 100% change detection, risk severity, and control targeting with a 0% false-alarm rate. These are controlled regression results—not claims of real-world accuracy.
+
+## One incident, inspectable end to end
 
 ```text
-scientific-data change
-  → Sentinel          : diff schema/units, map a conservative scope, decide whether to escalate
-  → Coordinator       : open fixed hypotheses and dispatch two independent evidence paths
-  → field proof       : isolate the contaminated branch and prove the preserved branch
-  → Policy Guardian   : choose HALT/WARN/ALLOW deterministically from YAML policy
-  → Repair Planner    : produce an evidence-bound patch, tests, rollback and approval gate
-  → Enforcer          : block execution/publication and persist incident controls to DataHub
-  → Applicator        : materialize the approved exact Git tree in isolated synthetic staging
-  → Recovery          : re-run exact-commit evidence and resume only after the configured gate
+SIGNAL       Firmware v4.2 silently changes Tg from Celsius to Kelvin
+IMPACT       DataHub traces tg_degC → feature → model → P-204 ranking
+CONTROL      Tg decision path blocked; molecular-weight path preserved
+REPAIR       Patch + unit test + rank regression + safe-branch test + rollback
+DELIVERY     Real GitHub PR #2; 3/3 hosted checks at one exact commit
+APPROVAL     Owner review required; demo-signed identity is labelled, not overstated
+RECOVERY     Two fresh clean executions; caller cannot submit its own PASS result
+WRITE-BACK   DataHub Incident RESOLVED; Decision Log PUBLISHED with receipt IDs
 ```
 
-`api/runtime.py` is the only composition root. Sentinel never writes controls, the UI never
-recomputes policy, and Streamlit/CLI are thin clients of the same Event API. See the
-[code map](docs/code_map.md) for the complete main trunk and authority boundaries.
+The public Evidence Center exposes the source behind each headline number. The canonical proof package includes:
 
-## Why DataHub — measured, not asserted
+- [55-event replay manifest](web/public/replays/inc-sciguard-b042-unit-contract/manifest.json) with event-file SHA-256;
+- [repair manifest](web/public/replays/inc-sciguard-b042-unit-contract/repair-manifest.json) and [repair bundle](web/public/replays/inc-sciguard-b042-unit-contract/repair-bundle.json);
+- [GitHub PR, review, and hosted-CI receipt](examples/outputs/github_live_evidence.json);
+- [live DataHub end-to-end read-back](examples/outputs/datahub_live_receipt.json);
+- [evaluation report](examples/outputs/evaluation_report.json);
+- [frozen release notes](docs/MODULE5_RELEASE_FREEZE.md).
 
-DataHub is the lineage graph that connects a raw experiment to the model and report it
-silently breaks. The current regression evaluation compares exact lineage traversal with a
-search-only DataHub baseline that has no dependency direction:
+## Live, recorded, and deliberately unclaimed
 
-| approach | precision | recall | F1 | exact cone |
-|---|---|---|---|---|
-| **WITH DataHub lineage** | **100%** | **100%** | **100%** | **3/3** |
-| SEARCH-ONLY DataHub (without lineage) | 60% | 100% | 75% | 0/3 |
-| NO DataHub (zero-context abstention) | N/A · 0 predictions | 0% | 0% | 0/3 |
+| Surface | What is live | What is recorded or bounded |
+|---|---|---|
+| **Run Live Scientific Incident** | New isolated 187-row calculation, policy execution, repair plan, enforcement events, and SSE stream in a Cloudflare Worker | Traverses a verified DataHub read-back snapshot; reuses the canonical PR receipt and never performs anonymous GitHub mutations |
+| **Watch Verified Champion Run** | Browser-side integrity checks and interactive replay | Immutable 55-event canonical closure captured from real DataHub and GitHub executions |
+| **Local full stack** | Fresh DataHub MCP/SDK reads, write-back, GitHub adapter, API, SSE, and clients | Requires the operator's local services and credentials |
 
-Catalog search has no sense of direction and misses assets whose names do not resemble the
-query; only lineage recovers every exact downstream cone. The third arm receives no backend
-object and makes zero catalog calls; it abstains rather than fabricating dependency or owner
-context. All three outputs are computed by the harness rather than hardcoded. The Judge UI
-reads the reviewed machine artifact at
-[`examples/outputs/evaluation_report.json`](examples/outputs/evaluation_report.json), which
-is mirrored to `web/public/evidence/evaluation_report.json`.
+Honesty boundaries:
 
-## Results
+- The public sandbox does **not** claim a fresh GMS query for each anonymous run.
+- The public review is GitHub-account-bound but **not** independent enterprise SSO/OIDC approval.
+- The exact tree was applied to isolated synthetic staging; `production_authorized` remains `false`.
+- A bundled SHA-256 proves internal consistency, not independent origin or digital signature.
+- The DataHub Skills contribution is a submitted draft, not an accepted upstream feature.
 
-`PYTHONPATH=. python evaluation/harness.py` scores 13 labelled scenarios (9 actionable + 4 negative
-controls) against the live catalog and **fails (non-zero exit) if any metric regresses**:
+## Try it
 
-- change-detection accuracy: **100%**
-- risk-severity accuracy: **100%**
-- false-alarm rate on benign changes: **0%**
-- impacted-entity precision / recall: **100% / 100%**
-- owner-notification precision / recall: **100% / 100%**
-- model control targeting: **100%**
+### Fastest path
 
-This is a controlled synthetic benchmark; its purpose is regression safety, false-alarm
-control, and the DataHub ablation — not a claim of real-world accuracy.
+Open the [public demo](https://sciguard-autopilot-demo.pages.dev/) and choose **Run Live Scientific Incident**. When a gate needs human action, the interface explains exactly what to review and provides the next action. **Watch Verified Champion Run** remains available as an immutable fallback.
 
-## How DataHub is used
+### Reproduce the repository gate
 
-- **Schema + units** — units live as dataset custom properties; the detector diffs them.
-- **Multi-hop lineage** — `searchAcrossLineage` recovers the full downstream impact cone.
-- **Field lineage** — proves that `tg_degC` enters the Tg branch but not the molecular-weight
-  branch.
-- **Native Production ML graph** — the ingest emits MLFeature, MLFeatureTable,
-  MLModelGroup, versioned MLModel, MLModelDeployment, training-run, and inference-run
-  entities. Linked dataset projections retain field schemas and fine-grained lineage.
-- **Ownership** — every affected entity's owner is resolved, so the right people are notified.
-- **Governance context** — criticality, role, model version and synthetic-data tags make
-  policy inputs visible and queryable.
-- **Governance write-back** — incident-scoped `AT_RISK` / `QUARANTINED` / `RESOLVED`
-  controls and evidence references are written back, always read-modify-write so existing
-  catalog metadata is never clobbered.
-- **Native Incident + Decision Log** — a DataHub Incident spans the server-supported
-  dataset projections of the scientific decision cone, while a published DataHub Document
-  records the full root cause, native model/deployment/process context, repair, approval,
-  and evidence closure; recovery resolves the same Incident and updates the same log.
-  DataHub GMS 1.5 cannot attach process/deployment URNs directly to these aspects, so those
-  links are retained in inspectable document properties rather than silently omitted.
-- **Configurable domain profiles** — rules are YAML (`generic → materials → polymer`), so a
-  new scientific domain is a config change, not a code change.
-- **Portable DataHub Skills** — `skills/` contains scientific impact analysis,
-  proof-carrying repair review, and recovery certification skills following the official
-  Agent Skills structure, with concise output contracts and tested authority boundaries.
-- **Upstream DataHub contribution** — the reusable affected / preserved / unknown
-  field-impact contract is proposed in public
-  [Issue #82](https://github.com/datahub-project/datahub-skills/issues/82) and submitted as
-  [Draft PR #83](https://github.com/datahub-project/datahub-skills/pull/83) against the
-  existing `datahub-lineage` skill. This is a submitted contribution, not an accepted or
-  merged one.
-- **DataHub MCP Server** — schema, unit contract, directed dataset lineage, ownership, and
-  governance reads run through real MCP tools with `SCIGUARD_USE_MCP=1`. These inputs
-  determine whether the signal reaches a decision path. The current MCP tools do not expose
-  DataHub's fine-grained lineage aspect or metadata writes, so the MCP runtime explicitly
-  uses the SDK for field-level branch proof and write-back. Live parity tests verify every
-  claimed MCP read against the SDK; the curated replay honestly identifies its capture
-  backend as `DATAHUB_SDK`.
-- **Safe optional narration** — an LLM receives bounded metadata and evidence IDs, never raw
-  rows. Pydantic rejects extra authority fields, tool requests are limited to registered
-  DataHub reads, and provider failure or unsafe output selects a deterministic fallback.
-
-## Demo scenario
-
-A deterministic synthetic polymer pipeline with a contaminated and preserved branch:
-
-```text
-instrument_batch_B042 → raw_polymer_experiments → cleaned_polymer_dataset
-                                                   ├→ tg_feature_table
-                                                   │  ├→ tg_prediction_model
-                                                   │  │  └→ candidate_ranking_report
-                                                   │  └→ exploratory_dashboard
-                                                   └→ molecular_weight_feature_table
-                                                      └→ durability_model
-                                                         └→ formulation_report
-```
-
-Firmware `v4.2` emits exactly 187 rows of batch `B042` in Kelvin while the deployed
-normalizer still assumes Celsius. Every pipeline reports success, but candidate `P-204`
-moves from rank #18 to #1. Field lineage establishes that the molecular-weight branch does
-not consume Tg and can remain available while the Tg decision path is investigated.
-
-## Local setup
-
-Prerequisites: Python 3.10–3.12, `uv`, Node.js 22.13.0 or newer, Corepack/pnpm, Docker
-Desktop (or Docker Engine with Compose v2), at least 8 GB memory allocated to Docker, and
-13 GB free disk space.
+Prerequisites: Python 3.10–3.12 and Node.js 22.13+ with Corepack/pnpm.
 
 ```bash
-conda create --prefix ./.venv python=3.11 -y
-conda activate "$PWD/.venv"
-python -m pip install --upgrade pip wheel setuptools
-python -m pip install -e '.[api,dev,mcp]'
-cp .env.example .env
-datahub docker quickstart
-DATAHUB_GMS_URL=http://localhost:8080 datahub datapack load showcase-ecommerce
-pytest
-```
-
-After activating the environment, the equivalent convenience commands are `make check`,
-`make datahub-up`, and `make datahub-sample`.
-
-Open <http://localhost:9002> and sign in with the local Quickstart defaults
-`datahub` / `datahub`. These credentials are for local development only. The default local
-Quickstart has metadata-service authentication disabled, so the sample loader connects
-directly to GMS and does not create an access token.
-
-See [docs/development.md](docs/development.md) for verified environment details.
-
-## Run the demo, incident and evaluation
-
-Seed the synthetic polymer lineage graph into DataHub, then run the CLI, API, evaluation,
-or fallback UI:
-
-```bash
-python -m pip install -e '.[api,app,mcp]'               # FastAPI + Streamlit + MCP client
-uv tool install mcp-server-datahub@latest               # the DataHub MCP Server
-PYTHONPATH=. python data/synthetic_polymer/generate.py
-PYTHONPATH=. python data/synthetic_polymer/ingest_to_datahub.py
-PYTHONPATH=. python scripts/bootstrap_repair_sandbox.py
-PYTHONPATH=. python scripts/capture_canonical_run.py      # canonical 55-event closure
-PYTHONPATH=. uvicorn api.main:app --host 127.0.0.1 --port 8000  # one runtime + Event API
-PYTHONPATH=. python examples/run_incident.py            # thin CLI client of that runtime
-PYTHONPATH=. python -m examples.publish_candidate_report \
-  --source data/synthetic_polymer/candidate_ranking_after.csv \
-  --target examples/outputs/published_candidate_ranking.csv   # exit 42 while blocked
-PYTHONPATH=. python evaluation/harness.py               # metrics + DataHub ablation
-cd web && pnpm install --frozen-lockfile && pnpm dev     # primary command center
-pnpm build:judge                                        # anonymous static Judge Mode
-PYTHONPATH=. streamlit run app/streamlit_app.py         # emergency fallback UI
-
-# Or start the same API with DataHub MCP reads instead of SDK reads:
-SCIGUARD_USE_MCP=1 PYTHONPATH=. uvicorn api.main:app --host 127.0.0.1 --port 8000
-```
-
-For a reproducible Web install, use:
-
-```bash
-cd web
+git clone https://github.com/songjie6816-code/sciguard-autopilot.git
+cd sciguard-autopilot
+python3 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip wheel setuptools
+.venv/bin/python -m pip install -e '.[api,dev,mcp]'
 corepack enable
-pnpm install --frozen-lockfile
+make judge-check PYTHON=.venv/bin/python
 ```
 
-`web/.openai/hosting.json` is a local, ignored binding file. Neither build requires it:
-the full product builds with no D1/R2 bindings when it is absent, and Judge Mode never
-reads it. `web/.openai/hosting.example.json` documents the optional shape without exposing
-the real hosted project binding.
+`make judge-check` runs Python lint/tests (including receipt hashes and checked-in evaluation contracts), installs the locked Web dependencies, lints the UI, and runs the browser-independent Web/Judge contract suite. To re-execute the three-arm evaluation against a running DataHub GMS and compare it byte-for-byte with the curated artifact, run `make datahub-evaluation-check PYTHON=.venv/bin/python`.
 
-Run the complete Python and Web verification suite from the repository root:
+### Run the local product
 
 ```bash
-python -m pip install -e '.[api,app,dev,mcp]'
-python -m pytest
-python -m ruff check .
-(cd web && corepack enable && pnpm install --frozen-lockfile && pnpm lint && pnpm test)
+make api PYTHON=.venv/bin/python
+cd web
+pnpm dev
 ```
 
-The bounded API exposes health, live run/state/events, proof-carrying repair actions,
-evidence-gated recovery, incident-scoped reset, and recorded replay. Start a live flagship run with
-`POST /api/runs`; stream `/api/runs/{incident_id}/events` as SSE. The curated real-run
-fallback is available at `/api/replays/inc-sciguard-b042-unit-contract` and is always labelled
-`RECORDED_REPLAY`. Its manifest records provenance and an event-file SHA-256.
+For fresh DataHub ingestion, MCP mode, the synthetic graph, and canonical evidence capture, follow [development.md](docs/development.md). The verified environment uses DataHub Quickstart GMS `v1.5.0.6` and CLI `1.6.0.15`.
 
-After root cause and field impact are proven,
-`GET /api/runs/{incident_id}/repair` returns the deterministic Repair Bundle: proposed
-patch, unit-contract test, P-204 decision regression, preserved-branch non-regression,
-rollback, native model/deployment context, evidence closure, and a locked owner approval
-gate. The action sequence is:
+## Architecture
+
+![SciGuard architecture: DataHub context to selective control, repair, recovery, and write-back](docs/architecture.svg)
 
 ```text
-POST /api/runs/{id}/repair/publish   -> real GitHub PR + exact-commit receipt
-POST /api/runs/{id}/repair/verify    -> three hosted B042 Check Run receipts
-POST /api/runs/{id}/repair/approval  -> commit-bound signed review receipt
-POST /api/runs/{id}/repair/apply     -> exact approved tree in isolated synthetic staging
-POST /api/runs/{id}/recovery         -> server re-runs exact-commit checks; caller cannot submit PASS
+DataHub schema / field lineage / ownership / governance / Production ML
+                              │
+                       Sentinel + Coordinator
+                              │
+              deterministic Policy Guardian
+                     ┌────────┴────────┐
+              affected path      preserved path
+              HALT + repair       continue + prove
+                     └────────┬────────┘
+               exact-SHA PR / CI / approval / recovery
+                              │
+                 DataHub Incident + Decision Log
 ```
 
-Application is a separate, fail-closed lifecycle boundary: only an `APPROVED` bundle whose
-change, verification, and approval receipts all name the same commit can reach `APPLIED`.
-The local implementation reads that commit with `git archive`, rejects unsafe archive
-entries, materializes it outside the source repository, and records a canonical tree digest.
-Its receipt is deliberately labelled `LOCAL_STAGING`, target
-`SCIGUARD_SYNTHETIC_STAGING`, and `production_authorized: false`; it is not a production
-deployment claim.
+Primary implementation surfaces:
 
-Recovery is unavailable before `APPLIED`. Its request cannot contain check results.
-SciGuard re-executes the locked verifier (or re-reads GitHub Check Runs) on the published
-commit, maps the exact declared check set into fresh recovery evidence, and rejects
-incident-ID mismatches before changing DataHub state. A demo-signed approval remains useful
-audit evidence but cannot shorten the default requirement for two consecutive clean runs.
+| Area | Location |
+|---|---|
+| Runtime and Event API | [`api/runtime.py`](api/runtime.py), [`api/main.py`](api/main.py) |
+| Detection, policy, control, repair, recovery | [`core/`](core) |
+| DataHub graph, MCP, native ML, Incident/Document write-back | [`datahub_client/`](datahub_client), [`data/synthetic_polymer/`](data/synthetic_polymer) |
+| React Judge product | [`web/`](web) |
+| Deterministic evaluation | [`evaluation/`](evaluation), [`examples/outputs/`](examples/outputs) |
+| Portable DataHub Skills | [`skills/`](skills) |
+| Tests and CI | [`tests/`](tests), [`.github/workflows/`](.github/workflows) |
 
-Run `make canonical-prepare` to generate and push the deterministic repair branch, then
-open the printed compare URL and create the PR with the exact printed title and body.
-After the hosted checks and account-bound review exist, `make canonical-capture` re-reads
-the public GitHub state and records it inside the same canonical incident. The
-`enterprise_sso_verified` and `production_authorized` fields remain `false`; SSO/OIDC-backed
-production approval is a deliberately unclaimed boundary.
+## Safety and engineering guarantees
 
-The checked-in canonical receipt was read back from a real local DataHub Quickstart GMS
-`v1.5.0.6` with CLI `1.6.0.15`. In the same
-`inc-sciguard-b042-unit-contract` execution it verifies
-19 native entities:
-7 MLFeatures, 2 MLFeatureTables, 2 MLModelGroups, 2 MLModels, 2 MLModelDeployments,
-and 4 training/inference DataProcessInstances. It also records the exact repair revision,
-verification, review, synthetic-staging application, two fresh recovery executions, native
-Incident `ACTIVE → RESOLVED` lifecycle, and published Decision Log. The public receipt
-names the capture location without embedding an unusable localhost URL.
+- deterministic policy and fail-closed evidence gates;
+- per-incident control state—no global block flag;
+- explicit affected, preserved, and unknown impact partitions;
+- read-modify-write metadata updates that preserve unrelated catalog properties;
+- exact-commit binding across change, CI, approval, application, and recovery receipts;
+- caller cannot supply recovery PASS results;
+- fixed synthetic staging target and archive path validation;
+- optional narration is schema-constrained and loses authority on failure;
+- recorded replay and sample data are labelled at the source and in the UI.
 
-To use a dedicated GitHub repair sandbox instead of the local adapter, inject both values
-from a secret manager:
+## Open-source contribution
 
-```bash
-SCIGUARD_GITHUB_REPOSITORY=owner/sciguard-repair-sandbox
-SCIGUARD_GITHUB_TOKEN=...  # fine-grained token for that repository only
-```
+The reusable `affected / preserved / unknown` field-impact contract is proposed in [datahub-project/datahub-skills issue #82](https://github.com/datahub-project/datahub-skills/issues/82) and implemented in [draft PR #83](https://github.com/datahub-project/datahub-skills/pull/83). The repository also contains three portable DataHub Skills with tested authority and output contracts.
 
-The repair target must match the configured repository and base branch exactly. The
-included pull-request workflow has read-only contents permission and publishes three stable
-Check Run names. Do not put the token in `.env`, logs, replay artifacts, or the browser.
+Contributions are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md). Security and evidence-integrity reports follow [SECURITY.md](SECURITY.md).
 
-The command center opens in verified recorded-replay mode and remains fully demonstrable
-without a live API. When the API is healthy, the full product can stream the same immutable
-Event schema over SSE. Evidence links expose the facts behind every key number. Hosted
-DataHub graph nodes open public receipts rather than broken localhost links; local catalog
-deep links appear only in a local full-product session. The console shows the real exit 42 /
-exit 0 publication outcomes. See [docs/evaluation.md](docs/evaluation.md) for the metrics and
-[docs/architecture.md](docs/architecture.md) for the design.
+## License and disclosures
 
-The checked `inc-sciguard-b042-unit-contract` artifact is the clean-source canonical capture:
-55 contiguous events, one incident ID, an `APPLIED` Repair Bundle, two fresh
-recovery-verification executions, final `RESOLVED`, and 19 native entities. Its replay
-manifest, repair manifest, and DataHub closure receipt all record
-`source_worktree_dirty: false`. Reproduce that gate with:
-
-```bash
-make canonical-capture-clean
-# equivalent:
-PYTHONPATH=. python scripts/capture_canonical_run.py --require-clean
-```
-
-The command fails closed unless the worktree is clean and rewrites all three
-provenance-bearing artifacts from the same source commit. Then run
-`make verify-public URL=...` to compare deployed bytes. The deployment
-verifier does not establish source cleanliness by itself; both gates are required.
-The generated evidence is committed as the release wrapper; record both the
-capture-source SHA and final release-tag SHA; do not create an impossible recursive
-recapture loop merely because committing evidence creates a newer release commit.
-
-The older `inc-wp6-flagship` 38-event replay and its later linked action capture remain
-available only as legacy development evidence. They are no longer the Judge Mode default
-and must not be combined with the canonical release run to support a submission claim.
-
-## Repository layout
-
-```text
-app/                         thin Streamlit fallback client (no business decisions)
-api/                         sole runtime composition root, Event API, SSE and Run Store
-web/                         full command center + independent static Judge Mode + public replay
-core/                        Sentinel, investigation, policy, repair, application, enforcement and recovery
-security/                    prompt redaction, bounded context and read-only tool gate
-datahub_client/              DataHub metadata readers and writers
-domain_profiles/             generic, materials and polymer rules (YAML)
-data/synthetic_polymer/      synthetic data generator + DataHub ingest
-evaluation/                  labelled scenarios, metrics and gated harness
-examples/                    incident inputs and curated outputs
-scripts/                     canonical capture, public verification and local bootstrap tools
-tests/                       automated tests
-docs/                        architecture, evaluation, release execution and development notes
-```
-
-## License
-
-Apache License 2.0. See [LICENSE](LICENSE).
+Apache License 2.0—see [LICENSE](LICENSE). External components are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), and synthetic-data methodology is documented under [`data/synthetic_polymer/`](data/synthetic_polymer). Use of DataHub follows its applicable license; DataHub is a trademark of its respective owner.
