@@ -702,6 +702,103 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .site-footer > div:first-child { display: flex; align-items: center; gap: 10px; }.site-footer strong { color: #b8c4d4; font-size: 11px; }.brand-mini { width: 24px; height: 24px; display: grid; place-items: center; border: 1px solid var(--blue); color: var(--blue); font: 700 8px var(--font-geist-mono); }
 .footer-meta { gap: 16px; font: 8px var(--font-geist-mono); text-transform: uppercase; }
 
+.action-dialog-layer {
+  position: fixed; inset: 0; z-index: 110; padding: 22px;
+  display: grid; place-items: center; overflow: auto;
+}
+.action-dialog-backdrop {
+  position: fixed; inset: 0; width: 100%; height: 100%; border: 0;
+  background: rgba(1,5,10,.78); backdrop-filter: blur(10px); cursor: default;
+}
+.action-dialog {
+  position: relative; width: min(760px, calc(100vw - 32px)); padding: 27px;
+  border: 1px solid rgba(66,165,255,.34); border-radius: 17px;
+  background:
+    radial-gradient(circle at 92% 0%, rgba(66,165,255,.13), transparent 20rem),
+    radial-gradient(circle at 4% 100%, rgba(69,214,154,.06), transparent 17rem),
+    linear-gradient(150deg, rgba(14,22,34,.99), rgba(6,10,17,.99));
+  box-shadow: 0 35px 120px rgba(0,0,0,.62), inset 0 1px rgba(255,255,255,.035);
+  animation: action-dialog-enter .2s ease-out both;
+}
+.action-dialog::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background-image: linear-gradient(rgba(66,165,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(66,165,255,.025) 1px, transparent 1px);
+  background-size: 34px 34px; mask-image: linear-gradient(130deg, #000, transparent 58%);
+}
+.action-dialog-signal {
+  position: relative; height: 38px; margin-bottom: 19px; display: flex;
+  align-items: center; gap: 11px;
+}
+.action-dialog-signal span {
+  width: 35px; height: 35px; display: grid; place-items: center;
+  border: 1px solid var(--amber); border-radius: 50%; color: var(--amber);
+  background: rgba(246,184,74,.06); box-shadow: 0 0 25px rgba(246,184,74,.12);
+  font: 700 11px var(--font-geist-mono);
+}
+.action-dialog-signal i {
+  height: 1px; flex: 1; background: linear-gradient(90deg, rgba(246,184,74,.45), transparent);
+}
+.action-dialog-heading {
+  position: relative; display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 24px;
+}
+.action-dialog-heading small {
+  color: var(--blue); font: 650 8px var(--font-geist-mono); letter-spacing: .12em;
+}
+.action-dialog-heading h2 {
+  max-width: 620px; margin: 9px 0 0; font-size: clamp(28px, 4vw, 43px);
+  line-height: 1.04; letter-spacing: -.045em;
+}
+.action-dialog-close {
+  flex: 0 0 auto; width: 34px; height: 34px; border: 1px solid rgba(143,165,197,.15);
+  border-radius: 8px; background: rgba(255,255,255,.018); color: #8090a5;
+  font-size: 21px; cursor: pointer;
+}
+.action-dialog > p {
+  position: relative; max-width: 650px; margin: 17px 0 0;
+  color: #a3b0c2; font-size: 13px; line-height: 1.7;
+}
+.action-dialog-progress {
+  position: relative; margin-top: 22px; padding: 15px;
+  border: 1px solid rgba(69,214,154,.16); border-radius: 10px;
+  background: rgba(69,214,154,.025);
+}
+.action-dialog-progress > span {
+  color: #75a995; font: 650 7px var(--font-geist-mono); letter-spacing: .11em;
+}
+.action-dialog-progress ul {
+  margin: 11px 0 0; padding: 0; display: grid;
+  grid-template-columns: 1fr 1fr; gap: 9px 16px; list-style: none;
+}
+.action-dialog-progress li {
+  display: flex; align-items: center; gap: 8px; color: #b5c2d2; font-size: 10px;
+}
+.action-dialog-progress li i {
+  width: 18px; height: 18px; display: grid; place-items: center;
+  border: 1px solid rgba(69,214,154,.35); border-radius: 50%;
+  color: var(--green); font: normal 7px var(--font-geist-mono);
+}
+.action-dialog-boundary {
+  position: relative; margin-top: 10px; padding: 12px 14px;
+  border-left: 2px solid var(--amber); background: rgba(246,184,74,.035);
+}
+.action-dialog-boundary small {
+  display: block; color: #a78a54; font: 650 7px var(--font-geist-mono); letter-spacing: .1em;
+}
+.action-dialog-boundary p { margin: 6px 0 0; color: #938b7d; font-size: 9px; line-height: 1.55; }
+.action-dialog-actions {
+  position: relative; margin-top: 22px; display: flex;
+  align-items: center; justify-content: flex-end; gap: 9px; flex-wrap: wrap;
+}
+.action-dialog-actions .button { min-height: 40px; border-radius: 8px; }
+.action-dialog-actions .button.text { margin-right: auto; color: #718096; }
+
+@keyframes action-dialog-enter {
+  from { opacity: 0; transform: translateY(10px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .evidence-drawer-layer { position: fixed; inset: 0; z-index: 100; overflow: hidden; }
 .drawer-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: rgba(1,5,10,.72); cursor: default; }
 .evidence-drawer {
@@ -1561,6 +1658,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 }
 
 @media (max-width: 820px) {
+  .action-dialog-layer { padding: 12px; }
+  .action-dialog { width: min(100%, 680px); padding: 21px; }
+  .action-dialog-heading h2 { font-size: 32px; }
+  .action-dialog-progress ul { grid-template-columns: 1fr; }
   .global-header { padding: 10px 16px; }.brand-lockup small, .incident-id, .elapsed, .backend-pill { display: none; }.header-actions .ghost { display: none; }
   .runtime-strip { padding: 10px 18px; flex-direction: column; }.timing-facts { width: 100%; }.timing-facts > span { min-width: 0; flex: 1; }
   .experience-switcher { grid-template-columns: 1fr; }
@@ -1681,6 +1782,13 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 }
 
 @media (max-width: 520px) {
+  .action-dialog { padding: 18px 16px; }
+  .action-dialog-signal { margin-bottom: 13px; }
+  .action-dialog-heading h2 { font-size: 27px; }
+  .action-dialog > p { font-size: 11px; }
+  .action-dialog-actions { align-items: stretch; flex-direction: column-reverse; }
+  .action-dialog-actions .button { width: 100%; justify-content: center; }
+  .action-dialog-actions .button.text { margin-right: 0; }
   .overview-actions { align-items: stretch; flex-direction: column; }
   .overview-actions .button { width: 100%; justify-content: center; }
   .decision-datahub-readout { grid-template-columns: 1fr; }

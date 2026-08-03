@@ -349,11 +349,18 @@ test("judge portal exposes the timed evidence path without negative first-impres
   assert.match(source, /Judge summary/);
   assert.match(source, /Technical details/);
   assert.match(source, /OWNER APPROVAL GATE/);
+  assert.match(source, /LIVE RUN COMPLETE · DECISION REQUIRED/);
+  assert.match(source, /No request is still running\./);
+  assert.match(source, /Continue with verified recovery/);
+  assert.match(source, /Stay and inspect results/);
+  assert.match(source, /anonymous session cannot write GitHub, DataHub, or production/);
   assert.doesNotMatch(source, />HUMAN APPROVAL</);
   assert.match(styles, /\.audit-boundaries/);
   assert.match(styles, /\.skip-link:focus/);
   assert.match(styles, /\.judge-tour-bar/);
   assert.match(styles, /\.studio-view-toggle/);
+  assert.match(styles, /\.action-dialog-layer/);
+  assert.match(styles, /\.action-dialog-progress/);
   assert.match(styles, /@media \(max-width: 820px\)/);
   assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
 });

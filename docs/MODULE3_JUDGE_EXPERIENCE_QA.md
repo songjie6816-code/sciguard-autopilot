@@ -27,6 +27,13 @@ the normal Live / Replay paths.
 - A live smoke run reached 12 visible actions and the `ENFORCED` state through the public controller and SSE stream.
 - Live correctly stops with Recovery pending. The five-stage map shows Signal, Impact, and Control complete; Repair current; Recovery incomplete.
 - The UI now says `LIVE CONTROL PASS ... recovery remains gated`, rather than implying that the full recovery loop completed.
+- When that live boundary is reached, an accessible `LIVE RUN COMPLETE · DECISION
+  REQUIRED` dialog now states that no request is still running, summarizes the completed
+  work, explains the read-only boundary, and offers `Continue with verified recovery`,
+  `Inspect the patch`, or `Stay and inspect results`.
+- The same next-action dialog model is wired to full-product receipt transitions:
+  publish → verify → owner approval → synthetic-staging application → two fresh recovery
+  checks. It advances only after the preceding backend receipt is recorded.
 - The Studio proof rail explicitly labels the PR/CI/recovery receipts as the completed canonical reference incident, separate from the isolated live run.
 - Studio opens in `Judge summary`, with patch, public PR, hosted CI, owner approval, and
   recovery evidence ahead of telemetry. `Technical details` restores the full event,
@@ -55,6 +62,7 @@ the normal Live / Replay paths.
 | Keyboard semantics | 33 visible controls, 0 unnamed controls, 0 positive `tabindex` values |
 | Page navigation focus | Navigation moves focus to the destination `h1`; a skip-to-content control is first in DOM order |
 | Evidence dialog | Initial focus, Escape close, and trigger focus restoration verified |
+| Next-action dialog | Initial primary-action focus, Escape close, keyboard focus trap, explicit pause reason, and mobile stacking verified |
 | Reduced motion | Production CSS contains `prefers-reduced-motion: reduce` and disables animation, transition, and smooth scrolling |
 
 Latest automated gate: lint passed; both production builds passed; all 13 Node tests

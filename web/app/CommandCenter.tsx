@@ -33,6 +33,120 @@ const DEMO_VIDEO_URL =
   process.env.NEXT_PUBLIC_SCIGUARD_VIDEO_URL?.trim() ?? "";
 type ExperienceView = "BRIEF" | "OPERATE" | "AUDIT";
 type JudgePage = "OVERVIEW" | "INCIDENT" | "CONTEXT" | "STUDIO" | "EVIDENCE";
+type NextActionPromptId =
+  | "LIVE_REPAIR_GATE"
+  | "PUBLISH_REPAIR"
+  | "VERIFY_REPAIR"
+  | "APPROVE_REPAIR"
+  | "APPLY_REPAIR"
+  | "RUN_RECOVERY"
+  | "RUN_SECOND_RECOVERY";
+type NextActionCommand =
+  | "SHOW_CANONICAL_RECOVERY"
+  | "OPEN_PATCH"
+  | "PUBLISH"
+  | "VERIFY"
+  | "APPROVE"
+  | "APPLY"
+  | "RECOVER";
+
+const NEXT_ACTION_PROMPTS: Record<
+  NextActionPromptId,
+  {
+    step: string;
+    title: string;
+    body: string;
+    completed: string[];
+    primaryLabel: string;
+    primaryCommand: NextActionCommand;
+    secondaryLabel?: string;
+    secondaryCommand?: NextActionCommand;
+    boundary: string;
+  }
+> = {
+  LIVE_REPAIR_GATE: {
+    step: "LIVE RUN COMPLETE · DECISION REQUIRED",
+    title: "The unsafe decision is contained. Choose how to continue.",
+    body:
+      "No request is still running. The isolated public run deliberately stops before remote mutation; the completed recovery remains available as a verified reference incident.",
+    completed: [
+      "Fresh scientific calculation executed",
+      "DataHub impact boundary applied",
+      "Unsafe output blocked · safe work preserved",
+      "Repair bundle generated",
+    ],
+    primaryLabel: "Continue with verified recovery",
+    primaryCommand: "SHOW_CANONICAL_RECOVERY",
+    secondaryLabel: "Inspect the patch",
+    secondaryCommand: "OPEN_PATCH",
+    boundary:
+      "Public safety boundary: this anonymous session cannot write GitHub, DataHub, or production.",
+  },
+  PUBLISH_REPAIR: {
+    step: "ACTION REQUIRED · REPAIR READY",
+    title: "Review the generated bundle before publishing it.",
+    body:
+      "The agent has prepared the patch, tests, rollback plan, and evidence bindings. A human must authorize the first external action.",
+    completed: ["Impact proven", "Repair generated", "Mutation still blocked"],
+    primaryLabel: "Create reviewable change",
+    primaryCommand: "PUBLISH",
+    secondaryLabel: "Inspect the patch",
+    secondaryCommand: "OPEN_PATCH",
+    boundary: "Publishing creates a change receipt; it does not approve or apply the repair.",
+  },
+  VERIFY_REPAIR: {
+    step: "ACTION REQUIRED · CHANGE PUBLISHED",
+    title: "The exact revision now needs verification.",
+    body:
+      "Run the scientific contract, decision regression, and preserved-branch checks against the published revision.",
+    completed: ["Change receipt recorded", "Exact commit bound", "Approval still locked"],
+    primaryLabel: "Verify exact revision",
+    primaryCommand: "VERIFY",
+    boundary: "Passing tests supplies evidence; it does not grant owner approval.",
+  },
+  APPROVE_REPAIR: {
+    step: "OWNER DECISION REQUIRED · TESTS PASSED",
+    title: "Verification passed. The owner must decide whether to proceed.",
+    body:
+      "Review the patch, affected decision, safe-branch proof, rollback plan, and hosted test receipts before approving application.",
+    completed: ["Scientific contract passed", "Decision restored", "Safe branch unchanged"],
+    primaryLabel: "Approve as owner",
+    primaryCommand: "APPROVE",
+    secondaryLabel: "Inspect the patch",
+    secondaryCommand: "OPEN_PATCH",
+    boundary: "Demo identity is account-bound evidence, not enterprise SSO or production authorization.",
+  },
+  APPLY_REPAIR: {
+    step: "ACTION REQUIRED · OWNER APPROVED",
+    title: "Apply the approved revision to synthetic staging.",
+    body:
+      "The approval receipt and exact source revision are bound. Application remains limited to the declared synthetic staging target.",
+    completed: ["Tests passed", "Owner gate approved", "Exact revision locked"],
+    primaryLabel: "Apply to synthetic staging",
+    primaryCommand: "APPLY",
+    boundary: "This action is not a production deployment and does not authorize production use.",
+  },
+  RUN_RECOVERY: {
+    step: "ACTION REQUIRED · REPAIR APPLIED",
+    title: "Recovery evidence is required before decisions resume.",
+    body:
+      "Run fresh scientific checks after application. Resume stays locked until two independent clean runs agree.",
+    completed: ["Repair applied", "Source revision verified", "Resume still locked"],
+    primaryLabel: "Run clean recovery check",
+    primaryCommand: "RECOVER",
+    boundary: "One clean result is insufficient; the deterministic gate requires two.",
+  },
+  RUN_SECOND_RECOVERY: {
+    step: "ACTION REQUIRED · 1 OF 2 CLEAN RUNS",
+    title: "One more independent recovery check is required.",
+    body:
+      "The first clean execution passed. Repeat the full recovery contract before the incident can resolve and decisions can resume.",
+    completed: ["Clean run 1 passed", "No failed checks", "Resume still locked"],
+    primaryLabel: "Run second clean check",
+    primaryCommand: "RECOVER",
+    boundary: "The second run must be newly executed; cached evidence cannot unlock recovery.",
+  },
+};
 
 const JUDGE_PAGE_HEADING_IDS: Record<JudgePage, string> = {
   OVERVIEW: "portal-overview-title",
@@ -652,6 +766,8 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
   const [focusedStage, setFocusedStage] = useState(0);
   const [judgeTourActive, setJudgeTourActive] = useState(false);
   const [studioDetailsOpen, setStudioDetailsOpen] = useState(false);
+  const [nextActionPrompt, setNextActionPrompt] =
+    useState<NextActionPromptId | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerEventId, setDrawerEventId] = useState<string | null>(null);
   const eventSource = useRef<EventSource | null>(null);
@@ -659,6 +775,8 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
   const drawerRef = useRef<HTMLElement | null>(null);
   const drawerCloseRef = useRef<HTMLButtonElement | null>(null);
   const drawerTriggerRef = useRef<HTMLElement | null>(null);
+  const actionDialogRef = useRef<HTMLElement | null>(null);
+  const actionPrimaryRef = useRef<HTMLButtonElement | null>(null);
 
   const apiBase = useMemo(() => {
     if (CONFIGURED_API_BASE) return CONFIGURED_API_BASE.replace(/\/$/, "");
@@ -897,6 +1015,41 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
     };
   }, [drawerOpen]);
 
+  useEffect(() => {
+    if (!nextActionPrompt) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.setTimeout(() => actionPrimaryRef.current?.focus(), 0);
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setNextActionPrompt(null);
+        return;
+      }
+      if (event.key !== "Tab" || !actionDialogRef.current) return;
+      const focusable = Array.from(
+        actionDialogRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      );
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable.at(-1) ?? first;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [nextActionPrompt]);
+
   const closeDrawer = useCallback(() => {
     setDrawerOpen(false);
     window.setTimeout(() => drawerTriggerRef.current?.focus(), 0);
@@ -938,6 +1091,8 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
       setNotice(
         "LIVE CONTROL PASS · calculation, DataHub context, policy, repair plan, and enforcement verified · recovery remains gated",
       );
+      setDrawerOpen(false);
+      setNextActionPrompt(judgeMode ? "LIVE_REPAIR_GATE" : "PUBLISH_REPAIR");
       if (liveTimeout.current !== null) {
         window.clearTimeout(liveTimeout.current);
         liveTimeout.current = null;
@@ -959,10 +1114,11 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
     source.onerror = () => {
       if (source.readyState === EventSource.CLOSED) source.close();
     };
-  }, [apiBase, loadReplay]);
+  }, [apiBase, judgeMode, loadReplay]);
 
   const startLive = useCallback(async () => {
     setNotice("Requesting an isolated live scientific calculation…");
+    setNextActionPrompt(null);
     if (!apiBase) throw new Error(apiReason);
     const idempotencyKey = `judge-${globalThis.crypto.randomUUID()}`;
     const response = await fetch(`${apiBase}/api/runs`, {
@@ -1373,9 +1529,62 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
           ? `RECOVERY · clean run ${numberValue(actionReceipt.clean_run_count)} of 2 recorded`
           : `${action.toUpperCase()} · receipt recorded in the immutable event stream`,
       );
+      const recoveryCount = numberValue(actionReceipt.clean_run_count);
+      const nextPrompt: NextActionPromptId | null =
+        action === "publish"
+          ? "VERIFY_REPAIR"
+          : action === "verify"
+            ? "APPROVE_REPAIR"
+            : action === "approval"
+              ? "APPLY_REPAIR"
+              : action === "apply"
+                ? "RUN_RECOVERY"
+                : action === "recover" && recoveryCount < 2
+                  ? "RUN_SECOND_RECOVERY"
+                  : null;
+      setDrawerOpen(false);
+      setNextActionPrompt(nextPrompt);
     } finally {
       setRepairAction("idle");
     }
+  };
+
+  const executeNextAction = async (command: NextActionCommand) => {
+    setNextActionPrompt(null);
+    if (command === "SHOW_CANONICAL_RECOVERY") {
+      await loadReplay(true);
+      navigateJudgePage("STUDIO");
+      window.setTimeout(() => {
+        document.getElementById("repair-studio-title")?.scrollIntoView({
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+            ? "auto"
+            : "smooth",
+          block: "start",
+        });
+      }, 80);
+      return;
+    }
+    if (command === "OPEN_PATCH") {
+      if (judgeMode && mode === "LIVE") await loadReplay(true);
+      if (judgeMode) navigateJudgePage("STUDIO");
+      window.setTimeout(() => {
+        document.getElementById("repair-patch")?.scrollIntoView({
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+            ? "auto"
+            : "smooth",
+          block: "center",
+        });
+      }, 80);
+      return;
+    }
+    const repairCommand = {
+      PUBLISH: "publish",
+      VERIFY: "verify",
+      APPROVE: "approval",
+      APPLY: "apply",
+      RECOVER: "recover",
+    }[command] as "publish" | "verify" | "approval" | "apply" | "recover";
+    await runRepairAction(repairCommand);
   };
 
   const nodeClass = (name: string) => {
@@ -1492,6 +1701,9 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
   const publicChecks = Array.isArray(publicVerification.checks)
     ? publicVerification.checks.map(objectValue)
     : [];
+  const activeActionPrompt = nextActionPrompt
+    ? NEXT_ACTION_PROMPTS[nextActionPrompt]
+    : null;
   const judgeTourIndex = Math.max(
     0,
     JUDGE_TOUR_STEPS.findIndex((step) => step.page === judgePage),
@@ -3464,6 +3676,99 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
         <div><span className="brand-mini">SG</span><strong>Trust the decision because you can inspect the evidence.</strong></div>
         <div className="footer-meta"><span>{latestEvent ? `${playbackState} · evidence stream verified` : "Preparing verified evidence"}</span><span>All demo data is deterministic and synthetic</span><span>DataHub-powered</span></div>
       </footer>
+
+      {activeActionPrompt && nextActionPrompt && (
+        <div className="action-dialog-layer">
+          <button
+            aria-label="Dismiss next action dialog"
+            className="action-dialog-backdrop"
+            onClick={() => setNextActionPrompt(null)}
+            type="button"
+          />
+          <section
+            aria-describedby="next-action-description"
+            aria-labelledby="next-action-title"
+            aria-modal="true"
+            className="action-dialog"
+            ref={actionDialogRef}
+            role="dialog"
+          >
+            <div className="action-dialog-signal" aria-hidden="true">
+              <span>!</span>
+              <i />
+            </div>
+            <div className="action-dialog-heading">
+              <div>
+                <small>{activeActionPrompt.step}</small>
+                <h2 id="next-action-title">{activeActionPrompt.title}</h2>
+              </div>
+              <button
+                aria-label="Close next action dialog"
+                className="action-dialog-close"
+                onClick={() => setNextActionPrompt(null)}
+                type="button"
+              >
+                ×
+              </button>
+            </div>
+            <p id="next-action-description">{activeActionPrompt.body}</p>
+            <div className="action-dialog-progress">
+              <span>COMPLETED IN THIS STEP</span>
+              <ul>
+                {activeActionPrompt.completed.map((item) => (
+                  <li key={item}><i aria-hidden="true">✓</i>{item}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="action-dialog-boundary">
+              <small>WHY THE FLOW PAUSED</small>
+              <p>{activeActionPrompt.boundary}</p>
+            </div>
+            <div className="action-dialog-actions">
+              <button
+                className="button text"
+                onClick={() => setNextActionPrompt(null)}
+                type="button"
+              >
+                Stay and inspect results
+              </button>
+              {activeActionPrompt.secondaryLabel && activeActionPrompt.secondaryCommand && (
+                <button
+                  className="button ghost"
+                  onClick={() => {
+                    const promptToRestore = nextActionPrompt;
+                    void executeNextAction(activeActionPrompt.secondaryCommand!).catch(
+                      (error: unknown) => {
+                        setNotice(error instanceof Error ? error.message : "Next action failed");
+                        setNextActionPrompt(promptToRestore);
+                      },
+                    );
+                  }}
+                  type="button"
+                >
+                  {activeActionPrompt.secondaryLabel}
+                </button>
+              )}
+              <button
+                className="button primary"
+                onClick={() => {
+                  const promptToRestore = nextActionPrompt;
+                  void executeNextAction(activeActionPrompt.primaryCommand).catch(
+                    (error: unknown) => {
+                      setNotice(error instanceof Error ? error.message : "Next action failed");
+                      setNextActionPrompt(promptToRestore);
+                    },
+                  );
+                }}
+                ref={actionPrimaryRef}
+                type="button"
+              >
+                {activeActionPrompt.primaryLabel} <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
 
       {drawerOpen && (
         <div className="evidence-drawer-layer">
