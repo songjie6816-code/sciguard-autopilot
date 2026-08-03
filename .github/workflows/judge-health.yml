@@ -1,0 +1,47 @@
+name: Judge Health
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/judge-health.yml"
+      - "scripts/verify_public_deployment.py"
+      - "web/scripts/verify-live-sandbox.mjs"
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: judge-health
+  cancel-in-progress: true
+
+jobs:
+  public-demo:
+    name: Public demo contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install verifier dependency
+        run: python -m pip install certifi
+      - name: Verify anonymous deployment
+        run: python scripts/verify_public_deployment.py https://sciguard-autopilot-demo.pages.dev
+
+  live-scenario:
+    name: Live scenario contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Run isolated live scientific incident
+        run: node web/scripts/verify-live-sandbox.mjs

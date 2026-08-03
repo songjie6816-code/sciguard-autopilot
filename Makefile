@@ -1,8 +1,9 @@
 PYTHON ?= python3
 DATAHUB ?= datahub
 DATAHUB_GMS_URL ?= http://localhost:8080
+PNPM ?= pnpm
 
-.PHONY: setup test lint check api datahub-up datahub-sample repair-sandbox repair-replay datahub-live-receipt canonical-prepare canonical-capture canonical-capture-clean verify-public
+.PHONY: setup test lint check evidence-check judge-check api datahub-up datahub-sample repair-sandbox repair-replay datahub-live-receipt canonical-prepare canonical-capture canonical-capture-clean verify-public
 
 setup:
 	$(PYTHON) -m pip install --upgrade pip wheel setuptools
@@ -15,6 +16,23 @@ lint:
 	$(PYTHON) -m ruff check .
 
 check: lint test
+
+# Generated evaluation files live in a disposable directory; curated evidence is never overwritten.
+evidence-check:
+	@judge_tmp="$$(mktemp -d)"; \
+	trap 'rm -rf "$$judge_tmp"' EXIT; \
+	$(PYTHON) -m evaluation.harness \
+		--output "$$judge_tmp/evaluation_report.md" \
+		--json-output "$$judge_tmp/evaluation_report.json" \
+		--performance-output "$$judge_tmp/evaluation_performance.md"; \
+	cmp "$$judge_tmp/evaluation_report.md" examples/outputs/evaluation_report.md; \
+	cmp "$$judge_tmp/evaluation_report.json" examples/outputs/evaluation_report.json
+
+# One command for the evidence, Python, Web, and anonymous Judge contracts.
+judge-check: check evidence-check
+	$(PNPM) --dir web install --frozen-lockfile
+	$(PNPM) --dir web lint
+	$(PNPM) --dir web test
 
 api:
 	$(PYTHON) -m uvicorn api.main:app --host 127.0.0.1 --port 8000
