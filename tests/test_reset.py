@@ -31,7 +31,7 @@ from datahub_client.incident_writer import (
     incident_urn,
     raise_incident,
 )
-from tests.test_enforcement import StatefulGraph, URN
+from tests.test_enforcement import URN, StatefulGraph
 
 
 def test_reset_removes_only_matching_sciguard_metadata_and_tags() -> None:

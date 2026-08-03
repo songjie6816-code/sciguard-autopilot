@@ -31,6 +31,8 @@ from core.change_provider import (
 from core.coordinator import Coordinator
 from core.enforcement import enforce
 from core.events import Event, EventActor, EventRecorder, EventType, stable_evidence_id
+from core.github_provider import GitHubChangePublisher, UrllibGitHubTransport
+from core.github_verification import GitHubCheckRunVerifier
 from core.impact import build_policy_contexts, trace_field_impact, trace_initial_scope
 from core.incident_state import IncidentRun, IncidentState
 from core.narration import NarrationService
@@ -59,6 +61,13 @@ from core.sentinel import (
     decide_escalation,
     detect_changes,
 )
+from core.verification import (
+    CheckExecutionStatus,
+    LocalVerificationEngine,
+    VerificationEngine,
+    VerificationReceipt,
+    attach_verification_receipt,
+)
 from datahub_client import metadata_reader
 from datahub_client.backends import SdkReader, open_reader
 from datahub_client.incident_writer import (
@@ -68,15 +77,6 @@ from datahub_client.incident_writer import (
     update_incident_status,
     write_decision_log,
 )
-from core.verification import (
-    CheckExecutionStatus,
-    LocalVerificationEngine,
-    VerificationEngine,
-    VerificationReceipt,
-    attach_verification_receipt,
-)
-from core.github_provider import GitHubChangePublisher, UrllibGitHubTransport
-from core.github_verification import GitHubCheckRunVerifier
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data" / "synthetic_polymer"

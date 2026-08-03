@@ -2,7 +2,6 @@ from pathlib import Path
 
 import yaml
 
-
 ROOT = Path(__file__).parents[1]
 SKILLS = {
     "datahub-scientific-impact": "references/impact-output.md",

@@ -91,8 +91,8 @@ The following current claims are safe:
 
 The following claims are blocked until the named receipt exists:
 
-- [x] “A GitHub pull request was created” — public PR #1 is bound to exact head SHA
-      `0c9b3a0cdea99520c39eecfdde9b70de261395f3`.
+- [x] “A GitHub pull request was created” — public PR #2 is bound to exact head SHA
+      `ea1a4760520fcb299d8b8f73d955e5c66cc03ee3`.
 - [x] “GitHub checks passed” — three GitHub Actions Check Run IDs are bound to that exact
       head SHA in `examples/outputs/github_live_evidence.json`.
 - [ ] “Production approval was granted” — requires SSO/OIDC-backed identity assurance.
@@ -142,8 +142,8 @@ project rather than creating an untracked second project.
       recapture merely because committing evidence creates the release commit.
 - [ ] Verify demo, repository, video, README anchors, PRs, and evidence links from an
       incognito browser in two networks.
-- [ ] Run `make verify-public URL=https://<final-judge-host>` and require `Deployment gate:
-      PASS`.
+- [ ] Run `make verify-public URL=https://sciguard-autopilot-demo.pages.dev` and require
+      `Deployment gate: PASS` against the frozen checkout.
 - [ ] Confirm the video duration is below 3:00 in the public player.
 - [ ] Replace every bracketed placeholder in `docs/devpost_submission.md`.
 - [ ] Export a PDF or screenshot copy of the final Devpost entry for the team record.

@@ -14,9 +14,9 @@ from __future__ import annotations
 
 import re
 import subprocess
-from typing import Protocol
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
+from typing import Protocol
 
 from pydantic import BaseModel, ConfigDict
 

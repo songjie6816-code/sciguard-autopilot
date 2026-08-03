@@ -3,7 +3,6 @@ from core.events import EventActor, EventRecorder, EventType
 from core.reality_checker import RealityChecker
 from data.synthetic_polymer import generate
 
-
 SYMPTOM = (
     "Candidate P-204 moved from rank #18 to #1 after last night's batch. "
     "No pipeline failed. Investigate before the morning selection meeting."

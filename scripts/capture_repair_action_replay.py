@@ -29,7 +29,6 @@ from core.investigation_models import RootCause
 from core.repair import create_unit_repair_bundle
 from core.verification import LocalVerificationEngine, attach_verification_receipt
 
-
 ROOT = Path(__file__).resolve().parents[1]
 INCIDENT_ID = "inc-wp6-flagship"
 SOURCE_REPLAY = ROOT / "examples" / "replays" / INCIDENT_ID

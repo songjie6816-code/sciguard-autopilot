@@ -27,7 +27,6 @@ from core.verification import (
     attach_verification_receipt,
 )
 
-
 BASE_SHA = "1" * 40
 BASE_TREE_SHA = "2" * 40
 HEAD_SHA = "3" * 40

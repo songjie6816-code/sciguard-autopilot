@@ -99,7 +99,7 @@ first cognitive load presented to a judge.
 
 - [x] Concrete model/report publication controls.
 - [x] Owner and criticality are deterministic policy inputs.
-- [ ] Real PR review and CI workflow.
+- [x] Real public PR, account-bound review, and exact-SHA hosted CI workflow.
 - [ ] Airflow/dbt/Kubernetes action adapter interface with one fully proven implementation.
 - [ ] Practitioner validation with recorded findings and resulting product changes.
 - [ ] Measured review effort, prevented unsafe decisions, selective downtime, and MTTR.
@@ -114,7 +114,7 @@ first cognitive load presented to a judge.
       binds all lifecycle receipts to the same incident and event stream.
 - [x] Three-arm measured ablation: lineage, search-only DataHub, and zero-call no-DataHub abstention.
 - [x] Reviewed machine-readable evaluation JSON is shared by the repository and Judge UI.
-- [ ] Live Sandbox is the primary CTA; Verified Replay is secondary.
+- [x] Live Sandbox is the primary CTA; Verified Replay is secondary.
 - [x] Plain-language scientific labels in the Brief and Counterfactual Verification Lab.
 - [x] Official-rules submission gate and exact 170-second judge-video cut.
 - [ ] Three-minute video, deep-dive video, final README, and clean-machine rehearsal.
@@ -202,18 +202,23 @@ GitHub base commit, creates blobs/tree/commit/branch through the Git Data API, a
 one bundle-marked pull request. `core/github_verification.py` accepts only the latest
 required Check Runs on that exact head SHA. The sandbox workflow uses read-only contents
 permission and exposes three stable check names. These adapters are implemented and tested
-against an adversarial transport. The canonical incident still truthfully reports its
-recorded local action as `remote PR: false`; a separately labelled public receipt now binds
-[PR #1](https://github.com/songjie6816-code/sciguard-repair-sandbox/pull/1) and three
-successful hosted Check Runs to exact head SHA
-`0c9b3a0cdea99520c39eecfdde9b70de261395f3`.
+against an adversarial transport. The canonical incident now truthfully binds public
+[PR #2](https://github.com/songjie6816-code/sciguard-repair-sandbox/pull/2), its
+account-bound GitHub review, and three successful hosted Check Runs to exact head SHA
+`ea1a4760520fcb299d8b8f73d955e5c66cc03ee3`. The receipt explicitly states that this
+is not independent enterprise SSO/OIDC approval or production authorization.
 
-## Next execution order
+## Remaining execution order
 
-1. Add independent SSO/OIDC-backed reviewer identity and a production deployment adapter.
-2. Add practitioner validation and operational-efficiency measures.
-3. Publish reusable DataHub Skills and one upstream contribution.
-4. Produce the videos, final judge guide, and submission package.
+1. Freeze the tested product build, tag the exact release revision, deploy it, and prove
+   that the public evidence bytes match the tagged checkout.
+2. Record the final under-three-minute product video from that frozen deployment.
+3. Replace the remaining video/Devpost placeholders, verify every public link, and save
+   the official submission confirmation.
+
+Independent enterprise SSO/OIDC, a production deployment adapter, and practitioner
+efficiency measures remain accurately labelled post-hackathon extensions rather than
+release blockers.
 
 The canonical 55-event clean-source capture was produced against a real local DataHub
 Quickstart GMS `v1.5.0.6` using CLI `1.6.0.15`. It reaches `APPLIED`, executes the fresh

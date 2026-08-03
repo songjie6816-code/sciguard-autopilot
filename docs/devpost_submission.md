@@ -110,7 +110,7 @@ lineage — expressed as configurable domain profiles rather than a hard-coded s
   repair manifest and bundle cross-bind the event SHA, DataHub receipt digest, lifecycle,
   and receipt IDs before Judge Mode renders them.
 - GitHub adapters implement Git Data API branch/commit/PR publication and exact-SHA
-  Check Run verification. Public PR #1 and its three successful hosted checks are captured
+  Check Run verification. Public PR #2 and its three successful hosted checks are captured
   in `examples/outputs/github_live_evidence.json`. The authenticated review is explicitly
   labelled `GITHUB_AUTHENTICATED_ACCOUNT`, not enterprise SSO or independent production
   approval.

@@ -1,8 +1,6 @@
 import json
 from pathlib import Path
 
-from data.synthetic_polymer import ingest_to_datahub as ingest
-from data.synthetic_polymer import native_ml
 from datahub.metadata.schema_classes import (
     DataProcessInstanceInputClass,
     DataProcessInstanceOutputClass,
@@ -13,8 +11,10 @@ from datahub.metadata.schema_classes import (
     MLModelGroupPropertiesClass,
     MLModelPropertiesClass,
 )
-from datahub_client.metadata_reader import get_native_ml_model_context
 
+from data.synthetic_polymer import ingest_to_datahub as ingest
+from data.synthetic_polymer import native_ml
+from datahub_client.metadata_reader import get_native_ml_model_context
 
 ROOT = Path(__file__).parents[1]
 

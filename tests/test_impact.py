@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from typing import ClassVar
 
 from datahub.emitter.mce_builder import make_dataset_urn, make_schema_field_urn
 
@@ -17,7 +18,7 @@ def _edge(up_name: str, up_field: str, down_name: str, down_field: str):
 
 
 class FieldGraph:
-    names = [
+    names: ClassVar[list[str]] = [
         "cleaned_polymer_dataset",
         "tg_feature_table",
         "molecular_weight_feature_table",
@@ -26,7 +27,7 @@ class FieldGraph:
         "candidate_ranking_report",
         "formulation_report",
     ]
-    lineage = {
+    lineage: ClassVar[dict[str, list[tuple[str, str]]]] = {
         "cleaned_polymer_dataset": [
             _edge("raw_polymer_experiments", "tg_value", "cleaned_polymer_dataset", "tg_degC")
         ],

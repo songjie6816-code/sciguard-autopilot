@@ -18,9 +18,9 @@ from datahub.metadata.schema_classes import (
     IncidentAssigneeClass,
     IncidentInfoClass,
     IncidentNoteClass,
+    IncidentNotesClass,
     IncidentNoteSourceClass,
     IncidentNoteSourceTypeClass,
-    IncidentNotesClass,
     IncidentSourceClass,
     IncidentSourceTypeClass,
     IncidentStageClass,
@@ -33,7 +33,6 @@ from datahub.metadata.urns import DocumentUrn, IncidentUrn
 from pydantic import BaseModel, ConfigDict
 
 from core.repair import RepairBundle
-
 
 SCIGUARD_ACTOR = "urn:li:corpuser:sciguard"
 

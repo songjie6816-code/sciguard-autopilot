@@ -13,7 +13,6 @@ from core.impact import FieldImpact
 from core.investigation_models import RootCause
 from core.repair import RepairStatus, create_unit_repair_bundle
 
-
 ROOT = Path(__file__).parents[1]
 
 

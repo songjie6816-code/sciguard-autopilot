@@ -15,12 +15,12 @@ def main() -> None:
         method="POST",
         headers={"Content-Type": "application/json"},
     )
-    with urlopen(request, timeout=30) as response:  # noqa: S310 - configured local API
+    with urlopen(request, timeout=30) as response:
         view = json.loads(response.read())
     print(f"incident={view['manifest']['incident_id']} mode=LIVE")
 
     stream = Request(f"{api}{view['events_url']}", headers={"Accept": "text/event-stream"})
-    with urlopen(stream, timeout=60) as response:  # noqa: S310 - configured local API
+    with urlopen(stream, timeout=60) as response:
         for raw in response:
             line = raw.decode().strip()
             if not line.startswith("data: "):

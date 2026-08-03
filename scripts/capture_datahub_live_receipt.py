@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 # Direct execution adds the repository root before importing project modules.
-# ruff: noqa: E402
-
 import hashlib
 import json
 import subprocess

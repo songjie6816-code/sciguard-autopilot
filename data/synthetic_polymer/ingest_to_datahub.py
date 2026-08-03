@@ -34,14 +34,14 @@ from datahub.metadata.schema_classes import (
     UpstreamLineageClass,
 )
 
-from datahub_client import metadata_writer
-from datahub_client.metadata_reader import connect
 from data.synthetic_polymer.native_ml import (
     deployment_urn,
     emit_native_ml_graph,
     feature_table_urn,
     model_urn,
 )
+from datahub_client import metadata_writer
+from datahub_client.metadata_reader import connect
 
 PLATFORM = "polymer_rnd"
 ENV = "PROD"

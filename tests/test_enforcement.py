@@ -1,10 +1,10 @@
+from datahub.emitter.mce_builder import make_dataset_urn
 from datahub.metadata.schema_classes import (
     DatasetPropertiesClass,
     GlobalTagsClass,
     MLModelDeploymentPropertiesClass,
     MLModelPropertiesClass,
 )
-from datahub.emitter.mce_builder import make_dataset_urn
 
 from core.enforcement import enforce
 from core.policy_engine import (

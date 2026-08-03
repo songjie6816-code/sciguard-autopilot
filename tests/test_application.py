@@ -22,7 +22,6 @@ from core.investigation_models import RootCause
 from core.repair import RepairStatus, create_unit_repair_bundle
 from core.verification import LocalVerificationEngine, attach_verification_receipt
 
-
 ROOT = Path(__file__).parents[1]
 
 

@@ -21,7 +21,6 @@ from datahub_client.metadata_writer import (
     remove_tags,
 )
 
-
 STATUS_TAGS = {
     CatalogStatus.AT_RISK: "urn:li:tag:sciguard:at-risk",
     CatalogStatus.QUARANTINED: "urn:li:tag:sciguard:quarantined",

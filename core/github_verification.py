@@ -20,7 +20,6 @@ from core.verification import (
     VerificationReceipt,
 )
 
-
 DEFAULT_CHECK_NAMES = {
     "unit_contract": "scientific-unit-contract",
     "candidate_ranking_stability": "scientific-decision-regression",

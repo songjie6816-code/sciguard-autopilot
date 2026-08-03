@@ -17,7 +17,6 @@ from urllib.request import Request, urlopen
 
 import certifi
 
-
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_ROOT = ROOT / "web" / "public"
 REQUIRED_ARTIFACTS = (
@@ -46,12 +45,12 @@ def _sha256(content: bytes) -> str:
 
 
 def _download(url: str) -> bytes:
-    request = Request(  # noqa: S310 - caller chooses the explicit release URL.
+    request = Request(
         url,
         headers={"User-Agent": "SciGuard-Public-Deployment-Verifier/1.0"},
     )
     tls_context = ssl.create_default_context(cafile=certifi.where())
-    with urlopen(request, timeout=15, context=tls_context) as response:  # noqa: S310
+    with urlopen(request, timeout=15, context=tls_context) as response:
         if response.status != 200:
             raise RuntimeError(f"HTTP {response.status}")
         return response.read()

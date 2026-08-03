@@ -240,8 +240,10 @@ def summarize_performance(result: dict) -> str:
     lines = [
         "# SciGuard evaluation performance sample",
         "",
-        "> NON-DETERMINISTIC: wall-clock timings vary by machine, load, and DataHub state. "
-        "This file is never used as a correctness gate or curated golden.",
+        (
+            "> NON-DETERMINISTIC: wall-clock timings vary by machine, load, and DataHub state. "
+            "This file is never used as a correctness gate or curated golden."
+        ),
         "",
         f"- scenarios: {len(rows)}",
         f"- mean per-scenario: {mean_latency:.1f} ms",
