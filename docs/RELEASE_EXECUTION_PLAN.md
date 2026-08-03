@@ -122,11 +122,18 @@ first cognitive load presented to a judge.
 
 ### Open-source bonus
 
+Module 4 evidence and status are recorded in
+[`MODULE4_UPSTREAM_CONTRIBUTION.md`](MODULE4_UPSTREAM_CONTRIBUTION.md).
+
 - [x] Implement three portable DataHub Skills with output contracts and repository tests.
-- [ ] Publish the three skills to the upstream `datahub-project/datahub-skills` repository.
+- [x] Generalize the most reusable impact workflow into the existing upstream
+      `datahub-lineage` Skill instead of adding another overlapping top-level Skill.
 - [ ] Submit a scientific metadata recipe for units, instruments, protocols, and decisions.
-- [ ] Submit at least one upstream DataHub fix, documentation contribution, or RFC.
-- [ ] Track public issue/PR links and reviewer feedback in the submission.
+- [x] Submit an upstream DataHub enhancement: public
+      [Issue #82](https://github.com/datahub-project/datahub-skills/issues/82) and
+      [Draft PR #83](https://github.com/datahub-project/datahub-skills/pull/83).
+- [x] Track the public issue, PR, commit, automated checks, and reviewer feedback without
+      describing a submitted draft as accepted.
 
 ## Current implementation slice
 

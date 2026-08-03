@@ -167,6 +167,12 @@ control, and the DataHub ablation — not a claim of real-world accuracy.
 - **Portable DataHub Skills** — `skills/` contains scientific impact analysis,
   proof-carrying repair review, and recovery certification skills following the official
   Agent Skills structure, with concise output contracts and tested authority boundaries.
+- **Upstream DataHub contribution** — the reusable affected / preserved / unknown
+  field-impact contract is proposed in public
+  [Issue #82](https://github.com/datahub-project/datahub-skills/issues/82) and submitted as
+  [Draft PR #83](https://github.com/datahub-project/datahub-skills/pull/83) against the
+  existing `datahub-lineage` skill. This is a submitted contribution, not an accepted or
+  merged one.
 - **DataHub MCP Server** — schema, unit contract, directed dataset lineage, ownership, and
   governance reads run through real MCP tools with `SCIGUARD_USE_MCP=1`. These inputs
   determine whether the signal reaches a decision path. The current MCP tools do not expose

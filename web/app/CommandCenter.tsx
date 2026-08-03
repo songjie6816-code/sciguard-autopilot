@@ -29,6 +29,10 @@ const LOCAL_API_BASE = STATIC_JUDGE_BUILD ? "" : "http://127.0.0.1:8000";
 const LOCAL_DATAHUB_BASE = STATIC_JUDGE_BUILD ? "" : "http://localhost:9002";
 const SOURCE_REPOSITORY_URL =
   "https://github.com/songjie6816-code/sciguard-autopilot";
+const UPSTREAM_CONTRIBUTION_ISSUE_URL =
+  "https://github.com/datahub-project/datahub-skills/issues/82";
+const UPSTREAM_CONTRIBUTION_PR_URL =
+  "https://github.com/datahub-project/datahub-skills/pull/83";
 const DEMO_VIDEO_URL =
   process.env.NEXT_PUBLIC_SCIGUARD_VIDEO_URL?.trim() ?? "";
 type ExperienceView = "BRIEF" | "OPERATE" | "AUDIT";
@@ -2961,6 +2965,19 @@ export function CommandCenter({ judgeMode = false }: { judgeMode?: boolean }) {
               <strong>GitHub repository</strong>
               <span>Apache-2.0 · public <b>↗</b></span>
             </a>
+            <div className="upstream-contribution-resource">
+              <small>DATAHUB OPEN SOURCE</small>
+              <strong>Submitted · Draft PR #83</strong>
+              <span>Public contribution · acceptance not claimed</span>
+              <div className="submission-resource-links">
+                <a href={UPSTREAM_CONTRIBUTION_ISSUE_URL} rel="noreferrer" target="_blank">
+                  Issue #82 <b>↗</b>
+                </a>
+                <a href={UPSTREAM_CONTRIBUTION_PR_URL} rel="noreferrer" target="_blank">
+                  Draft PR #83 <b>↗</b>
+                </a>
+              </div>
+            </div>
             {DEMO_VIDEO_URL ? (
               <a href={DEMO_VIDEO_URL} rel="noreferrer" target="_blank">
                 <small>DEMO VIDEO</small>

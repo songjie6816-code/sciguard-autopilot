@@ -65,7 +65,7 @@ End on this sentence:
 | Originality | Scientific decision control plane and selective containment | Domain profiles, proof-carrying repair, native ML decision context | Do not describe built-in DataHub features as SciGuard inventions. |
 | Real-World Usefulness | Unsafe ranking blocked while MW work continues | Affected/preserved cone, owner gate, rollback, recovery certification | Practitioner metrics remain future work until measured with users. |
 | Submission Quality | Brief → Operate → Audit and Evidence Drawer | Static Judge build, integrity manifests, README, and machine-readable evaluation JSON | SHA-256 proves package consistency, not authorship or origin. |
-| Open-source bonus | Three reusable DataHub skills | `skills/datahub-scientific-impact`, `skills/datahub-repair-review`, `skills/datahub-recovery-certification` | Do not claim an upstream contribution until a public issue or PR exists. |
+| Open-source bonus | Reusable Skills plus an upstream field-impact contribution | Local Skills; [Issue #82](https://github.com/datahub-project/datahub-skills/issues/82); [Draft PR #83](https://github.com/datahub-project/datahub-skills/pull/83) | The contribution is submitted and publicly reviewable; acceptance or merge is not claimed. |
 
 ## Truthful claim gate
 
@@ -103,6 +103,9 @@ The following claims are blocked until the named receipt exists:
       `source_worktree_dirty: false`.
 - [x] “The public deployment is the current build” — the canonical Judge release and
       Evidence Center were deployed and opened anonymously on Cloudflare Pages.
+- [x] “An upstream DataHub open-source contribution was submitted” — public Issue #82 and
+      Draft PR #83 add a domain-neutral field-impact evidence contract to the existing
+      `datahub-lineage` Skill; the PR title check passed.
 - [ ] “DataHub accepted our open-source contribution” — requires a public upstream PR or
       merged contribution.
 

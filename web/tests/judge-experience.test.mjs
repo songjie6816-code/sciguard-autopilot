@@ -287,6 +287,10 @@ test("judge portal exposes progressive pages, public resources, and an event-dri
     "One incident. Seven independently inspectable receipts.",
     "https://github.com/songjie6816-code/sciguard-autopilot",
     "NEXT_PUBLIC_SCIGUARD_VIDEO_URL",
+    "https://github.com/datahub-project/datahub-skills/issues/82",
+    "https://github.com/datahub-project/datahub-skills/pull/83",
+    "Submitted · Draft PR #83",
+    "acceptance not claimed",
   ]) {
     assert.match(
       source,
@@ -299,6 +303,7 @@ test("judge portal exposes progressive pages, public resources, and an event-dri
   assert.match(styles, /\.decision-control-map/);
   assert.match(styles, /\.context-lineage-canvas/);
   assert.match(styles, /\.proof-passport-chain/);
+  assert.match(styles, /\.submission-resources[^}]*repeat\(4, 1fr\)/);
   assert.match(styles, /prefers-reduced-motion/);
 });
 

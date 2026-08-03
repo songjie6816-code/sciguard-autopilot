@@ -1558,7 +1558,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .evaluation-mini-metrics strong { color: var(--green); font: 600 17px var(--font-geist-mono); }
 .evaluation-mini-metrics small { margin-top: 4px; color: #68788a; font-size: 7px; }
 .submission-resources {
-  margin-top: 14px; display: grid; grid-template-columns: 1.2fr repeat(3, 1fr);
+  margin-top: 14px; display: grid; grid-template-columns: 1.2fr repeat(4, 1fr);
   border: 1px solid rgba(143,165,197,.12); border-radius: 13px; overflow: hidden;
 }
 .submission-resources > * { min-height: 116px; padding: 17px; border: 0; border-right: 1px solid rgba(143,165,197,.1); background: rgba(255,255,255,.01); color: var(--ink); text-align: left; }
@@ -1572,6 +1572,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .submission-resources strong { margin-top: 9px; font-size: 12px; }
 .submission-resources a > span, .submission-resources button > span, .submission-resource-pending > span { margin-top: 7px; color: #718096; font-size: 8px; }
 .submission-resources b { color: var(--blue); }
+.upstream-contribution-resource { display: flex; flex-direction: column; }
+.upstream-contribution-resource > span { margin-top: 7px; color: #718096; font-size: 8px; }
+.submission-resource-links { margin-top: auto; display: flex; flex-wrap: wrap; gap: 6px 10px; }
+.submission-resource-links a { color: #91bfe5; font: 650 8px var(--font-geist-mono); }
 .submission-resource-pending { opacity: .55; }
 
 .audit-boundaries {

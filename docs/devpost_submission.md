@@ -9,6 +9,10 @@
 - [ ] Apache-2.0 LICENSE present ✅ (already in repo)
 - [x] GitHub About section detects and displays the Apache-2.0 license
 - [x] Anonymous project URL opens from a clean browser with no login or local dependency
+- [x] Upstream DataHub contribution submitted —
+      [Issue #82](https://github.com/datahub-project/datahub-skills/issues/82) and
+      [Draft PR #83](https://github.com/datahub-project/datahub-skills/pull/83); acceptance
+      is not claimed.
 - [ ] Public demo video < 3 minutes (YouTube / Vimeo / Youku) — `[add link]`
 - [ ] English README and install/test steps ✅
 - [ ] Complete the blocking checks in [`SUBMISSION_GATE.md`](SUBMISSION_GATE.md)
@@ -167,6 +171,8 @@ the reviewed `web/public/evidence/evaluation_report.json` rather than hardcoding
 ## Accomplishments we're proud of
 
 - A measured, defensible DataHub ablation instead of a hand-waved claim.
+- A reusable field-impact evidence contract submitted upstream to the existing
+  `datahub-lineage` Skill, with public issue and Draft PR provenance.
 - Safe, non-destructive write-back to a shared catalog.
 - Domain knowledge as configurable profiles, not a hard-coded polymer script.
 - A tested LLM capability boundary: zero raw rows, local secret/PII redaction, read-only tool
@@ -205,4 +211,6 @@ durable objects · server-sent events · pydantic · git · pytest · yaml
 
 - Code: <https://github.com/songjie6816-code/sciguard-autopilot>
 - Demo: <https://sciguard-autopilot-demo.pages.dev/>
+- DataHub upstream issue: <https://github.com/datahub-project/datahub-skills/issues/82>
+- DataHub upstream Draft PR: <https://github.com/datahub-project/datahub-skills/pull/83>
 - Demo video: `[< 3 min video URL]`
