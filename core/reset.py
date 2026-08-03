@@ -20,7 +20,6 @@ from datahub_client.metadata_writer import (
     remove_tags,
 )
 
-
 # Baseline projection metadata is also namespaced with ``sciguard:``. Reset
 # must remove only the keys written by incident enforcement/recovery, otherwise
 # rerunning the same incident loses the pointers needed to reach native ML
@@ -113,7 +112,9 @@ def reset_incident_metadata(graph, control_urn: str, incident_id: str) -> ResetR
     except json.JSONDecodeError as exc:
         raise ValueError("persisted controlled URNs are invalid JSON") from exc
     if not isinstance(controlled_urns, list):
-        raise ValueError("persisted controlled URNs must be a list")
+        raise ValueError(  # noqa: TRY004 - persisted JSON has an invalid value shape
+            "persisted controlled URNs must be a list"
+        )
     if not all(isinstance(urn, str) and urn for urn in controlled_urns):
         raise ValueError("persisted controlled URNs must contain non-empty strings")
     controlled_urns = list(dict.fromkeys([control_urn, *controlled_urns]))

@@ -5,7 +5,7 @@ from core.investigation_models import (
     InvestigationReport,
     RootCause,
 )
-from core.narration import NarrativeSource, NarrationService
+from core.narration import NarrationService, NarrativeSource
 from core.policy_engine import (
     AssetPolicyDecision,
     CatalogStatus,
@@ -15,7 +15,6 @@ from core.policy_engine import (
 )
 from security.context_builder import BoundedContextBuilder
 from security.policy_gate import ReadOnlyToolExecutor
-
 
 SYMPTOM = "Candidate P-204 moved from rank #18 to #1. No pipeline failed."
 

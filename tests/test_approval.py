@@ -19,7 +19,6 @@ from core.investigation_models import RootCause
 from core.repair import ApprovalStatus, RepairStatus, create_unit_repair_bundle
 from core.verification import LocalVerificationEngine, attach_verification_receipt
 
-
 ROOT = Path(__file__).parents[1]
 SIGNING_KEY = b"sciguard-test-approval-key-32-bytes-minimum"
 

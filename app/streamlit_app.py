@@ -29,14 +29,14 @@ def _request_json(url: str, *, method: str = "GET", body: dict | None = None) ->
         method=method,
         headers={"Content-Type": "application/json"},
     )
-    with urlopen(request, timeout=30) as response:  # noqa: S310 - operator-supplied local API
+    with urlopen(request, timeout=30) as response:
         return json.loads(response.read())
 
 
 def _stream_events(url: str) -> list[dict]:
     request = Request(url, headers={"Accept": "text/event-stream"})
     events = []
-    with urlopen(request, timeout=60) as response:  # noqa: S310 - operator-supplied local API
+    with urlopen(request, timeout=60) as response:
         for raw in response:
             line = raw.decode().strip()
             if not line.startswith("data: "):

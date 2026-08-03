@@ -1,6 +1,6 @@
 import json
+from itertools import pairwise
 from pathlib import Path
-
 
 ROOT = Path(__file__).parents[1]
 
@@ -121,8 +121,10 @@ def test_wp05_presentation_contract_freezes_cinematic_mvp() -> None:
 
     assert beats[0]["start_second"] == 0
     assert beats[-1]["end_second"] <= 170
-    assert all(left["end_second"] == right["start_second"]
-               for left, right in zip(beats, beats[1:]))
+    assert all(
+        left["end_second"] == right["start_second"]
+        for left, right in pairwise(beats)
+    )
     known_event_types = set(contract["event"]["event_types"])
     assert all(set(beat["required_event_types"]) <= known_event_types for beat in beats)
     assert all(set(beat["panels"]) <= set(panel_ids) for beat in beats)

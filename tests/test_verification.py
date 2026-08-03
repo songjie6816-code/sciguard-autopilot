@@ -17,7 +17,6 @@ from core.verification import (
     attach_verification_receipt,
 )
 
-
 ROOT = Path(__file__).parents[1]
 
 

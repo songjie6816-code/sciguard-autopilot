@@ -9,6 +9,8 @@ an earlier version did) would silently null the fields left out.
 
 from __future__ import annotations
 
+from typing import TypeVar
+
 from datahub.emitter.mcp import MetadataChangeProposalWrapper
 from datahub.ingestion.graph.client import DataHubGraph
 from datahub.metadata.schema_classes import (
@@ -16,7 +18,6 @@ from datahub.metadata.schema_classes import (
     GlobalTagsClass,
     TagAssociationClass,
 )
-from typing import TypeVar
 
 AspectWithCustomProperties = TypeVar("AspectWithCustomProperties")
 

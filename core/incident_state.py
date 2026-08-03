@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from enum import Enum
 from pathlib import Path
-from typing import Iterable
 
 from core.events import Event, EventActor, EventRecorder, EventType, validate_event_stream
 
@@ -165,7 +164,7 @@ class IncidentRun:
         return self.recorder.save_jsonl(path)
 
     @classmethod
-    def from_jsonl(cls, path: str | Path) -> "IncidentRun":
+    def from_jsonl(cls, path: str | Path) -> IncidentRun:
         recorder = EventRecorder.from_jsonl(path)
         instance = cls(recorder.incident_id)
         instance.recorder = recorder

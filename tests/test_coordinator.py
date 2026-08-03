@@ -6,7 +6,6 @@ from core.events import EventActor, EventRecorder, EventType
 from core.investigation_models import Evidence, InvestigationResult, RealityCheckResult
 from data.synthetic_polymer import generate
 
-
 SYMPTOM = (
     "Candidate P-204 moved from rank #18 to #1 after last night's batch. "
     "No pipeline failed. Investigate before the morning selection meeting."

@@ -39,7 +39,7 @@ def test_event_rejects_non_utc_time_negative_duration_and_duplicate_evidence() -
         "payload": {},
     }
     with pytest.raises(ValidationError):
-        Event(**{**base, "timestamp": datetime.now()})
+        Event(**{**base, "timestamp": datetime.now()})  # noqa: DTZ005 - negative test
     with pytest.raises(ValidationError):
         Event(**{**base, "timestamp": datetime.now(timezone(timedelta(hours=8)))})
     with pytest.raises(ValidationError):

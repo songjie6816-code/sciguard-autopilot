@@ -16,7 +16,6 @@ from core.policy_engine import (
 )
 from security.context_builder import BoundedContextBuilder, save_prompt_snapshot
 
-
 SYMPTOM = "Candidate P-204 moved from rank #18 to #1. No pipeline failed."
 
 

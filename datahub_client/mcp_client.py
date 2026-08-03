@@ -18,6 +18,7 @@ import os
 import shutil
 import threading
 from contextlib import AsyncExitStack
+from typing import Self
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
@@ -69,7 +70,7 @@ class DataHubMCP:
 
     async def _start(self) -> None:
         self._stack = AsyncExitStack()
-        errlog = open(os.devnull, "w")  # noqa: SIM115 - kept open for the session's life
+        errlog = open(os.devnull, "w")  # noqa: ASYNC230, SIM115 - session-lifetime stream
         read, write = await self._stack.enter_async_context(stdio_client(self._params, errlog=errlog))
         self._session = await self._stack.enter_async_context(ClientSession(read, write))
         await self._session.initialize()
@@ -86,12 +87,12 @@ class DataHubMCP:
         if self._stack is not None:
             try:
                 self._run(self._stack.aclose())
-            except Exception:  # noqa: BLE001 - best-effort teardown
+            except Exception:  # noqa: BLE001, S110 - best-effort external-process teardown
                 pass
             self._stack = None
         self._loop.call_soon_threadsafe(self._loop.stop)
 
-    def __enter__(self) -> "DataHubMCP":
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(self, *exc) -> None:

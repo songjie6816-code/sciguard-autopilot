@@ -392,8 +392,10 @@ class GitHubChangePublisher:
                 f"SciGuard-Bundle: {bundle.bundle_id}",
                 f"SciGuard-Evidence: {','.join(bundle.evidence_ids)}",
                 "",
-                "High-risk application remains locked until required checks pass "
-                "and the accountable DataHub owner approves this exact commit.",
+                (
+                    "High-risk application remains locked until required checks pass "
+                    "and the accountable DataHub owner approves this exact commit."
+                ),
             ]
         )
 

@@ -1,10 +1,10 @@
+from datahub.emitter.mce_builder import make_dataset_urn
 from datahub.metadata.schema_classes import (
     DatasetPropertiesClass,
     GlobalTagsClass,
     MLModelDeploymentPropertiesClass,
     MLModelPropertiesClass,
 )
-from datahub.emitter.mce_builder import make_dataset_urn
 
 from core.enforcement import enforce
 from core.pipeline_controller import LocalPipelineController
@@ -23,7 +23,6 @@ from core.recovery import (
     RecoveryController,
 )
 from tests.test_enforcement import StatefulGraph
-
 
 URN = make_dataset_urn("polymer_rnd", "candidate_ranking_report", "PROD")
 REQUIRED = [
