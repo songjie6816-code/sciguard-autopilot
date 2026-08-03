@@ -62,9 +62,11 @@ def test_judge_check_is_the_single_repository_gate() -> None:
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
 
     assert "judge-check: check" in makefile
+    assert "datahub-evaluation-check:" in makefile
     assert "evaluation.harness" in makefile
     assert "examples/outputs/evaluation_report.json" in makefile
     assert "$(PNPM) --dir web test" in makefile
 
     ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
-    assert "make check evidence-check" in ci
+    assert "make check PYTHON=python" in ci
+    assert "datahub-evaluation-check" not in ci

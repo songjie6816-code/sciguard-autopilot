@@ -3,7 +3,7 @@ DATAHUB ?= datahub
 DATAHUB_GMS_URL ?= http://localhost:8080
 PNPM ?= pnpm
 
-.PHONY: setup test lint check evidence-check judge-check api datahub-up datahub-sample repair-sandbox repair-replay datahub-live-receipt canonical-prepare canonical-capture canonical-capture-clean verify-public
+.PHONY: setup test lint check datahub-evaluation-check judge-check api datahub-up datahub-sample repair-sandbox repair-replay datahub-live-receipt canonical-prepare canonical-capture canonical-capture-clean verify-public
 
 setup:
 	$(PYTHON) -m pip install --upgrade pip wheel setuptools
@@ -17,8 +17,9 @@ lint:
 
 check: lint test
 
-# Generated evaluation files live in a disposable directory; curated evidence is never overwritten.
-evidence-check:
+# Re-run the three-arm evaluation against a running DataHub GMS.
+# Generated files live in a disposable directory; curated evidence is never overwritten.
+datahub-evaluation-check:
 	@judge_tmp="$$(mktemp -d)"; \
 	trap 'rm -rf "$$judge_tmp"' EXIT; \
 	$(PYTHON) -m evaluation.harness \
@@ -29,7 +30,7 @@ evidence-check:
 	cmp "$$judge_tmp/evaluation_report.json" examples/outputs/evaluation_report.json
 
 # One command for the evidence, Python, Web, and anonymous Judge contracts.
-judge-check: check evidence-check
+judge-check: check
 	$(PNPM) --dir web install --frozen-lockfile
 	$(PNPM) --dir web lint
 	$(PNPM) --dir web test

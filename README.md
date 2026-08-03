@@ -156,7 +156,7 @@ corepack enable
 make judge-check PYTHON=.venv/bin/python
 ```
 
-`make judge-check` runs Python lint/tests, regenerates and compares the evaluation artifact, installs the locked Web dependencies, lints the UI, and runs the browser-independent Web/Judge contract suite.
+`make judge-check` runs Python lint/tests (including receipt hashes and checked-in evaluation contracts), installs the locked Web dependencies, lints the UI, and runs the browser-independent Web/Judge contract suite. To re-execute the three-arm evaluation against a running DataHub GMS and compare it byte-for-byte with the curated artifact, run `make datahub-evaluation-check PYTHON=.venv/bin/python`.
 
 ### Run the local product
 
