@@ -5,6 +5,8 @@ import { renameSync } from "node:fs";
 const publicApiUrl =
   process.env.SCIGUARD_PUBLIC_API_URL ??
   "https://sciguard-live-sandbox.songjie6816.workers.dev";
+const publicVideoUrl =
+  process.env.SCIGUARD_PUBLIC_VIDEO_URL ?? "https://youtu.be/m8fLuhGFOlQ";
 
 export default defineConfig({
   plugins: [
@@ -27,5 +29,6 @@ export default defineConfig({
   define: {
     "process.env.NEXT_PUBLIC_SCIGUARD_API_URL": JSON.stringify(publicApiUrl),
     "process.env.NEXT_PUBLIC_SCIGUARD_JUDGE_BUILD": JSON.stringify("true"),
+    "process.env.NEXT_PUBLIC_SCIGUARD_VIDEO_URL": JSON.stringify(publicVideoUrl),
   },
 });

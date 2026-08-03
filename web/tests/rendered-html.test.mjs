@@ -30,7 +30,7 @@ test("server-renders the SciGuard command center shell", async () => {
   assert.match(html, /Recovery Gate/i);
   assert.match(html, /RECORDED REPLAY/i);
   assert.match(html, /WATCH VERIFIED CHAMPION RUN/i);
-  assert.match(html, /LIVE BACKEND/i);
+  assert.match(html, /VERIFYING LIVE SANDBOX/i);
   assert.match(html, /CONTROLLER EVENT SPAN/i);
   assert.match(html, /NARRATED REPLAY DURATION/i);
   assert.match(html, /DataHub MCP Server/i);

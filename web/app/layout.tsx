@@ -26,16 +26,16 @@ export async function generateMetadata(): Promise<Metadata> {
       "DataHub-powered incident command center for evidence-gated scientific data and ML decisions.",
     openGraph: {
       title: "SciGuard Autopilot",
-      description: "See silent scientific-data drift before it becomes a research decision.",
+      description: "Protect the scientific decision, not just the data pipeline.",
       type: "website",
       url: siteUrl,
-      images: [{ url: "/og.png", width: 1731, height: 909, alt: "SciGuard scientific lineage and evidence trails" }],
+      images: [{ url: "/og-portal.png", width: 1672, height: 941, alt: "SciGuard decision recovery flow from signal to verified recovery" }],
     },
     twitter: {
       card: "summary_large_image",
       title: "SciGuard Autopilot",
-      description: "Scientific decision control, powered by DataHub evidence.",
-      images: ["/og.png"],
+      description: "Protect the scientific decision, not just the data pipeline.",
+      images: ["/og-portal.png"],
     },
   };
 }

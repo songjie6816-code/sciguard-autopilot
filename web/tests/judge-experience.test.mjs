@@ -261,3 +261,99 @@ test("judge experience exposes brief, operate, audit, and receipt-bound repair",
   assert.match(styles, /\.repair-check\.passed/);
   assert.match(styles, /\.counterfactual-ranks/);
 });
+
+test("judge portal exposes progressive pages, public resources, and an event-driven control map", async () => {
+  const source = await readFile(
+    new URL("../app/CommandCenter.tsx", import.meta.url),
+    "utf8",
+  );
+  const styles = await readFile(
+    new URL("../app/globals.css", import.meta.url),
+    "utf8",
+  );
+
+  for (const expected of [
+    '"OVERVIEW"',
+    '"INCIDENT"',
+    '"CONTEXT"',
+    '"STUDIO"',
+    '"EVIDENCE"',
+    "Protect the scientific decision,",
+    "Run live scenario",
+    "Watch verified replay",
+    "GitHub repository",
+    "DATAHUB CONTEXT GRAPH",
+    "PROOF PASSPORT",
+    "One incident. Seven independently inspectable receipts.",
+    "https://github.com/songjie6816-code/sciguard-autopilot",
+    "NEXT_PUBLIC_SCIGUARD_VIDEO_URL",
+  ]) {
+    assert.match(
+      source,
+      new RegExp(expected.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+    );
+  }
+  assert.match(source, /window\.history\[replace \? "replaceState" : "pushState"\]/);
+  assert.match(source, /window\.addEventListener\("popstate"/);
+  assert.match(styles, /\.portal-header/);
+  assert.match(styles, /\.decision-control-map/);
+  assert.match(styles, /\.context-lineage-canvas/);
+  assert.match(styles, /\.proof-passport-chain/);
+  assert.match(styles, /prefers-reduced-motion/);
+});
+
+test("judge portal exposes the timed evidence path without negative first-impression signals", async () => {
+  const source = await readFile(
+    new URL("../app/CommandCenter.tsx", import.meta.url),
+    "utf8",
+  );
+  const styles = await readFile(
+    new URL("../app/globals.css", import.meta.url),
+    "utf8",
+  );
+
+  for (const expected of [
+    "Pipeline passed",
+    "Scientific contract failed",
+    "UNSAFE PATH",
+    "SAFE WORK",
+    "DATAHUB ENTITIES",
+    "IMMUTABLE EVENTS",
+    "EXACT CONES",
+    "What is live, verified, and intentionally not claimed.",
+    "Not enterprise SSO, not an independent reviewer, and not production authorization.",
+    "Internal consistency only; not a digital signature or proof of origin.",
+    "REPLAY_INTEGRITY_EVIDENCE_ID",
+    "JUDGE_PAGE_HEADING_IDS",
+    "Skip to main content",
+  ]) {
+    assert.match(source, new RegExp(expected.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+  assert.doesNotMatch(source, /LIVE BACKEND ·/);
+  assert.doesNotMatch(source, /Latest · \$\{latestEvent\.event_type\}/);
+  assert.doesNotMatch(source, /publicPullRequest\.head_sha\)\.slice/);
+  assert.doesNotMatch(source, /if \(!Array\.isArray\(entries\)\) continue/);
+  assert.match(source, /LIVE CONTROL PASS/);
+  assert.match(source, /recovery remains gated/);
+  assert.match(source, /CANONICAL DELIVERY PROOF/);
+  assert.match(source, /Patch \+ 4 proof files/);
+  assert.match(source, /Start 2-minute judge tour/);
+  assert.match(source, /2-MINUTE JUDGE TOUR/);
+  assert.match(source, /Find patch, PR, and CI/);
+  assert.match(source, /vs 0 \/ 3 search-only/);
+  assert.match(source, /Decision cone/);
+  assert.match(source, /Writeback/);
+  assert.match(source, /Ablation/);
+  assert.match(source, /CANONICAL REFERENCE · completed/);
+  assert.match(source, /CURRENT ·/);
+  assert.match(source, /Judge summary/);
+  assert.match(source, /Technical details/);
+  assert.match(source, /OWNER APPROVAL GATE/);
+  assert.doesNotMatch(source, />HUMAN APPROVAL</);
+  assert.match(styles, /\.audit-boundaries/);
+  assert.match(styles, /\.skip-link:focus/);
+  assert.match(styles, /\.judge-tour-bar/);
+  assert.match(styles, /\.studio-view-toggle/);
+  assert.match(styles, /@media \(max-width: 820px\)/);
+  assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
+});

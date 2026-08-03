@@ -32,6 +32,7 @@ export interface RunManifest {
   generated_at: string;
   event_count: number;
   events_sha256: string;
+  validation?: Record<string, JsonValue>;
 }
 
 export interface EventFrame {
