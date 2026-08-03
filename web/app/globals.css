@@ -1428,7 +1428,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
   color: var(--ink); text-align: left;
 }
 .studio-proof-rail > *:last-child { border-right: 0; }
-.studio-proof-rail > button, .studio-proof-rail > a { cursor: pointer; }
+.studio-proof-rail > button, .studio-proof-rail > a {
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+  cursor: pointer;
+}
 .studio-proof-rail > button:hover, .studio-proof-rail > a:hover { background: rgba(66,165,255,.035); }
 .studio-proof-rail small, .studio-proof-rail strong, .studio-proof-rail span { display: block; }
 .studio-proof-rail small { color: var(--blue); font: 650 7px var(--font-geist-mono); letter-spacing: .09em; }

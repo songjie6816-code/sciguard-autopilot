@@ -359,6 +359,10 @@ test("judge portal exposes the timed evidence path without negative first-impres
   assert.match(styles, /\.skip-link:focus/);
   assert.match(styles, /\.judge-tour-bar/);
   assert.match(styles, /\.studio-view-toggle/);
+  assert.match(
+    styles,
+    /\.studio-proof-rail > button, \.studio-proof-rail > a \{[^}]*display: flex;[^}]*justify-content: center;/s,
+  );
   assert.match(styles, /\.action-dialog-layer/);
   assert.match(styles, /\.action-dialog-progress/);
   assert.match(styles, /@media \(max-width: 820px\)/);
