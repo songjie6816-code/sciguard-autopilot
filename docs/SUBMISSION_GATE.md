@@ -31,30 +31,28 @@ All boxes in this section are blocking.
 - [ ] The public YouTube, Vimeo, or Youku video is under three minutes.
 - [ ] The video shows the functioning product, not only slides or mockups.
 - [ ] The video contains no unlicensed music, logos, footage, or third-party assets.
-- [ ] English narration, captions, description, and testing instructions are complete.
+- [x] English narration, captions, description, and testing instructions are complete
+      (`docs/video_narration.txt`, `docs/video_captions.srt`).
 - [ ] The public demo, repository, and video remain available through August 31, 2026.
 
-## Judge's 170-second video cut
+## Final video — "SciGuard · Incident File" (2:57, locked 2026-08-08)
 
-Do not start with architecture. Start with the broken decision.
+The produced cut replaces the earlier 170-second plan. Structure:
 
-| Time | Screen and action | Claim the judge must retain |
+| Time | Beat | Claim the judge must retain |
 |---|---|---|
-| 0:00–0:12 | Brief hero: pipeline `SUCCESS`, P-204 `#18 → #1` | A technically healthy pipeline produced an unsafe scientific decision. |
-| 0:12–0:30 | Run the verified replay; show the unit contract and rejected model-drift hypothesis | SciGuard distinguishes data drift from model drift with evidence. |
-| 0:30–0:55 | Operate: DataHub impact graph | Field lineage isolates 6 affected assets and preserves 3 independent assets. |
-| 0:55–1:12 | Native Production ML context and lifecycle | DataHub connects features, training, models, deployments, inference, owners, and decisions. |
-| 1:12–1:35 | Enforcement console | Deterministic policy blocks the unsafe ranking with exit 42 while safe work exits 0. |
-| 1:35–1:58 | Counterfactual Verification Lab | The generated patch restores `#1 → #18`; three distinct receipts prove unit, decision, and safe-branch behavior. |
-| 1:58–2:17 | Repair and authority panel | Patch, commit, tests, approval, exact-revision application, and recovery are bound to the same evidence closure. |
-| 2:17–2:35 | DataHub Incident and Decision Log receipts | SciGuard contributes resolved incident state and durable knowledge back to DataHub. |
-| 2:35–2:50 | Why DataHub ablation and Evidence Drawer | Lineage recovers 3/3 exact cones; search-only recovers 0/3. Every public claim is inspectable. |
+| 0:00–0:04 | Incident File header (STATUS: RESOLVED) | This film is a replay of one closed, inspectable incident. |
+| 0:04–0:25 | Cold open: pipeline green, P-204 `#18 → #1`, "Next test: the wrong material." | A healthy pipeline produced an unsafe scientific decision. |
+| 0:25–0:37 | Whole-loop overview: SIGNAL → IMPACT → CONTROL → REPAIR → RECOVERY | SciGuard runs one continuous, receipt-leaving loop. |
+| 0:37–1:05 | Live isolated run + human-boundary modal | Real-time containment; the public session deliberately cannot mutate remote state. |
+| 1:05–1:40 | DataHub impact map + measured ablation | Field lineage proves the exact decision cone (3/3 vs 0/3 search-only). |
+| 1:40–2:11 | Proof-carrying repair + gated recovery | PR #2, CI 3/3, exact SHA, owner gate, 2 clean runs, production authorization NO. |
+| 2:11–2:40 | DataHub write-back + honesty boundary + upstream Draft PR #83 | Resolution and Decision Log return to DataHub; claims stay bounded. |
+| 2:40–2:57 | Evidence chain + thesis | "SciGuard protects the scientific decision, not just the data pipeline." |
 
-End on this sentence:
-
-> SciGuard does not merely tell a team what changed. It proves which scientific decision
-> became unsafe, keeps independent work running, and only restores the path when the
-> repair, tests, owner approval, and DataHub state all agree.
+Narration transcript: `docs/video_narration.txt`. Captions: `docs/video_captions.srt`.
+All music/SFX synthesized in-project; voice is local Kokoro TTS; lab imagery is
+self-generated and labelled ILLUSTRATIVE — no third-party licensed assets.
 
 ## Evidence-to-score map
 

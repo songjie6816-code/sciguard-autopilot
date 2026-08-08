@@ -1,0 +1,35 @@
+SciGuard — Incident File (final cut, 2:57)
+
+[0:00] (typewriter, no narration)
+INCIDENT FILE · inc-sciguard-b042-unit-contract
+STATUS: RESOLVED — every claim in this file is inspectable.
+
+[0:04] Scientists use data to train models that rank which materials to test next. In this case, every pipeline step passed. But one temperature-unit error pushed P-204 from rank eighteen to rank one — sending the next weeks of lab work toward the wrong material. The pipeline succeeded. The scientific decision failed.
+
+[0:26] The whole loop: detect the silent change, prove exact impact with DataHub, contain selectively, repair with proof, and verify recovery before anything resumes.
+
+[0:38] This file replays exactly what SciGuard did. First, live. The controller re-runs the science, reads DataHub context, applies policy — and in seconds the unsafe ranking is blocked, while independent work keeps moving.
+
+[0:54] Then it pauses. That is deliberate. This public session cannot write to GitHub, DataHub, or production. The verified recovery continues from recorded evidence.
+
+[1:07] Here is why DataHub is essential. The changed temperature field feeds the heat-resistance feature, the Tg model, and the candidate ranking. That branch halts. Molecular weight follows a separate lineage into the durability model. That branch continues. SciGuard contains the decision, not the pipeline.
+
+[1:28] In a thirteen-scenario evaluation, lineage recovered all three decision cones exactly. Search alone recovered none. Without DataHub, the agent abstained rather than guessing.
+
+[1:42] SciGuard then delivers a reviewable repair: normalize Kelvin to Celsius; contract, ranking, and safe-branch tests; and a rollback plan — bound to a real GitHub pull request, three hosted checks, and the exact repair commit.
+
+[2:00] An owner approval gate controls application. Only after approval and two clean staging runs is recovery authorized. Production access remains off.
+
+[2:12] Finally, SciGuard writes the resolution and a reusable Decision Log back to DataHub. Case closed — and every receipt in this file remains inspectable: the DataHub read-back, the evaluation report, the GitHub proof.
+
+[2:28] The live session is isolated; production use is not claimed. And the recovery skill is proposed upstream to DataHub's skills repository as draft pull request eighty-three.
+
+[2:45] Scientific AI should not merely act fast. It should earn the right to act. SciGuard protects the scientific decision — not just the data pipeline.
+
+---
+Facts referenced (verified 2026-08-08):
+- Repair PR: songjie6816-code/sciguard-repair-sandbox PR #2 (open), head SHA ea1a4760520fcb299d8b8f73d955e5c66cc03ee3, hosted CI 3/3 pass
+- Upstream contribution: datahub-project/datahub-skills Issue #82 (open), draft PR #83 (open)
+- Evaluation: 13 labelled scenarios; lineage 3/3 exact decision cones; search-only 0/3; no-DataHub abstains
+- DataHub write-back: incident RESOLVED + Decision Log published (live read-back receipt)
+- Production authorization: false (never claimed)

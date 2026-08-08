@@ -1,0 +1,152 @@
+1
+00:00:04,006 --> 00:00:08,541
+Scientists use data to train models that rank which materials to test next.
+
+2
+00:00:08,541 --> 00:00:11,628
+In this case, every pipeline step passed.
+
+3
+00:00:11,628 --> 00:00:16,751
+But one temperature-unit error pushed P-204 from rank 18 to rank 1 —
+
+4
+00:00:16,751 --> 00:00:20,317
+sending the next weeks of lab work toward the wrong material.
+
+5
+00:00:20,317 --> 00:00:24,041
+The pipeline succeeded. The scientific decision failed.
+
+6
+00:00:25,929 --> 00:00:28,560
+The whole loop: detect the silent change,
+
+7
+00:00:28,560 --> 00:00:32,295
+prove exact impact with DataHub, contain selectively,
+
+8
+00:00:32,295 --> 00:00:36,138
+repair with proof, and verify recovery before anything resumes.
+
+9
+00:00:38,114 --> 00:00:42,653
+This file replays exactly what SciGuard did. First, live.
+
+10
+00:00:42,653 --> 00:00:46,786
+The controller re-runs the science, reads DataHub context, applies policy —
+
+11
+00:00:46,786 --> 00:00:52,763
+and in seconds the unsafe ranking is blocked, while independent work keeps moving.
+
+12
+00:00:54,434 --> 00:00:56,883
+Then it pauses. That is deliberate.
+
+13
+00:00:56,883 --> 00:01:01,314
+This public session cannot write to GitHub, DataHub, or production.
+
+14
+00:01:01,314 --> 00:01:04,731
+The verified recovery continues from recorded evidence.
+
+15
+00:01:07,426 --> 00:01:09,598
+Here is why DataHub is essential.
+
+16
+00:01:09,598 --> 00:01:13,198
+The changed temperature field feeds the heat-resistance feature,
+
+17
+00:01:13,198 --> 00:01:17,563
+the Tg model, and the candidate ranking. That branch halts.
+
+18
+00:01:17,563 --> 00:01:21,557
+Molecular weight follows a separate lineage into the durability model.
+
+19
+00:01:21,557 --> 00:01:23,370
+That branch continues.
+
+20
+00:01:23,370 --> 00:01:26,550
+SciGuard contains the decision, not the pipeline.
+
+21
+00:01:27,933 --> 00:01:33,736
+In a 13-scenario evaluation, lineage recovered all three decision cones exactly.
+
+22
+00:01:33,736 --> 00:01:36,024
+Search alone recovered none.
+
+23
+00:01:36,024 --> 00:01:39,703
+Without DataHub, the agent abstained rather than guessing.
+
+24
+00:01:42,503 --> 00:01:47,543
+SciGuard then delivers a reviewable repair: normalize Kelvin to Celsius;
+
+25
+00:01:47,543 --> 00:01:50,495
+contract, ranking, and safe-branch tests; and a rollback plan —
+
+26
+00:01:50,495 --> 00:01:55,673
+bound to a real GitHub pull request, three hosted checks,
+
+27
+00:01:55,673 --> 00:01:57,096
+and the exact repair commit.
+
+28
+00:02:00,021 --> 00:02:02,930
+An owner approval gate controls application.
+
+29
+00:02:02,930 --> 00:02:07,868
+Only after approval and two clean staging runs is recovery authorized.
+
+30
+00:02:07,868 --> 00:02:09,953
+Production access remains off.
+
+31
+00:02:12,734 --> 00:02:17,878
+Finally, SciGuard writes the resolution and a reusable Decision Log back to DataHub.
+
+32
+00:02:17,878 --> 00:02:22,617
+Case closed — and every receipt in this file remains inspectable:
+
+33
+00:02:22,617 --> 00:02:26,509
+the DataHub read-back, the evaluation report, the GitHub proof.
+
+34
+00:02:28,122 --> 00:02:32,326
+The live session is isolated; production use is not claimed.
+
+35
+00:02:32,326 --> 00:02:37,034
+The recovery skill is proposed upstream to DataHub's skills repository
+
+36
+00:02:37,034 --> 00:02:39,213
+as draft PR #83.
+
+37
+00:02:45,590 --> 00:02:50,377
+Scientific AI should not merely act fast. It should earn the right to act.
+
+38
+00:02:50,377 --> 00:02:54,612
+SciGuard protects the scientific decision — not just the data pipeline.
+
